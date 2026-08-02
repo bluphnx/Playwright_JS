@@ -1,0 +1,147 @@
+================================================================
+CHAPTER 10: COMMON ERRORS AND DEBUGGING
+================================================================
+
+----------------------------------------------------------------
+10.1 ERROR: "No tests found"
+----------------------------------------------------------------
+
+Cause: testDir in playwright.config.js points to a file instead of a folder.
+Fix:   testDir: './tests' (must be a directory path)
+
+Also check:
+- File name ends with .spec.js or .spec.ts (Playwright's default pattern)
+- The test file has at least one test() call
+- Imports are correct: const { test } = require('@playwright/test')
+
+
+----------------------------------------------------------------
+10.2 ERROR: "toContainText can be only used with Locator object"
+----------------------------------------------------------------
+
+Cause: You passed a string (from textContent()) to toContainText().
+Fix:   Use toContainText on the locator directly, or toContain on the string.
+
+WRONG:  await expect(await locator.textContent()).toContainText('...')
+RIGHT:  await expect(locator).toContainText('...')
+OR:     expect(await locator.textContent()).toContain('...')
+
+
+----------------------------------------------------------------
+10.3 ERROR: "received is not iterable"
+----------------------------------------------------------------
+
+Cause: Using 'await' with a generic assertion on a string or value.
+Fix:   Remove 'await' from the expect line.
+
+WRONG:  await expect(someString).toContain('...')
+RIGHT:  expect(someString).toContain('...')
+
+Also caused by: Promise.all[...] (using brackets instead of parentheses)
+Fix:   Promise.all([...])
+
+
+----------------------------------------------------------------
+10.4 ERROR: "TypeError: (intermediate value) is not iterable"
+----------------------------------------------------------------
+
+Cause: Promise.all[...] — square brackets = property access, not function call.
+Fix:   Promise.all([...]) — parentheses + brackets.
+
+WRONG:  const [newPage] = await Promise.all[ context.waitForEvent('page'), link.click() ];
+RIGHT:  const [newPage] = await Promise.all([ context.waitForEvent('page'), link.click() ]);
+
+
+----------------------------------------------------------------
+10.5 BUG: console.log prints "Promise { <pending> }"
+----------------------------------------------------------------
+
+Cause: Missing 'await' before an async method.
+Fix:   Add await.
+
+WRONG:  console.log(locator.textContent())        // Promise { <pending> }
+RIGHT:  console.log(await locator.textContent())   // "Actual text"
+
+
+----------------------------------------------------------------
+10.6 BUG: textContent() returns empty string on input fields
+----------------------------------------------------------------
+
+Cause: Input elements don't have inner text — their value lives in .value property.
+Fix:   Use inputValue() instead.
+
+WRONG:  await inputField.textContent()    // Returns ""
+RIGHT:  await inputField.inputValue()     // Returns "typed value"
+
+Rule:
+- <input>, <textarea> → use inputValue()
+- <div>, <span>, <p>, <a>, <h1> → use textContent()
+
+
+----------------------------------------------------------------
+10.7 BUG: Getting wrong toast message text
+----------------------------------------------------------------
+
+Cause: Locator (#toast-container) matches ALL toasts, not just the one you want.
+Fix:   Use a more specific locator targeting the message text.
+
+WRONG:  await page.locator("#toast-container").textContent()  // Gets first/any toast
+RIGHT:  await page.locator("#toast-container").locator("text=Product Added To Cart").waitFor()
+
+Or wait for previous toast to disappear:
+  await page.locator("#toast-container").waitFor({ state: 'hidden' });
+
+
+----------------------------------------------------------------
+10.8 BUG: allTextContents() returns empty array []
+----------------------------------------------------------------
+
+Cause: Elements haven't loaded yet when allTextContents() is called.
+Fix:   Wait for at least one element first.
+
+WRONG:  const texts = await locator.allTextContents();  // [] if elements not loaded
+RIGHT:  await locator.first().textContent();            // Wait gate
+        const texts = await locator.allTextContents();  // Now gets actual data
+
+
+----------------------------------------------------------------
+10.9 DEBUGGING TOOLS
+----------------------------------------------------------------
+
+page.pause():
+  await page.pause();
+  - Freezes the test and opens Playwright Inspector.
+  - You can step through actions, inspect elements, try locators.
+  - Remove before committing — it blocks CI/CD.
+
+Headed mode:
+  npx playwright test --headed
+  - Runs with visible browser so you can see what's happening.
+
+HTML Report:
+  npx playwright show-report
+  - Opens interactive report showing passed/failed tests, screenshots, traces.
+
+Screenshots (auto on failure):
+  In config: screenshot: 'only-on-failure'
+  - Automatically captures screenshot when a test fails.
+
+Trace viewer:
+  In config: trace: 'retain-on-failure-and-retries'
+  - Records a full trace (DOM snapshots, network, actions) for failed tests.
+  - View with: npx playwright show-trace trace.zip
+
+
+----------------------------------------------------------------
+10.10 TEST ANNOTATIONS
+----------------------------------------------------------------
+
+Code:
+  test.only('...', async () => {});   // Run ONLY this test
+  test.skip('...', async () => {});   // Skip this test
+  test.slow();                        // Triple the timeout (30s → 90s)
+
+Explanation:
+- test.only() focuses on one test during development — others are skipped.
+- test.skip() temporarily disables a test without deleting it.
+- Remove test.only() before committing — otherwise CI only runs that one test.

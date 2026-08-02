@@ -1,0 +1,135 @@
+================================================================
+CHAPTER 3: LOCATORS — FINDING ELEMENTS ON THE PAGE
+================================================================
+
+----------------------------------------------------------------
+3.1 WHAT IS A LOCATOR?
+----------------------------------------------------------------
+
+Explanation:
+- A locator is a pointer/reference to an element on the web page.
+- It does NOT immediately search the DOM — it's lazy. The actual lookup happens when you perform an action.
+- Creating a locator is synchronous (no await needed).
+
+Code:
+  const userName = page.locator('#username');       // ← sync, no await
+  await userName.fill("rahulshettyacademy");        // ← action, needs await
+
+
+----------------------------------------------------------------
+3.2 CSS SELECTOR LOCATORS
+----------------------------------------------------------------
+
+Common patterns used in your tests:
+
+  page.locator('#username')                        // By ID
+  page.locator('[name="password"]')                // By attribute
+  page.locator('.btn-md')                          // By class
+  page.locator('input[name="username"]')           // Tag + attribute
+  page.locator('[formcontrolname="userEmail"]')    // By Angular attribute
+  page.locator("select.form-control")              // Tag + class
+  page.locator("[style*='block']")                 // Partial attribute match
+  page.locator("a[href*='documents-request']")     // Partial href match
+  page.locator(".card-body b")                     // Nested: class > tag
+  page.locator("div.card-body .text-muted")        // Multiple class nesting
+
+Explanation:
+- CSS selectors are the most common way to locate elements.
+- '#' = ID, '.' = class, '[]' = attribute, ' ' = descendant.
+- Use '*=' for partial matching (contains), '^=' for starts-with, '$=' for ends-with.
+
+
+----------------------------------------------------------------
+3.3 SPECIAL PLAYWRIGHT LOCATORS (getBy...)
+----------------------------------------------------------------
+
+Code:
+  page.getByLabel("Check me out if you Love IceCreams!")   // by <label> text
+  page.getByPlaceholder("email@example.com")               // by placeholder text
+  page.getByRole('button', { name: 'Login' })              // by ARIA role + name
+  page.getByRole('link', { name: 'Shop' })                 // by role link
+  page.getByText("Success!")                               // by visible text
+  page.getByRole('heading', { name: 'ADIDAS ORIGINAL' })   // by heading role
+
+Explanation:
+- These are Playwright's "special locators" that mimic how users find elements.
+- They are more resilient to DOM changes than CSS selectors.
+- getByRole is the most recommended — it uses accessibility attributes.
+
+When to use which:
+  getByRole      → buttons, links, headings, checkboxes (best for accessibility)
+  getByLabel     → form fields that have a <label> tag
+  getByPlaceholder → input fields with placeholder text
+  getByText      → any element with specific visible text
+
+
+----------------------------------------------------------------
+3.4 FILTER AND CHAINING LOCATORS
+----------------------------------------------------------------
+
+Code:
+  // Filter a card that contains specific text, then find button inside it
+  page.locator("app-card").filter({ hasText: 'Nokia Edge' }).getByRole("button")
+
+  // Filter card body and click Add To Cart for specific product
+  page.locator(".card-body").filter({ hasText: 'ADIDAS ORIGINAL' })
+      .getByRole("button", { name: 'Add To Cart' }).click()
+
+  // Chain locators to narrow down
+  page.getByRole("listitem").getByRole('button', { name: 'Cart' })
+
+Explanation:
+- .filter({ hasText: '...' }) narrows results to only elements containing that text.
+- Chaining (.locator().locator()) goes deeper into the DOM — parent → child.
+- This avoids brittle index-based selection (nth) when possible.
+
+
+----------------------------------------------------------------
+3.5 WORKING WITH MULTIPLE ELEMENTS
+----------------------------------------------------------------
+
+Code:
+  const allTitles = page.locator(".card-body b");
+
+  // Get count
+  const count = await allTitles.count();
+
+  // Get nth element (0-indexed)
+  await allTitles.nth(0).click();
+  await allTitles.first().textContent();
+  await allTitles.last().waitFor();
+
+  // Get ALL text contents as an array
+  const titles = await allTitles.allTextContents();
+
+Explanation:
+- A locator can match multiple elements. Use .count(), .nth(), .first(), .last() to work with them.
+- .allTextContents() returns a plain array of strings — all matched elements' text.
+- .first().textContent() is often used to wait for at least one element to load.
+
+
+----------------------------------------------------------------
+3.6 TEXT-BASED LOCATORS
+----------------------------------------------------------------
+
+Code:
+  page.locator("text=Checkout")
+  page.locator("h3:has-text('Zara Coat 3')")
+
+Explanation:
+- "text=..." finds elements by their visible text content.
+- ":has-text('...')" is a Playwright CSS extension — finds elements containing that text.
+- These are useful for clicking buttons/links by their label.
+
+
+----------------------------------------------------------------
+3.7 KEY RULE: LOCATOR CREATION IS SYNC
+----------------------------------------------------------------
+
+  const btn = page.locator('#submit');        // ✅ No await — just creating a reference
+  const btn = await page.locator('#submit');  // ⚠️ Works but unnecessary — await does nothing here
+
+Explanation:
+- page.locator() returns immediately. It doesn't query the page yet.
+- The actual DOM interaction happens when you call .click(), .fill(), .textContent(), etc.
+- Those action methods ARE async and need await.

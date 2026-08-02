@@ -1,0 +1,107 @@
+================================================================
+CHAPTER 2: FIXTURES AND BROWSER CONTEXT
+================================================================
+
+----------------------------------------------------------------
+2.1 WHAT ARE FIXTURES?
+----------------------------------------------------------------
+
+Explanation:
+- Fixtures are pre-built objects that Playwright injects into your test function automatically.
+- They provide a ready-to-use browser, context, or page without manual setup/teardown.
+
+Two main fixtures:
+  { page }    → gives you a ready-made page (Playwright handles browser + context creation)
+  { browser } → gives you a raw browser; YOU create context and page manually
+
+
+----------------------------------------------------------------
+2.2 PAGE FIXTURE (SIMPLE, RECOMMENDED)
+----------------------------------------------------------------
+
+Code:
+  test('page fixture', async ({ page }) => {
+      await page.goto("https://www.google.com");
+      await expect(page).toHaveTitle('Google');
+  });
+
+Explanation:
+- Playwright creates a fresh browser context and page for you before the test runs.
+- After the test finishes, it automatically closes everything — no cleanup needed.
+- Each test gets an isolated context (no shared cookies, cache, or state between tests).
+
+When to use:
+- Most tests. It's simpler, cleaner, and handles isolation for you.
+
+
+----------------------------------------------------------------
+2.3 BROWSER FIXTURE (MANUAL CONTROL)
+----------------------------------------------------------------
+
+Code:
+  test('browser fixture', async ({ browser }) => {
+      const context = await browser.newContext();
+      const page = await context.newPage();
+      await page.goto("https://www.google.com");
+      await expect(page).toHaveTitle('Google');
+      await context.close();
+      await browser.close();
+  });
+
+Explanation:
+- You get the browser object and manually create context(s) and page(s).
+- Useful when you need multiple contexts (e.g., testing two users chatting simultaneously).
+- YOU are responsible for closing context and browser at the end.
+
+When to use:
+- Multi-user scenarios (admin + user in same test)
+- Tests that need multiple isolated sessions
+- When you need custom context options (viewport, permissions, geolocation)
+
+
+----------------------------------------------------------------
+2.4 BROWSER CONTEXT — WHAT IS IT?
+----------------------------------------------------------------
+
+Explanation:
+- A browser context is like an incognito window — isolated session with its own cookies/storage.
+- Each context is independent: login in one context doesn't affect another.
+- Playwright creates a fresh context per test (when using { page } fixture), so tests never share state.
+
+Code:
+  const context = await browser.newContext();
+  const page = await context.newPage();
+
+Key point:
+- browser.newContext() → creates isolated session (like opening incognito)
+- context.newPage() → opens a new tab within that session
+
+
+----------------------------------------------------------------
+2.5 WHY FRESH CONTEXT MATTERS
+----------------------------------------------------------------
+
+- No cookies from previous tests
+- No localStorage from previous tests
+- No sessionStorage from previous tests
+- No cache from previous tests
+
+This means:
+- You don't need to manually clear cache or cookies between tests.
+- Each test starts with a clean slate automatically.
+- Tests can run in parallel without interfering with each other.
+
+
+----------------------------------------------------------------
+2.6 CLEANUP (GRACEFUL CLOSE)
+----------------------------------------------------------------
+
+Code:
+  // At end of test using browser fixture:
+  await context.close();
+  await browser.close();
+
+Explanation:
+- When using { browser } fixture, always close context and browser at the end.
+- When using { page } fixture, Playwright handles cleanup automatically — no close needed.
+- Forgetting to close can leave browser processes running and consume memory.

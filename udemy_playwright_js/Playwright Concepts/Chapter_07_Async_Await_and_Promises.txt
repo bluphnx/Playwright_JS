@@ -1,0 +1,113 @@
+================================================================
+CHAPTER 7: ASYNC/AWAIT AND PROMISES
+================================================================
+
+----------------------------------------------------------------
+7.1 WHAT IS ASYNC/AWAIT?
+----------------------------------------------------------------
+
+Explanation:
+- JavaScript is single-threaded. Long operations (network, file I/O) would block everything.
+- Async/await is a way to write asynchronous code that LOOKS synchronous and readable.
+- 'async' marks a function as asynchronous (it returns a Promise).
+- 'await' pauses execution until the Promise resolves, then gives you the result.
+
+Code:
+  test('my test', async ({ page }) => {    // 'async' = this function uses await
+      await page.goto("https://...");      // 'await' = wait for navigation to finish
+      const title = await page.title();    // 'await' = wait for title to be fetched
+  });
+
+
+----------------------------------------------------------------
+7.2 WHEN TO USE AWAIT
+----------------------------------------------------------------
+
+USE await when:
+- Navigating:           await page.goto(...)
+- Clicking:             await locator.click()
+- Filling fields:       await locator.fill(...)
+- Getting text:         await locator.textContent()
+- Getting input value:  await locator.inputValue()
+- Getting title:        await page.title()
+- Checking state:       await locator.isChecked()
+- Getting count:        await locator.count()
+- Web-first assertions: await expect(locator).toBeVisible()
+- Waiting:              await locator.waitFor()
+
+DO NOT use await when:
+- Creating locators:       page.locator('#id')        // sync — just a reference
+- Generic assertions:      expect(value).toBe(5)      // sync — instant comparison
+- Creating variables:      const url = "https://..."  // sync — just assignment
+- page.on('dialog', ...)                              // sync — registering a listener
+
+
+----------------------------------------------------------------
+7.3 WHAT HAPPENS WITHOUT AWAIT (THE PROMISE BUG)
+----------------------------------------------------------------
+
+WRONG:
+  const text = locator.textContent();    // Missing await!
+  console.log(text);                     // Prints: Promise { <pending> }
+
+Explanation:
+- Without await, you get the Promise object, not the resolved value.
+- The Promise is still "pending" — the browser hasn't sent the text back yet.
+- This is the #1 beginner mistake in Playwright.
+
+CORRECT:
+  const text = await locator.textContent();   // Waits for browser to return text
+  console.log(text);                          // Prints: "Actual text content"
+
+
+----------------------------------------------------------------
+7.4 PROMISE.ALL — PARALLEL EXECUTION
+----------------------------------------------------------------
+
+Code:
+  const [newPage] = await Promise.all([
+      context.waitForEvent('page'),      // Wait for new tab event
+      DocumentLink.click()               // Click that triggers new tab
+  ]);
+
+Explanation:
+- Promise.all() takes an array of promises and runs them in parallel.
+- It resolves when ALL promises are done, returning an array of results.
+- Use it when one action triggers an event you want to capture simultaneously.
+
+CRITICAL RULES:
+1. Syntax: Promise.all([...])  — parentheses, then brackets inside
+   WRONG: Promise.all[...]     — this is property access, causes "not iterable" error
+
+2. No 'await' inside the array:
+   WRONG: await DocumentLink.click()    — defeats parallel execution
+   RIGHT: DocumentLink.click()          — let Promise.all handle the awaiting
+
+3. Destructuring the result:
+   const [newPage] = await Promise.all([...])
+   The array position matches the order in Promise.all.
+
+
+----------------------------------------------------------------
+7.5 COMMON ASYNC MISTAKES AND FIXES
+----------------------------------------------------------------
+
+MISTAKE 1: Missing await on textContent()
+  const text = locator.textContent();        // ❌ Promise { <pending> }
+  const text = await locator.textContent();  // ✅ "actual text"
+
+MISTAKE 2: await on generic assertion
+  await expect(string).toContain('...');     // ❌ "not iterable" error
+  expect(string).toContain('...');           // ✅ works
+
+MISTAKE 3: await on locator creation
+  const btn = await page.locator('#id');     // ⚠️ Unnecessary (harmless but misleading)
+  const btn = page.locator('#id');           // ✅ Correct
+
+MISTAKE 4: await inside Promise.all
+  Promise.all([ await link.click() ])        // ❌ defeats parallel execution
+  Promise.all([ link.click() ])              // ✅ correct
+
+MISTAKE 5: Using [] instead of () for Promise.all
+  Promise.all[ ... ]                         // ❌ property access, not function call
+  Promise.all([ ... ])                       // ✅ function call with array argument

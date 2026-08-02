@@ -1,0 +1,27 @@
+{
+  "name": "udemy_playwright_js",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "webtest": "npx playwright test --grep @Web",
+    "apitest": "npx playwright test --grep @API",
+    "safariweb": "npx playwright test --grep @Web --config playwright.config1.js --project=safari",
+    "cleanallure": "Remove-Item -Recurse -Force allure-results",
+    "generateallure": "npx allure generate ./allure-results --clean",
+    "openallure": "npx allure open ./allure-report",
+    "apiallure": "npx playwright test --grep @API --reporter=line,allure-playwright"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "devDependencies": {
+    "@playwright/test": "^1.61.1",
+    "@types/node": "^26.1.1",
+    "allure-playwright": "^3.10.2"
+  },
+  "dependencies": {
+    "@cucumber/cucumber": "^13.2.0"
+  }
+}

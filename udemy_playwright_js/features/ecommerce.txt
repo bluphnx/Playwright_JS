@@ -1,0 +1,14 @@
+Feature: Ecommerce Validation
+
+    Scenario: Place order and verify in order history
+        Given I login to the ecommerce application with "<username>" and "<password>"
+        When I search for "<product>" and add it to cart
+        And I verify product is displayed in the cart
+        And I enter account details and place the order for the "<username>"
+        Then I should see the order in the order history page
+
+        Examples:
+        | username          | password    | product         |
+        | r123am@gmail.com  | Amazon@123  | ZARA COAT 3     |
+        | q123am@gmail.com  | Amazon@123  | ADIDAS ORIGINAL |
+        | p123am@gmail.com  | Amazon@123  | ADIDAS ORIGINAL |

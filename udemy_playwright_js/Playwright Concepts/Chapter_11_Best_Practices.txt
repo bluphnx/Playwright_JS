@@ -1,0 +1,142 @@
+================================================================
+CHAPTER 11: BEST PRACTICES
+================================================================
+
+----------------------------------------------------------------
+11.1 LOCATOR BEST PRACTICES
+----------------------------------------------------------------
+
+Priority (most reliable to least):
+  1. getByRole()         → Accessibility-based, most resilient to DOM changes
+  2. getByLabel()        → For form fields with labels
+  3. getByPlaceholder()  → For inputs with placeholder text
+  4. getByText()         → For buttons/links with specific text
+  5. page.locator('#id') → By ID (stable if IDs don't change)
+  6. page.locator('.class') → By class (less stable, classes change often)
+
+Avoid:
+- Long XPath expressions (brittle, hard to read)
+- Indexes (nth) when filter/text can identify the element
+- Locators based on styling (colors, fonts, sizes)
+
+
+----------------------------------------------------------------
+11.2 ASSERTION BEST PRACTICES
+----------------------------------------------------------------
+
+PREFER web-first assertions (auto-wait):
+  await expect(locator).toContainText('...');
+  await expect(locator).toBeVisible();
+
+AVOID manual wait + value check (fragile):
+  await locator.waitFor();
+  const text = await locator.textContent();
+  expect(text).toContain('...');
+
+Why: Web-first assertions combine waiting + checking in one step.
+They retry automatically, reducing flakiness.
+
+
+----------------------------------------------------------------
+11.3 VARIABLE NAMING
+----------------------------------------------------------------
+
+GOOD:
+  const userName = page.locator('#username');
+  const SignInBtn = page.getByRole('button', { name: 'Login' });
+  const errorMsgLocator = page.locator('[style*="block"]');
+
+BAD:
+  const el1 = page.locator('#username');
+  const x = page.locator('.btn');
+
+Rules:
+- Name locators by what they represent, not how they're found.
+- Group all locator declarations at the top of the test for readability.
+- Use const for locators (they never need reassignment).
+
+
+----------------------------------------------------------------
+11.4 TEST ISOLATION
+----------------------------------------------------------------
+
+Rules:
+- Each test should be independent — never rely on another test's state.
+- Don't share logged-in sessions between tests unless using storageState.
+- Tests should work whether run alone or with others, in any order.
+
+
+----------------------------------------------------------------
+11.5 AVOID HARD-CODED WAITS
+----------------------------------------------------------------
+
+BAD:   await page.waitForTimeout(5000);   // Wastes time or not enough
+GOOD:  await locator.waitFor();            // Waits only as long as needed
+BEST:  await expect(locator).toBeVisible(); // Combines wait + assertion
+
+
+----------------------------------------------------------------
+11.6 MEANINGFUL TEST NAMES
+----------------------------------------------------------------
+
+BAD:   test('tc_001', ...)
+BAD:   test('test browser', ...)
+GOOD:  test('should show error for invalid password', ...)
+GOOD:  test('should place order and verify in order history', ...)
+
+The test name should tell you WHAT is being verified without reading the code.
+
+
+----------------------------------------------------------------
+11.7 CLEAN UP AFTER MANUAL BROWSER CONTROL
+----------------------------------------------------------------
+
+When using { browser } fixture:
+  await context.close();
+  await browser.close();
+
+When using { page } fixture:
+  // No cleanup needed — Playwright handles it.
+
+
+----------------------------------------------------------------
+11.8 ORGANIZE LOCATORS AT THE TOP
+----------------------------------------------------------------
+
+Code:
+  test("my test", async ({ browser }) => {
+      const context = await browser.newContext();
+      const page = await context.newPage();
+
+      // --- All locators declared here ---
+      const userName = page.locator('#username');
+      const password = page.locator('#password');
+      const signIn = page.locator('#signInBtn');
+      const errorMsg = page.locator('[style*="block"]');
+
+      // --- Test steps below ---
+      await page.goto(url);
+      await userName.fill("user");
+      ...
+  });
+
+Explanation:
+- Declaring all locators upfront makes the test readable — you see what elements are involved.
+- Separates "what elements" from "what actions" — cleaner mental model.
+- Makes it easy to update a selector if the DOM changes — one place to fix.
+
+
+----------------------------------------------------------------
+11.9 SUMMARY OF GOLDEN RULES
+----------------------------------------------------------------
+
+1. Use 'const' for everything that doesn't change.
+2. Use await only for async operations (actions, navigation, data fetching).
+3. Never await generic assertions (toContain, toBe, toBeTruthy).
+4. Always await web-first assertions (toContainText, toBeVisible, toHaveTitle).
+5. Use page.locator() without await — it's synchronous.
+6. Use inputValue() for input fields, textContent() for display elements.
+7. Wait for elements before allTextContents() — it doesn't auto-wait.
+8. Name tests by behavior, not by implementation.
+9. Prefer web-first assertions over manual wait + check patterns.
+10. Remove page.pause() and test.only() before committing to version control.

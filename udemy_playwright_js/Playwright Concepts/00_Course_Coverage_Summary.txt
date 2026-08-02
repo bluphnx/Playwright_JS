@@ -1,0 +1,92 @@
+================================================================
+COURSE COVERAGE SUMMARY
+================================================================
+Playwright JavaScript/TypeScript Training Course
+Status: In Progress
+================================================================
+
+
+COVERED SECTIONS (Based on current test files)
+================================================================
+
+| #  | Course Section                        | Tutorial Chapter           | Status    |
+|----|---------------------------------------|----------------------------|-----------|
+| 1  | Automation: A Brief Introduction      | Chapter 01 (Setup)         | ✅ Covered |
+| 2  | JavaScript/TypeScript Essentials      | Chapter 08 (JS Essentials) | ✅ Covered |
+| 3  | VS Code IDE                           | Chapter 10 (Debugging)     | ✅ Covered |
+| 4  | Set up Playwright                     | Chapter 01 (Setup)         | ✅ Covered |
+| 5  | Playwright Architecture               | Chapter 02 (Fixtures)      | ✅ Covered |
+| 6  | Browser & Navigation Commands         | Chapter 02, 04             | ✅ Covered |
+| 7  | Element Commands                      | Chapter 04 (Actions)       | ✅ Covered |
+| 8  | Locators                              | Chapter 03 (Locators)      | ✅ Covered |
+| 9  | Element Identification                | Chapter 03 (Locators)      | ✅ Covered |
+| 10 | Tables, Checkboxes & Form Elements    | Chapter 04, 09             | ✅ Covered |
+| 11 | Playwright Waits & Dialogs            | Chapter 06 (Waits)         | ✅ Covered |
+| 12 | Actions Class (hover, keyboard, etc)  | Chapter 04 (Actions)       | ✅ Covered |
+| 13 | Browser Contexts & Authentication     | Chapter 02 (Fixtures)      | ✅ Covered |
+| 14 | Complex UI Scenarios                  | Chapter 09 (E2E Patterns)  | ⚠️ Partial |
+
+
+NOT YET COVERED (Advance topics — no code examples yet)
+================================================================
+
+| #  | Course Section                        | Notes                                    |
+|----|---------------------------------------|------------------------------------------|
+| 15 | Test Frameworks with Playwright       | Parallel execution, cross-browser,       |
+|    |                                       | visual testing, reporting, annotations   |
+|----|---------------------------------------|------------------------------------------|
+| 16 | Automation Framework (POM)            | Page Object Model, data-driven,          |
+|    |                                       | hybrid framework design                  |
+|----|---------------------------------------|------------------------------------------|
+| 17 | Real-Time E-Commerce Project          | Structured framework with page objects,  |
+|    |                                       | config management, custom reporting,     |
+|    |                                       | Cucumber BDD integration                 |
+|----|---------------------------------------|------------------------------------------|
+| 18 | DevOps & CI/CD                        | Jenkins pipelines, GitHub Actions,       |
+|    |                                       | CI/CD workflows                          |
+|----|---------------------------------------|------------------------------------------|
+| 19 | Node.js & npm Ecosystem               | package.json scripts, managing           |
+|    |                                       | dependencies, reusable npm packages      |
+|----|---------------------------------------|------------------------------------------|
+| 20 | Dockerized Testing                    | Dockerfile, Docker Compose, scaling,     |
+|    |                                       | Playwright Docker images                 |
+|----|---------------------------------------|------------------------------------------|
+| 21 | API Testing & Sharding                | GET/POST/PUT/DELETE, mock APIs,          |
+|    |                                       | sharding with Docker & GitHub Actions    |
+|----|---------------------------------------|------------------------------------------|
+| 22 | Agentic AI                            | MCP servers, AI Agents, Playwright CLI,  |
+|    |                                       | Claude Code integration, LLM models      |
+
+
+TUTORIAL FILES CREATED
+================================================================
+
+  Playwright Concepts/
+  ├── 00_Course_Coverage_Summary.txt      ← This file
+  ├── Chapter_01_Setup_and_Basics.txt
+  ├── Chapter_02_Fixtures_and_Browser_Context.txt
+  ├── Chapter_03_Locators.txt
+  ├── Chapter_04_Actions_and_Interactions.txt
+  ├── Chapter_05_Assertions_and_Expect.txt
+  ├── Chapter_06_Waits_and_Synchronization.txt
+  ├── Chapter_07_Async_Await_and_Promises.txt
+  ├── Chapter_08_JavaScript_Essentials_for_Playwright.txt
+  ├── Chapter_09_E2E_Testing_Patterns.txt
+  ├── Chapter_10_Common_Errors_and_Debugging.txt
+  └── Chapter_11_Best_Practices.txt
+
+
+NEXT STEPS
+================================================================
+
+As you progress through the course and write code for sections 15-22,
+new chapters can be added:
+
+  - Chapter 12: Page Object Model (POM)
+  - Chapter 13: Test Framework (parallel, reporting, cross-browser)
+  - Chapter 14: CI/CD with GitHub Actions / Jenkins
+  - Chapter 15: API Testing with Playwright
+  - Chapter 16: Docker & Sharding
+  - Chapter 17: Agentic AI & MCP
+
+Update this file as you complete each section to track your progress.

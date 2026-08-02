@@ -1,0 +1,137 @@
+================================================================
+CHAPTER 12: CI/CD AND CRON SCHEDULES
+================================================================
+
+----------------------------------------------------------------
+12.1 WHAT IS "RUN NIGHTLY"?
+----------------------------------------------------------------
+
+Explanation:
+- Scheduling your test suite to execute automatically once every night (e.g., 2:00 AM).
+- No human trigger needed — Jenkins/CI runs it on a timer.
+- By morning, the team sees a report of what passed/failed.
+- Full regression suites can be slow (30-60+ mins) — better to run off-hours.
+
+Different trigger types:
+| Trigger    | When it runs                              |
+|------------|-------------------------------------------|
+| Nightly    | Scheduled (e.g., 2 AM daily)              |
+| On commit  | Every time someone pushes code            |
+| On PR      | When a pull request is created/updated    |
+| Manual     | Only when someone clicks "Build Now"      |
+
+
+----------------------------------------------------------------
+12.2 CRON FORMAT (5 FIELDS)
+----------------------------------------------------------------
+
+  ┌───────────── minute (0-59)
+  │ ┌───────────── hour (0-23)
+  │ │ ┌───────────── day of month (1-31)
+  │ │ │ ┌───────────── month (1-12)
+  │ │ │ │ ┌───────────── day of week (0-7, 0 and 7 = Sunday)
+  │ │ │ │ │
+  * * * * *
+
+
+----------------------------------------------------------------
+12.3 SPECIAL CHARACTERS
+----------------------------------------------------------------
+
+| Symbol | Meaning         | Example                           |
+|--------|-----------------|-----------------------------------|
+| *      | Every           | * * * * * = every minute          |
+| ,      | Multiple values | 1,15 = at 1 and 15               |
+| -      | Range           | 1-5 = Monday to Friday            |
+| /      | Interval        | */10 = every 10 units             |
+| H      | Random (Jenkins)| Spreads load across jobs          |
+
+
+----------------------------------------------------------------
+12.4 COMMON CRON EXAMPLES
+----------------------------------------------------------------
+
+  * * * * *           Every minute
+  0 * * * *           Every hour (at minute 0)
+  0 2 * * *           Daily at 2:00 AM
+  0 2 * * 1-5         Weekdays at 2:00 AM
+  0 9,18 * * *        Twice daily at 9 AM and 6 PM
+  */15 * * * *        Every 15 minutes
+  0 0 * * 0           Every Sunday at midnight
+  0 3 1 * *           1st of every month at 3 AM
+  0 0 1 1 *           January 1st at midnight (yearly)
+  30 8 * * 1          Every Monday at 8:30 AM
+  0 */2 * * *         Every 2 hours
+  0 9-17 * * 1-5      Every hour 9 AM-5 PM, weekdays only
+
+
+----------------------------------------------------------------
+12.5 JENKINS-SPECIFIC (H)
+----------------------------------------------------------------
+
+  H 2 * * *           Sometime during 2 AM hour (random minute)
+  H/15 * * * *        Every 15 mins (offset varies per job)
+  H 0 * * *           Daily around midnight
+
+Why H?
+- Prevents all jobs from running at the exact same time.
+- 50 jobs all at "0 2 * * *" would overload the server.
+- H picks a random but consistent minute per job.
+
+
+----------------------------------------------------------------
+12.6 HOW TO READ ANY CRON
+----------------------------------------------------------------
+
+Read right to left:
+"On [day of week], in [month], on [day of month], at [hour]:[minute]"
+
+Example: 30 14 * * 1-5
+→ "At 14:30, every day of month, every month, Monday through Friday"
+→ Weekdays at 2:30 PM
+
+Example: 0 2 * * *
+→ "At 02:00, every day of month, every month, every day of week"
+→ Daily at 2 AM
+
+Example: 0 9-17 * * 1-5
+→ "At minute 0, hours 9 through 17, every day, every month, Mon-Fri"
+→ Every hour from 9 AM to 5 PM on weekdays
+
+
+----------------------------------------------------------------
+12.7 CI/CD PIPELINE BASICS (JENKINS)
+----------------------------------------------------------------
+
+Typical pipeline flow:
+  1. Trigger (cron, commit, PR, manual)
+  2. Checkout code from Git
+  3. Install dependencies (npm install)
+  4. Run tests (npx playwright test)
+  5. Generate report (allure/html)
+  6. Notify team (email/Slack on failure)
+
+Jenkins Pipeline example:
+  pipeline {
+      agent any
+      triggers {
+          cron('H 2 * * *')    // Nightly at ~2 AM
+      }
+      stages {
+          stage('Install') {
+              steps {
+                  sh 'npm ci'
+              }
+          }
+          stage('Test') {
+              steps {
+                  sh 'npx playwright test'
+              }
+          }
+      }
+      post {
+          always {
+              publishHTML([reportDir: 'playwright-report', reportFiles: 'index.html'])
+          }
+      }
+  }

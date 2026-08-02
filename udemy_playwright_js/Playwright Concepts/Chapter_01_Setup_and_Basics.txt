@@ -1,0 +1,124 @@
+================================================================
+CHAPTER 1: SETUP AND BASICS
+================================================================
+
+----------------------------------------------------------------
+1.1 IMPORTING PLAYWRIGHT
+----------------------------------------------------------------
+
+Code:
+  const { test, expect } = require('@playwright/test');
+
+Explanation:
+- We import 'test' and 'expect' from the Playwright test library using destructuring assignment.
+- 'const' is used because these references should never be reassigned — they are fixed utilities.
+
+Why 'test'?
+- The 'test' function defines a test case. Playwright's test runner looks for these to execute.
+- Without it, there's no way to define or run a test.
+
+Why 'expect'?
+- 'expect' provides assertion methods to verify expected outcomes (e.g., text visible, title correct).
+- Playwright's expect has special "web-first" assertions that auto-retry until a condition is met.
+
+Why destructuring { test, expect }?
+- require('@playwright/test') returns a module object with many properties.
+- Destructuring extracts only what we need into separate variables.
+- WRONG: const test = require('@playwright/test') — this assigns the entire module, not the function.
+
+Why 'const'?
+- 'const' prevents accidental reassignment. You never want test or expect to point to something else.
+- Use 'const' for anything that shouldn't change; use 'let' for variables that will change.
+
+
+----------------------------------------------------------------
+1.2 PLAYWRIGHT CONFIGURATION (playwright.config.js)
+----------------------------------------------------------------
+
+Code:
+  export default defineConfig({
+    testDir: './tests',
+    timeout: 35 * 1000,
+    reporter: 'html',
+    expect: {
+      timeout: 45 * 1000
+    },
+    use: {
+      browserName: 'chromium',
+      headless: true,
+      screenshot: 'only-on-failure',
+      trace: 'retain-on-failure-and-retries',
+    }
+  });
+
+Explanation:
+- This file controls how Playwright runs all your tests — browser, timeouts, reporting, etc.
+- It lives at the project root and is automatically picked up by the test runner.
+
+Key properties:
+- testDir: Points to the FOLDER containing test files (must be a directory, NOT a file).
+- timeout: Maximum time (ms) a single test can run before failing (default: 30s).
+- expect.timeout: Maximum time (ms) for web-first assertions to retry (default: 5s).
+- browserName: Which browser engine to use (chromium, firefox, webkit).
+- headless: true = no visible browser; false = browser window shows.
+- screenshot: 'only-on-failure' captures a screenshot when a test fails.
+- trace: Records a trace file for debugging failures.
+- reporter: 'html' generates an interactive HTML report after test runs.
+
+COMMON MISTAKE:
+  testDir: './tests/myfile.spec.js'  ← WRONG (points to a file)
+  testDir: './tests'                 ← CORRECT (points to a folder)
+
+
+----------------------------------------------------------------
+1.3 RUNNING TESTS (CLI COMMANDS)
+----------------------------------------------------------------
+
+Run all tests:
+  npx playwright test
+
+Run a specific file:
+  npx playwright test tests/client.spec.js
+
+Run by test name (grep):
+  npx playwright test -g "Sign in test"
+
+Run headed (see the browser):
+  npx playwright test --headed
+
+Run a specific folder:
+  npx playwright test tests/auth/
+
+Run with HTML report:
+  npx playwright show-report
+
+Notes:
+- Playwright runs headless by default — no flag needed for headless.
+- There is NO --headless flag. Headless is the default behavior.
+- Use test.only('name', ...) inside a file to focus on one test during development.
+- Use test.skip('name', ...) to temporarily disable a test.
+
+
+----------------------------------------------------------------
+1.4 PROJECT STRUCTURE BEST PRACTICES
+----------------------------------------------------------------
+
+Recommended:
+  tests/
+  ├── auth/
+  │   ├── login.spec.js
+  │   └── registration.spec.js
+  ├── cart/
+  │   ├── add-to-cart.spec.js
+  │   └── checkout.spec.js
+  └── homepage/
+      └── navigation.spec.js
+
+Rules:
+- Group test files by feature or page, not by number.
+- One flow or component per file keeps things manageable.
+- Use test.describe() inside files to group related tests.
+- Name tests by what they verify in plain English.
+
+BAD:  test('tc_001_browser_fixture', ...)
+GOOD: test('should show error for invalid password', ...)
