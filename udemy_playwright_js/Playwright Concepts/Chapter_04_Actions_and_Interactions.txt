@@ -1,0 +1,166 @@
+================================================================
+CHAPTER 4: ACTIONS AND INTERACTIONS
+================================================================
+
+----------------------------------------------------------------
+4.1 NAVIGATION
+----------------------------------------------------------------
+
+Code:
+  await page.goto("https://www.google.com");   // Open a URL
+  await page.goBack();                          // Browser back button
+  await page.goForward();                       // Browser forward button
+
+Explanation:
+- page.goto() navigates to a URL and waits for the page to reach 'load' state.
+- goBack/goForward simulate the browser's navigation buttons.
+- All navigation methods are async — they wait for network activity to settle.
+
+
+----------------------------------------------------------------
+4.2 FILLING INPUT FIELDS
+----------------------------------------------------------------
+
+Code:
+  await userName.fill("rahulshettyacademy");    // Types text into input
+  await userName.fill("");                       // Clears the field
+
+Explanation:
+- .fill() clears the field first, then types the new value.
+- To clear a field, just fill with empty string "".
+- This replaces any existing text — no need to select-all-delete first.
+
+
+----------------------------------------------------------------
+4.3 PRESSING KEYS SEQUENTIALLY
+----------------------------------------------------------------
+
+Code:
+  await page.locator("[placeholder*='Country']").pressSequentially('Ind');
+  await page.locator("[placeholder*='Country']").pressSequentially("ind", { delay: 150 });
+
+Explanation:
+- pressSequentially types one character at a time, triggering key events for each.
+- Useful for search boxes that show suggestions as you type (autocomplete).
+- { delay: 150 } adds 150ms between each keypress — helps with slow servers.
+- Unlike .fill(), this triggers input/keydown events for every character.
+
+
+----------------------------------------------------------------
+4.4 CLICKING
+----------------------------------------------------------------
+
+Code:
+  await SubmitBtn.click();                     // Regular click
+  await page.locator("#confirmbtn").click();   // Click by locator
+
+Explanation:
+- .click() performs a single left-click on the element.
+- Playwright auto-waits for the element to be visible and enabled before clicking.
+- If the element is covered by another element, the click will fail (actionability check).
+
+
+----------------------------------------------------------------
+4.5 CHECKBOXES AND RADIO BUTTONS
+----------------------------------------------------------------
+
+Code:
+  await TnC.click();                           // Toggle checkbox
+  await TnC.check();                           // Check (no-op if already checked)
+  await TnC.uncheck();                         // Uncheck (no-op if already unchecked)
+  await userRadio.click();                     // Click radio button
+  console.log(await TnC.isChecked());          // Returns true/false
+  await page.getByLabel("Check me out if you Love IceCreams!").check();
+
+Explanation:
+- .check() ensures checkbox is checked; .uncheck() ensures it's unchecked.
+- .click() toggles — if checked it unchecks, if unchecked it checks.
+- .isChecked() returns a boolean — useful for logging or conditional logic.
+- For radio buttons, use .click() — they can only be selected, not unchecked.
+
+
+----------------------------------------------------------------
+4.6 DROPDOWNS
+----------------------------------------------------------------
+
+Code:
+  await dropdown.selectOption("consult");              // By value attribute
+  await page.getByLabel("Gender").selectOption("Female");  // By visible text
+
+Explanation:
+- .selectOption() works on native <select> elements only.
+- You can pass the value attribute, the label text, or the index.
+- For custom dropdowns (non-<select>), you need to click to open, then click the option.
+
+
+----------------------------------------------------------------
+4.7 HOVER
+----------------------------------------------------------------
+
+Code:
+  await page.locator("#mousehover").hover();
+
+Explanation:
+- .hover() moves the mouse over the element, triggering mouseover/mouseenter events.
+- Useful for menus that appear on hover, tooltips, etc.
+
+
+----------------------------------------------------------------
+4.8 HANDLING DIALOGS (ALERTS/CONFIRMS/PROMPTS)
+----------------------------------------------------------------
+
+Code:
+  page.on("dialog", dialog => dialog.accept());
+  await page.locator("#confirmbtn").click();
+
+Explanation:
+- Dialogs (alert/confirm/prompt) block the page. You must handle them BEFORE they appear.
+- page.on("dialog", ...) registers a listener that fires when any dialog shows up.
+- dialog.accept() clicks OK; dialog.dismiss() clicks Cancel.
+- IMPORTANT: Register the listener BEFORE the action that triggers the dialog.
+
+
+----------------------------------------------------------------
+4.9 HANDLING NEW TABS / WINDOWS (Promise.all)
+----------------------------------------------------------------
+
+Code:
+  const [newPage] = await Promise.all([
+      context.waitForEvent('page'),       // Wait for new tab to open
+      DocumentLink.click()                // Action that opens the new tab
+  ]);
+  const text = await newPage.locator(".red").textContent();
+
+Explanation:
+- When clicking a link that opens in a new tab, you need to capture the new page object.
+- Promise.all() runs both promises in parallel: one waits for the event, one triggers it.
+- The result is destructured as [newPage] — the new tab's page object.
+
+CRITICAL SYNTAX:
+  Promise.all([...])   ← CORRECT (parentheses for function call, brackets for array)
+  Promise.all[...]     ← WRONG (property access, not a function call)
+
+Rules inside Promise.all:
+- Do NOT use 'await' on individual items inside the array.
+- Promise.all handles the awaiting for all items together.
+
+
+----------------------------------------------------------------
+4.10 EXTRACTING TEXT AND DATA
+----------------------------------------------------------------
+
+Code:
+  const title = await page.title();                          // Get page title
+  const text = await locator.textContent();                  // Get element's inner text
+  const value = await userName.inputValue();                 // Get input field's value
+  const allTexts = await allTitles.allTextContents();        // Get array of all texts
+  const count = await locator.count();                       // Get number of matched elements
+  const isVisible = await locator.isVisible();               // Check visibility (boolean)
+
+Key differences:
+  textContent()  → Gets text between HTML tags (<span>THIS</span>)
+  inputValue()   → Gets value typed into <input> or <textarea>
+
+Rule:
+- For <input> fields: use inputValue() — textContent() returns "" on inputs.
+- For <div>, <span>, <p>, <a>, etc: use textContent().

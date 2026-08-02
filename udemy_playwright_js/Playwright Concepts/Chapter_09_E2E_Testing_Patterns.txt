@@ -1,0 +1,160 @@
+================================================================
+CHAPTER 9: END-TO-END TESTING PATTERNS
+================================================================
+
+----------------------------------------------------------------
+9.1 LOGIN FLOW PATTERN
+----------------------------------------------------------------
+
+Code:
+  await page.goto(BaseUrl);
+  await userName.fill("rahulshettyacademy");
+  await Password.fill("Learning@830$3mK2");
+  await SignIn.click();
+  await cardTitles.last().waitFor();   // Wait for page content to load
+
+Explanation:
+- Navigate → Fill credentials → Click submit → Wait for next page.
+- Always wait for something on the new page to confirm successful navigation.
+- Don't just click and immediately assert — give the page time to load.
+
+
+----------------------------------------------------------------
+9.2 ADD-TO-CART PATTERN (SEARCH + SELECT)
+----------------------------------------------------------------
+
+Code:
+  const Product = "ZARA COAT 3";
+  for (let index = 0; index < allTitles.length; index++) {
+      if (allTitles[index] === Product) {
+          await allAddToCart.nth(index).click();
+          break;
+      }
+  }
+
+Explanation:
+- Get all product titles as an array, loop through to find your target.
+- When found, use the same index to click the corresponding "Add to Cart" button.
+- 'break' stops the loop once the product is found — no need to continue.
+
+Better alternative (using filter):
+  await page.locator(".card-body")
+      .filter({ hasText: 'ADIDAS ORIGINAL' })
+      .getByRole("button", { name: 'Add To Cart' }).click();
+
+- filter() eliminates the need for manual looping — more concise and readable.
+
+
+----------------------------------------------------------------
+9.3 AUTOCOMPLETE / SEARCH DROPDOWN PATTERN
+----------------------------------------------------------------
+
+Code:
+  await page.locator("[placeholder*='Country']").pressSequentially('Ind', { delay: 150 });
+  const dropdownlist = page.locator(".ta-results");
+  await dropdownlist.waitFor();
+  const optionscount = await dropdownlist.locator("button").count();
+
+  for (let i = 0; i < optionscount; ++i) {
+      let text = await dropdownlist.locator("button").nth(i).textContent();
+      if (text === ' India') {
+          await dropdownlist.locator("button").nth(i).click();
+          break;
+      }
+  }
+
+Explanation:
+- For custom dropdowns (non-<select>): Type to trigger suggestions → Wait for results → Loop to find option → Click it.
+- pressSequentially simulates real typing (triggers autocomplete).
+- { delay: 150 } prevents typing too fast for slow servers.
+
+Better alternative:
+  await page.getByPlaceholder("Select Country").pressSequentially('Ind');
+  await page.getByRole("button", { name: 'India' }).nth(1).click();
+
+
+----------------------------------------------------------------
+9.4 ORDER VERIFICATION PATTERN
+----------------------------------------------------------------
+
+Code:
+  const orderidstring = await page.locator("label.ng-star-inserted").textContent();
+  let orderid = orderidstring.replaceAll("|", "").trim();
+
+  await myOrdersLink.click();
+  await page.locator("tbody tr th").last().waitFor();
+  const orderCount = await page.locator("tbody tr th").count();
+
+  for (let index = 0; index < orderCount; index++) {
+      if (await page.locator("tbody tr th").nth(index).textContent() === orderid) {
+          await page.locator("tr .btn-primary").nth(index).click();
+          break;
+      }
+  }
+
+  await expect(page.locator("div.col-text")).toHaveText(orderid);
+
+Explanation:
+- Extract the order ID after placing an order.
+- Clean it up (remove pipes, trim whitespace).
+- Navigate to orders page, find the matching order in the table, click it.
+- Assert that the order detail page shows the correct ID.
+- This is a full end-to-end verification: create → find → validate.
+
+
+----------------------------------------------------------------
+9.5 MULTI-TAB / NEW WINDOW PATTERN
+----------------------------------------------------------------
+
+Code:
+  const [newPage] = await Promise.all([
+      context.waitForEvent('page'),
+      DocumentLink.click()
+  ]);
+  const para = await newPage.locator(".red").textContent();
+
+Explanation:
+- Some links open in new tabs (target="_blank").
+- Use Promise.all with context.waitForEvent('page') to capture the new tab.
+- Then use the newPage object to interact with the new tab's content.
+- Data from the new tab can be used back in the original page (e.g., fill a form field).
+
+
+----------------------------------------------------------------
+9.6 EXTRACTING DATA FROM NEW TAB AND USING IT
+----------------------------------------------------------------
+
+Code:
+  // Extract email from new page
+  const para = await newPage.locator(".red").textContent();
+  const array1 = para.split("@");
+  const array2 = array1[1].split(".");
+  // array2[0] = "rahulshettyacademy"
+
+  // Use it back in original page
+  await userName.fill(array2[0]);
+  console.log(await userName.inputValue());
+
+Explanation:
+- Open a link in new tab → Extract data → Parse the data → Use in original page.
+- String split/manipulation extracts the needed portion.
+- inputValue() confirms the field was filled correctly.
+
+
+----------------------------------------------------------------
+9.7 VISIBILITY CHECKS
+----------------------------------------------------------------
+
+Code:
+  // Check if visible (returns boolean)
+  const bool = await page.locator("h3:has-text('Zara Coat 3')").isVisible();
+  expect(bool).toBeTruthy();
+
+  // Better — use web-first assertion (auto-waits)
+  await expect(page.getByRole('heading', { name: 'ADIDAS ORIGINAL' })).toBeVisible();
+  await expect(page.locator("#displayed-text")).toBeHidden();
+
+Explanation:
+- isVisible() returns true/false immediately — no waiting.
+- expect(locator).toBeVisible() retries until the element appears — handles timing.
+- Prefer web-first assertions for reliability in tests.

@@ -1,0 +1,120 @@
+================================================================
+CHAPTER 6: WAITS AND SYNCHRONIZATION
+================================================================
+
+----------------------------------------------------------------
+6.1 AUTO-WAITING (BUILT-IN)
+----------------------------------------------------------------
+
+Explanation:
+- Playwright automatically waits for elements to be actionable before performing actions.
+- For .click(): waits until element is visible, enabled, stable, and not obscured.
+- For .fill(): waits until element is visible and editable.
+- You rarely need explicit waits — Playwright handles timing internally.
+
+
+----------------------------------------------------------------
+6.2 waitFor() — WAIT FOR ELEMENT TO APPEAR
+----------------------------------------------------------------
+
+Code:
+  await AddedToCartSuccessMsg.waitFor();
+  await page.locator("div li").last().waitFor();
+  await cardTitles.last().waitFor();
+  await page.locator("h1.hero-primary").waitFor();
+
+Explanation:
+- waitFor() pauses execution until the element appears in the DOM and is visible.
+- Useful for elements that load asynchronously (after API calls, animations, etc.).
+- Default state is 'visible'. You can specify other states:
+
+Options:
+  await locator.waitFor({ state: 'visible' });     // Wait until visible (default)
+  await locator.waitFor({ state: 'hidden' });      // Wait until hidden/removed
+  await locator.waitFor({ state: 'attached' });    // Wait until in DOM (may be hidden)
+  await locator.waitFor({ state: 'detached' });    // Wait until removed from DOM
+  await locator.waitFor({ timeout: 10000 });       // Custom timeout (10 seconds)
+
+
+----------------------------------------------------------------
+6.3 WAITING FOR ALL CONTENT TO LOAD
+----------------------------------------------------------------
+
+Code:
+  // Wait for at least one element to load, then get all text contents
+  await allPrices.first().textContent();
+  const allprices = await allPrices.allTextContents();
+
+Explanation:
+- allTextContents() does NOT auto-wait. If elements haven't loaded yet, it returns [].
+- Solution: Wait for at least one element first, then call allTextContents().
+- .first().textContent() acts as a "wait gate" — it won't resolve until the first element exists.
+
+
+----------------------------------------------------------------
+6.4 WAITING FOR TOAST MESSAGES (DISAPPEARING ELEMENTS)
+----------------------------------------------------------------
+
+Code:
+  await page.locator("#toast-container").locator("text=Product Added To Cart").waitFor();
+  console.log(await AddedToCartSuccessMsg.textContent());
+
+Explanation:
+- Toast messages appear briefly then disappear. You must grab them before they vanish.
+- Pattern: waitFor() → textContent() immediately after.
+- Use a specific text-based locator to distinguish between different toasts.
+
+Problem: If login toast and cart toast use same container (#toast-container):
+  // Wait for the SPECIFIC toast text
+  await page.locator("#toast-container").locator("text=Product Added To Cart").waitFor();
+
+Alternative — wait for previous toast to disappear first:
+  await page.locator("#toast-container").waitFor({ state: 'hidden' });
+
+
+----------------------------------------------------------------
+6.5 HARD WAIT (AVOID IN PRODUCTION TESTS)
+----------------------------------------------------------------
+
+Code:
+  await page.waitForTimeout(2000);   // Waits exactly 2 seconds
+
+Explanation:
+- This is a "sleep" — unconditional wait regardless of page state.
+- AVOID in real tests. It slows down tests and doesn't guarantee the element is ready.
+- Use only for debugging or when absolutely no other wait strategy works.
+
+
+----------------------------------------------------------------
+6.6 TIMEOUTS HIERARCHY
+----------------------------------------------------------------
+
+Three timeout levels in Playwright:
+
+1) TEST TIMEOUT — How long the entire test can run
+   Default: 30 seconds
+   Config:  timeout: 35 * 1000
+   In test: test.setTimeout(60000)
+   Shortcut: test.slow() triples the default (30s → 90s)
+
+2) ASSERTION TIMEOUT — How long web-first assertions retry
+   Default: 5 seconds
+   Config:  expect: { timeout: 45 * 1000 }
+   In test: const slowExpect = expect.configure({ timeout: 9000 })
+   Per step: await expect(locator).toBeVisible({ timeout: 6000 })
+
+3) ACTION TIMEOUT — How long actions (.click, .fill) wait
+   Default: 0 (inherits from test timeout)
+   Config:  use: { actionTimeout: 10000 }
+   In test: page.setDefaultTimeout(10000)
+   Per step: await locator.click({ timeout: 10000 })
+
+Golden Rule:
+- Test timeout is the ceiling. Nothing can exceed it.
+- Assertion/action timeouts are per-operation limits within that ceiling.
+- If test timeout (30s) hits, everything stops — regardless of action/assertion timeouts.
+
+Memory hook:
+  Assertions → "Is it there?"  → 5s default
+  Actions    → "Do it now"     → 0 default (borrows from test clock)
+  Test       → "Total budget"  → 30s default, the ultimate ceiling

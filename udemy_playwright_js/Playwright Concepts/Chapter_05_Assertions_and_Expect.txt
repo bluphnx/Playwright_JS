@@ -1,0 +1,137 @@
+================================================================
+CHAPTER 5: ASSERTIONS (EXPECT)
+================================================================
+
+----------------------------------------------------------------
+5.1 TWO TYPES OF ASSERTIONS
+----------------------------------------------------------------
+
+Playwright has TWO different assertion systems:
+
+TYPE A: Web-First Assertions (on Locators) — NEED await
+  await expect(locator).toContainText('...');
+  await expect(locator).toBeVisible();
+  await expect(locator).toBeChecked();
+  await expect(page).toHaveTitle('...');
+
+TYPE B: Generic Assertions (on values) — NO await
+  expect(string).toContain('...');
+  expect(boolean).toBeTruthy();
+  expect(number).toBe(5);
+
+Explanation:
+- Web-first assertions AUTO-RETRY. They poll the DOM repeatedly until the condition is met or timeout.
+- Generic assertions are INSTANT. They compare two values in memory — no waiting involved.
+- Using 'await' on a generic assertion causes "received is not iterable" error.
+
+
+----------------------------------------------------------------
+5.2 WEB-FIRST ASSERTIONS (RECOMMENDED)
+----------------------------------------------------------------
+
+Code:
+  await expect(page).toHaveTitle('Google');
+  await expect(errorMsgLocator).toContainText('Incorrect');
+  await expect(TnC).toBeChecked();
+  await expect(page.locator("#displayed-text")).toBeVisible();
+  await expect(page.locator("#displayed-text")).toBeHidden();
+  await expect(link).toHaveAttribute('class', 'blinkingText');
+  await expect(page.locator(".email-title")).toHaveText(" order summary ");
+  await expect(page.getByText('Thankyou for the order.')).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'ADIDAS ORIGINAL' })).toBeVisible();
+
+Explanation:
+- These take a LOCATOR (not a string) and auto-wait for the condition.
+- Default timeout: 5 seconds (configurable in playwright.config.js).
+- If the condition isn't met within timeout, the test fails with a clear error.
+- ALWAYS prefer these over generic assertions — they handle timing automatically.
+
+
+----------------------------------------------------------------
+5.3 GENERIC ASSERTIONS (ON RESOLVED VALUES)
+----------------------------------------------------------------
+
+Code:
+  const signInErrorMsg = await errorMsgLocator.textContent();
+  expect(signInErrorMsg).toContain('Incorrect');        // ← NO await
+
+  const isChecked = await TnC.isChecked();
+  expect(isChecked).toBeFalsy();                        // ← NO await
+
+  const bool = await page.locator("h3:has-text('Zara Coat 3')").isVisible();
+  expect(bool).toBeTruthy();                            // ← NO await
+
+Explanation:
+- Once you have the value (string, boolean, number), just compare it — no waiting needed.
+- These are JavaScript assertions, not Playwright web-first assertions.
+- They execute instantly — if the value isn't what you expect, it fails immediately.
+
+
+----------------------------------------------------------------
+5.4 COMMON MISTAKE: MIXING AWAIT WITH GENERIC ASSERTIONS
+----------------------------------------------------------------
+
+WRONG:
+  await expect(someString).toContain('Incorrect');
+  // ERROR: "received is not iterable"
+  // Playwright sees 'await' and expects a Locator object
+
+CORRECT:
+  expect(someString).toContain('Incorrect');            // No await for value assertions
+  await expect(locator).toContainText('Incorrect');     // Await for locator assertions
+
+
+----------------------------------------------------------------
+5.5 toContainText vs toContain
+----------------------------------------------------------------
+
+toContainText() → Only works with LOCATORS (web-first, auto-waits)
+  await expect(page.locator('.error')).toContainText('Incorrect');
+
+toContain() → Works with STRINGS (generic, instant)
+  const msg = await locator.textContent();
+  expect(msg).toContain('Incorrect');
+
+toHaveText() → Checks EXACT text match on a LOCATOR
+  await expect(page.locator(".email-title")).toHaveText(" order summary ");
+
+
+----------------------------------------------------------------
+5.6 CONFIGURING ASSERTION TIMEOUTS
+----------------------------------------------------------------
+
+Code:
+  // Step level — just this one assertion
+  await expect(page.getByText("Success!")).toBeVisible({ timeout: 6000 });
+
+  // Test level — all assertions in this test
+  const slowExpect = expect.configure({ timeout: 9000 });
+  await slowExpect(page.getByText("Success!")).toBeVisible();
+
+  // Global level — in playwright.config.js
+  expect: { timeout: 45 * 1000 }
+
+Explanation:
+- Default assertion timeout is 5 seconds.
+- If an element takes longer to appear, increase the timeout at the appropriate level.
+- Step level overrides test level, which overrides global level.
+- expect.configure() creates a custom expect with different defaults for that test.
+
+
+----------------------------------------------------------------
+5.7 ASSERTION SUMMARY TABLE
+----------------------------------------------------------------
+
+| Assertion                | Works on  | Await? | Purpose                      |
+|--------------------------|-----------|--------|------------------------------|
+| toContainText('...')     | Locator   | Yes    | Text contains (partial)      |
+| toHaveText('...')        | Locator   | Yes    | Text equals (exact)          |
+| toBeVisible()            | Locator   | Yes    | Element is visible           |
+| toBeHidden()             | Locator   | Yes    | Element is hidden            |
+| toBeChecked()            | Locator   | Yes    | Checkbox/radio is checked    |
+| toHaveTitle('...')       | Page      | Yes    | Page title matches           |
+| toHaveAttribute(k, v)   | Locator   | Yes    | Element has attribute        |
+| toContain('...')         | String    | No     | String includes substring    |
+| toBeTruthy()            | Value     | No     | Value is truthy              |
+| toBeFalsy()             | Value     | No     | Value is falsy               |
+| toBe(value)             | Value     | No     | Strict equality              |

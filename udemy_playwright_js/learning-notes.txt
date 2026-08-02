@@ -1,0 +1,143 @@
+============================
+PLAYWRIGHT LEARNING NOTES
+============================
+
+------------------------------
+1. RUNNING TESTS
+------------------------------
+- Run all tests:                npx playwright test
+- Run one file:                 npx playwright test tests/UIBasictest.spec.js
+- Run by test name:             npx playwright test -g "Sign in test"
+- Run headed (see browser):    npx playwright test --headed
+- Run specific folder:          npx playwright test tests/auth/
+
+------------------------------
+2. PLAYWRIGHT CONFIG (playwright.config.js)
+------------------------------
+- testDir must point to a FOLDER, not a file.
+  WRONG:  testDir: './tests/UIBasictest.spec.js'
+  RIGHT:  testDir: './tests'
+
+------------------------------
+3. TEST NAMING BEST PRACTICES
+------------------------------
+- Name tests by WHAT they verify, not HOW they work.
+  BAD:   test('tc_001_browser_fixture', ...)
+  GOOD:  test('should show error for invalid password', ...)
+
+- Use test.describe() to group related tests:
+  test.describe('Login Page', () => {
+      test('should login with valid credentials', ...);
+      test('should show error for invalid password', ...);
+  });
+
+- Use tags for traceability: test('should login @TC-101', ...)
+  Run by tag: npx playwright test --grep @TC-101
+
+------------------------------
+4. PROJECT STRUCTURE
+------------------------------
+  tests/
+  ├── auth/
+  │   ├── login.spec.js
+  │   └── registration.spec.js
+  ├── cart/
+  │   ├── add-to-cart.spec.js
+  │   └── checkout.spec.js
+  └── homepage/
+      └── navigation.spec.js
+
+- Group by feature/page, not by number.
+- One flow or component per file.
+
+------------------------------
+5. IMPORTS - MUST DESTRUCTURE
+------------------------------
+  WRONG:  const test = require('@playwright/test');
+  RIGHT:  const { test, expect } = require('@playwright/test');
+
+Without destructuring, 'test' is the whole module object, not the test function.
+
+------------------------------
+6. AWAIT RULES
+------------------------------
+- Use 'await' ONLY when a function returns a Promise (async operation).
+- NOT every line needs await.
+
+When to await:
+  await page.goto(...)            // navigating - async
+  await page.locator(...).fill()  // interacting with browser - async
+  await page.title()              // fetching data from browser - async
+  await locator.textContent()     // fetching text from DOM - async
+
+When NOT to await:
+  expect(string).toContain(...)   // comparing values in memory - sync
+  page.locator('#id')             // creating a locator reference - sync
+
+------------------------------
+7. TWO TYPES OF EXPECT (CRITICAL)
+------------------------------
+
+A) Web-first assertions (on Locators) - NEED await:
+   await expect(locator).toContainText('Incorrect');
+   await expect(locator).toBeVisible();
+   await expect(page).toHaveTitle('My App');
+   -> These auto-retry, poll the DOM until timeout.
+
+B) Generic assertions (on values) - NO await:
+   expect(someString).toContain('Incorrect');
+   expect(number).toBe(5);
+   -> These are instant comparisons in memory.
+
+COMMON MISTAKE:
+  await expect(someString).toContain('...')  // ERROR! 
+  Playwright sees 'await' and expects a Locator, throws "received is not iterable"
+
+------------------------------
+8. toContainText vs toContain
+------------------------------
+- toContainText() -> only works with a LOCATOR
+    await expect(page.locator('.error')).toContainText('Incorrect');
+
+- toContain() -> works with a STRING value
+    const msg = await locator.textContent();
+    expect(msg).toContain('Incorrect');
+
+PREFERRED: Use toContainText on a locator (auto-waits, handles timing).
+
+------------------------------
+9. COMMON ERRORS AND FIXES
+------------------------------
+
+ERROR: "No tests found"
+CAUSE: testDir in config points to a file, or wrong path.
+FIX:   Set testDir to the folder: testDir: './tests'
+
+ERROR: "toContainText can be only used with Locator object"
+CAUSE: You passed a string (from textContent()) instead of a locator.
+FIX:   Use toContainText on the locator directly, or use toContain on the string.
+
+ERROR: "received is not iterable"
+CAUSE: Using 'await expect(string).toContain(...)' - the await confuses Playwright.
+FIX:   Remove await: expect(string).toContain(...)
+        Or use locator assertion: await expect(locator).toContainText(...)
+
+ERROR: Promise { <pending> } in console.log
+CAUSE: Missing 'await' before an async call like .textContent()
+FIX:   const text = await locator.textContent();
+
+------------------------------
+10. INTELLISENSE / AUTO-SUGGEST SETUP
+------------------------------
+- Install: npm i -D @playwright/test
+- Add jsconfig.json at project root:
+  {
+    "compilerOptions": {
+      "module": "commonjs",
+      "target": "es6",
+      "checkJs": true
+    },
+    "exclude": ["node_modules"]
+  }
+- Ensure correct imports with destructuring.
+- Reload editor window after adding jsconfig.json.

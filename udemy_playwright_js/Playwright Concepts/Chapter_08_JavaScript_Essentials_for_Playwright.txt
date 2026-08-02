@@ -1,0 +1,169 @@
+================================================================
+CHAPTER 8: JAVASCRIPT ESSENTIALS FOR PLAYWRIGHT
+================================================================
+
+----------------------------------------------------------------
+8.1 VARIABLES (const, let, var)
+----------------------------------------------------------------
+
+Code:
+  const email = "r123am@gmail.com";    // Cannot be reassigned
+  let orderid = "abc123";              // Can be reassigned later
+  orderid = "xyz456";                  // ✅ Works with let
+
+Explanation:
+- 'const' = constant. Once assigned, it cannot change. Use for locators, URLs, fixed values.
+- 'let' = mutable. Use when the value needs to change (counters, accumulated strings).
+- 'var' = old style. Avoid it — has confusing scoping rules.
+
+Rule of thumb: Use 'const' by default. Switch to 'let' only when you NEED reassignment.
+
+
+----------------------------------------------------------------
+8.2 TEMPLATE LITERALS (BACKTICK STRINGS)
+----------------------------------------------------------------
+
+Code:
+  console.log(`Title: ${alltitles[index]} Price: ${allprices[index]}`);
+  console.log(`userRadio : ` + await userRadio.isChecked());
+  console.log(`${index + 1}) Product : ${alltitles[index]} => Price : ${allprices[index]}`);
+
+Explanation:
+- Template literals use backticks (`) instead of quotes.
+- ${expression} inside backticks evaluates the expression and inserts the result.
+- Much cleaner than string concatenation with + operator.
+
+WRONG: console.log(`Title : alltitles[index]`)     // Prints literal text
+RIGHT: console.log(`Title : ${alltitles[index]}`)  // Prints the value
+
+
+----------------------------------------------------------------
+8.3 DESTRUCTURING
+----------------------------------------------------------------
+
+Code:
+  const { test, expect } = require('@playwright/test');
+  const [newPage] = await Promise.all([...]);
+
+Explanation:
+- Object destructuring { a, b } extracts properties from an object into variables.
+- Array destructuring [first, second] extracts items by position.
+- Saves you from writing: const test = module.test; const expect = module.expect;
+
+
+----------------------------------------------------------------
+8.4 LOOPS (for, for...of)
+----------------------------------------------------------------
+
+Code:
+  for (let index = 0; index < alltitles.length; index++) {
+      console.log(`${alltitles[index]}`);
+      if (alltitles[index] === Product) {
+          await allAddToCart.nth(index).click();
+          break;
+      }
+  }
+
+Explanation:
+- Standard 'for' loop with index — use when you need the index number.
+- 'break' exits the loop immediately when the condition is met.
+- Commonly used to find a specific item in a list and interact with it.
+
+
+----------------------------------------------------------------
+8.5 CONDITIONALS (if/else)
+----------------------------------------------------------------
+
+Code:
+  if (`${allTitles[index]}` == Product) {
+      await allAddToCart.nth(index).click();
+      break;
+  }
+
+  if (text === ' India') {
+      await dropdownlist.locator("button").nth(i).click();
+      break;
+  }
+
+Explanation:
+- == compares with type coercion ("5" == 5 is true).
+- === compares without type coercion (strict equality — preferred).
+- Always prefer === over == to avoid unexpected type conversion bugs.
+
+
+----------------------------------------------------------------
+8.6 STRING METHODS
+----------------------------------------------------------------
+
+Code:
+  const para = "Please email us at mentor@rahulshettyacademy.com with template";
+
+  // Split string into array
+  const array1 = para.split("@");
+  // ["Please email us at mentor", "rahulshettyacademy.com with template"]
+
+  const array2 = array1[1].split(".");
+  // ["rahulshettyacademy", "com with template"]
+
+  // Replace and trim
+  let orderid = orderidstring.replaceAll("|", "").trim();
+  // "| 6a607d0b |" → "6a607d0b"
+
+Explanation:
+- .split(separator) breaks a string into an array at each separator.
+- .replaceAll(search, replace) replaces all occurrences.
+- .trim() removes whitespace from both ends.
+- These are essential for extracting data from page text.
+
+
+----------------------------------------------------------------
+8.7 ARROW FUNCTIONS
+----------------------------------------------------------------
+
+Code:
+  page.on("dialog", dialog => dialog.accept());
+
+  test('my test', async ({ page }) => {
+      // test body
+  });
+
+Explanation:
+- Arrow functions (=>) are a shorter syntax for writing functions.
+- (params) => expression — single expression, return is implicit.
+- (params) => { statements } — multiple statements, needs explicit return.
+- All Playwright tests use arrow functions as the test body.
+
+
+----------------------------------------------------------------
+8.8 ARRAYS
+----------------------------------------------------------------
+
+Code:
+  const allprices = await allPrices.allTextContents();   // Returns string[]
+  console.log(allprices.length);                         // Number of items
+  console.log(allprices[0]);                             // First item
+  console.log(allprices[allprices.length - 1]);          // Last item
+
+Explanation:
+- Arrays are ordered lists of values, accessed by zero-based index.
+- .length gives the count; [index] gives a specific item.
+- allTextContents() returns a plain JavaScript array you can loop over.
+
+
+----------------------------------------------------------------
+8.9 CONSOLE.LOG (DEBUGGING)
+----------------------------------------------------------------
+
+Code:
+  console.log(await page.title());
+  console.log(await userName.inputValue());
+  console.log(`TnC : ` + await TnC.isChecked());
+
+Explanation:
+- console.log() prints to the terminal where tests run — essential for debugging.
+- In Playwright's HTML report, stdout shows under each test.
+- Use it to verify values during development, then remove or comment out.
+
+Watch out:
+  console.log(locator.textContent());        // ❌ Prints Promise { <pending> }
+  console.log(await locator.textContent());  // ✅ Prints actual text

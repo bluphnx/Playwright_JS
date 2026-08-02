@@ -1,0 +1,8 @@
+eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2YTViNjk5NDg1Yjg4NDliNDlmNTI5ZmEiLCJ1c2VyRW1haWwiOiJyMTIzYW1AZ21haWwuY29tIiwidXNlck1vYmlsZSI6MTIzNDU2Nzg4OSwidXNlclJvbGUiOiJjdXN0b21lciIsImlhdCI6MTc4NTY1OTE1MywiZXhwIjoxODE3MjE2NzUzfQ.OYAqKKS1CxhxSwEuqO6FXIXQ03fXBDQkbTz4K3w_tzg
+Body: {"orders":["6a6eff1185b8849b492471df"],"productOrderId":["6960ea76c941646b7a8b3dd5"],"message":"Order Placed Successfully"}
+orderResponeJson.orders[0]: 6a6eff1185b8849b492471df
+orderResponeJson.productOrderId[0]: 6960ea76c941646b7a8b3dd5
+orderResponeJson.message: Order Placed Successfully
+6a6eff1185b8849b492471df
+ order summary 
+6a6eff1185b8849b492471df
