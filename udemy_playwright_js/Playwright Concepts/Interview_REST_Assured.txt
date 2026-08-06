@@ -1,0 +1,311 @@
+================================================================
+REST ASSURED — API TESTING INTERVIEW GUIDE
+================================================================
+
+
+----------------------------------------------------------------
+1. WHAT IS REST ASSURED?
+----------------------------------------------------------------
+
+Explanation:
+A Java library for testing RESTful APIs. It provides a fluent BDD-style
+syntax (given-when-then) for making HTTP requests and validating responses.
+
+Why it's used:
+  - Validate backend APIs independently of UI.
+  - Verify response status codes, headers, body content.
+  - Chain API calls (login → get token → use token for further calls).
+  - Integrates with TestNG/JUnit for assertion reporting.
+
+
+----------------------------------------------------------------
+2. HTTP METHODS
+----------------------------------------------------------------
+
+  GET    → Retrieve data (fetch product list, get user profile)
+  POST   → Create new resource (register user, place order)
+  PUT    → Update entire resource (update full profile)
+  PATCH  → Partial update (change only email)
+  DELETE → Remove resource (delete account, remove from cart)
+
+
+----------------------------------------------------------------
+3. BASIC GET REQUEST
+----------------------------------------------------------------
+
+Code:
+  import static io.restassured.RestAssured.*;
+  import static org.hamcrest.Matchers.*;
+
+  given()
+      .baseUri("https://api.example.com")
+      .header("Content-Type", "application/json")
+  .when()
+      .get("/products")
+  .then()
+      .statusCode(200)
+      .body("products.size()", greaterThan(0))
+      .body("products[0].name", equalTo("iPhone 13"));
+
+How code works:
+  import static io.restassured.RestAssured.*;
+  → Static import lets you use given(), when(), then() directly without class prefix.
+
+  import static org.hamcrest.Matchers.*;
+  → Static import for matchers (equalTo, greaterThan, hasItem, etc.)
+
+  given()
+  → "Given these preconditions for the request..."
+  → Sets up the request: headers, body, auth, params.
+
+      .baseUri("https://api.example.com")
+  → Base URL for the API. All paths are relative to this.
+
+      .header("Content-Type", "application/json")
+  → Tells the server "I'm sending/expecting JSON format."
+
+  .when()
+  → "When I perform this action..."
+  → The actual HTTP request happens here.
+
+      .get("/products")
+  → Sends a GET request to https://api.example.com/products.
+  → Full URL = baseUri + path.
+
+  .then()
+  → "Then validate the response..."
+  → All assertions go here.
+
+      .statusCode(200)
+  → Assert response status is 200 (OK).
+
+      .body("products.size()", greaterThan(0))
+  → JsonPath expression: get the array "products", check its size > 0.
+  → Ensures we got at least one product.
+
+      .body("products[0].name", equalTo("iPhone 13"))
+  → JsonPath: first item in products array → name field → must equal "iPhone 13".
+
+Interview tip: "given() sets preconditions (headers, params),
+when() makes the request, then() validates the response.
+It reads like English — very BDD-friendly."
+
+
+----------------------------------------------------------------
+4. POST REQUEST (CREATE)
+----------------------------------------------------------------
+
+Code:
+  String requestBody = "{ \"email\": \"user@mail.com\", \"password\": \"Pass123\" }";
+
+  Response response =
+  given()
+      .header("Content-Type", "application/json")
+      .body(requestBody)
+  .when()
+      .post("/api/auth/login")
+  .then()
+      .statusCode(200)
+      .body("token", notNullValue())
+      .extract().response();
+
+  String token = response.jsonPath().getString("token");
+  System.out.println("Token: " + token);
+
+How code works:
+  String requestBody = "{ \"email\": \"user@mail.com\", \"password\": \"Pass123\" }";
+  → JSON string for the request body. \" escapes quotes inside a Java string.
+
+  Response response =
+  → Stores the full response object for later extraction.
+
+  given()
+      .header("Content-Type", "application/json")
+  → Tells server the body is JSON format.
+
+      .body(requestBody)
+  → Attaches the JSON payload to the request. This is what the server reads.
+
+  .when()
+      .post("/api/auth/login")
+  → Sends a POST request (creates/submits data) to the login endpoint.
+
+  .then()
+      .statusCode(200)
+  → Asserts the server returned 200 (success).
+
+      .body("token", notNullValue())
+  → Asserts the response JSON has a "token" field that isn't null.
+
+      .extract().response();
+  → Extracts the full response so we can use it later (get token, etc.)
+  → Without extract(), you can't access the response after validation.
+
+  String token = response.jsonPath().getString("token");
+  → jsonPath() parses the JSON body.
+  → getString("token") gets the value of the "token" key as a String.
+  → This token is used in subsequent authenticated requests.
+
+Interview tip: "I extract the token from login response and pass it
+as Authorization header for subsequent authenticated requests."
+
+
+----------------------------------------------------------------
+5. PUT & DELETE REQUESTS
+----------------------------------------------------------------
+
+Code (PUT):
+  given()
+      .header("Authorization", "Bearer " + token)
+      .header("Content-Type", "application/json")
+      .body("{ \"name\": \"Updated Name\" }")
+  .when()
+      .put("/api/profile/" + userId)
+  .then()
+      .statusCode(200)
+      .body("message", equalTo("Profile updated"));
+
+Code (DELETE):
+  given()
+      .header("Authorization", "Bearer " + token)
+  .when()
+      .delete("/api/cart/item/" + itemId)
+  .then()
+      .statusCode(204);  // No content
+
+
+----------------------------------------------------------------
+6. AUTHENTICATION (BEARER TOKEN)
+----------------------------------------------------------------
+
+Code:
+  // Step 1: Login and get token
+  String token = given()
+      .body(loginPayload)
+      .post("/auth/login")
+      .jsonPath().getString("token");
+
+  // Step 2: Use token in subsequent requests
+  given()
+      .header("Authorization", "Bearer " + token)
+  .when()
+      .get("/api/orders")
+  .then()
+      .statusCode(200);
+
+Interview tip: "In my project, I automated the full auth flow — login
+via POST, extract JWT token, pass it as Bearer token in Authorization
+header for all protected endpoints."
+
+
+----------------------------------------------------------------
+7. RESPONSE VALIDATION (JsonPath)
+----------------------------------------------------------------
+
+Code:
+  Response response = given().get("/api/products").then().extract().response();
+
+  // Extract values
+  String firstName = response.jsonPath().getString("products[0].name");
+  int count = response.jsonPath().getInt("products.size()");
+  List<String> names = response.jsonPath().getList("products.name");
+
+  // Validate in-line
+  given().get("/api/products")
+  .then()
+      .body("products[0].price", equalTo(999))
+      .body("products.name", hasItem("iPhone"))
+      .body("total", lessThan(100));
+
+How code works:
+  Response response = given().get("/api/products").then().extract().response();
+  → Sends GET request and stores the full response for multiple extractions.
+
+  response.jsonPath().getString("products[0].name");
+  → Navigate JSON: go to "products" array → first item [0] → "name" field.
+  → Returns it as a String.
+
+  response.jsonPath().getInt("products.size()");
+  → "products.size()" is a Groovy expression — returns array length as int.
+
+  response.jsonPath().getList("products.name");
+  → Extracts ALL "name" values from every item in "products" array.
+  → Returns a List: ["iPhone", "Samsung", "Nokia"]
+
+  .body("products[0].price", equalTo(999))
+  → JsonPath: first product's price must equal 999 (exact match).
+
+  .body("products.name", hasItem("iPhone"))
+  → The "name" field across all products must contain "iPhone" somewhere.
+  → hasItem checks if the collection contains this value.
+
+  .body("total", lessThan(100))
+  → The "total" field must be less than 100.
+
+
+----------------------------------------------------------------
+8. QUERY & PATH PARAMETERS
+----------------------------------------------------------------
+
+Code:
+  // Query params: /products?category=phones&limit=10
+  given()
+      .queryParam("category", "phones")
+      .queryParam("limit", 10)
+  .when()
+      .get("/products")
+  .then()
+      .statusCode(200);
+
+  // Path params: /products/{id}
+  given()
+      .pathParam("id", "12345")
+  .when()
+      .get("/products/{id}")
+  .then()
+      .body("id", equalTo("12345"));
+
+
+----------------------------------------------------------------
+9. SERIALIZATION (POJO)
+----------------------------------------------------------------
+
+Code:
+  // Create a Java class matching JSON structure
+  public class LoginRequest {
+      private String email;
+      private String password;
+      // getters, setters, constructors
+  }
+
+  LoginRequest login = new LoginRequest("user@mail.com", "Pass123");
+
+  given()
+      .contentType("application/json")
+      .body(login)  // Auto-serialized to JSON
+  .when()
+      .post("/auth/login");
+
+Interview tip: "I used POJO classes for request/response serialization.
+This ensures type safety and makes code more readable than raw JSON strings."
+
+
+----------------------------------------------------------------
+10. COMMON INTERVIEW QUESTIONS
+----------------------------------------------------------------
+
+Q: "How do you validate response time?"
+A: given().get("/api").then().time(lessThan(2000L)); // under 2 seconds
+
+Q: "How do you handle dynamic values in responses?"
+A: "I use JsonPath to extract and store them. For timestamps/IDs that
+   change every run, I validate format (regex) rather than exact value."
+
+Q: "How do you chain API calls?"
+A: "Login → extract token → pass token to next request → extract order ID
+   → pass order ID to verification endpoint. Each step uses extract()."
+
+Q: "Difference between REST Assured and Postman?"
+A: "Postman is GUI-based for manual/exploratory API testing and quick
+   validations. REST Assured is code-based for automated regression
+   testing integrated into CI/CD pipelines with TestNG/JUnit."

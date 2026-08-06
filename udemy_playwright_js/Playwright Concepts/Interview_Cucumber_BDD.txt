@@ -1,0 +1,284 @@
+================================================================
+CUCUMBER BDD — INTERVIEW GUIDE
+================================================================
+
+
+----------------------------------------------------------------
+1. WHAT IS BDD & CUCUMBER?
+----------------------------------------------------------------
+
+BDD (Behavior-Driven Development):
+  A methodology where tests are written in plain English describing
+  expected BEHAVIOR. Business stakeholders can read and approve them.
+
+Cucumber:
+  A tool that IMPLEMENTS BDD. It reads .feature files written in
+  Gherkin syntax and maps each step to code (step definitions).
+
+Why it's used:
+  - Bridge between business and technical teams.
+  - Non-technical people can write/review test scenarios.
+  - Living documentation — feature files describe what the app does.
+  - Forces thinking in terms of user behavior, not implementation.
+
+
+----------------------------------------------------------------
+2. GHERKIN SYNTAX
+----------------------------------------------------------------
+
+Keywords:
+  Feature     → Describes what feature is being tested
+  Scenario    → One specific test case
+  Given       → Precondition (setup)
+  When        → Action (what user does)
+  Then        → Expected outcome (verification)
+  And/But     → Additional steps within same phase
+  Background  → Steps that run before EVERY scenario in the file
+  Scenario Outline → Data-driven scenario with Examples table
+  Examples    → Data table for Scenario Outline
+
+Code:
+  Feature: User Login
+
+    Background:
+      Given I am on the login page
+
+    Scenario: Successful login
+      When I enter valid credentials
+      And I click the login button
+      Then I should see the dashboard
+      And the welcome message should display my name
+
+    Scenario: Failed login with wrong password
+      When I enter invalid password
+      And I click the login button
+      Then I should see error message "Invalid credentials"
+
+    Scenario Outline: Login with multiple users
+      When I enter "<email>" and "<password>"
+      And I click the login button
+      Then I should see "<expected_page>"
+
+      Examples:
+        | email           | password | expected_page |
+        | admin@mail.com  | Admin123 | Admin Panel   |
+        | user@mail.com   | User123  | Dashboard     |
+
+
+----------------------------------------------------------------
+3. STEP DEFINITIONS
+----------------------------------------------------------------
+
+Explanation:
+Step definitions are code that executes for each Gherkin step.
+Cucumber maps "I enter valid credentials" to a Java/JS method.
+
+Code (Java):
+  @Given("I am on the login page")
+  public void navigateToLogin() {
+      driver.get("https://example.com/login");
+  }
+
+  @When("I enter {string} and {string}")
+  public void enterCredentials(String email, String password) {
+      driver.findElement(By.id("email")).sendKeys(email);
+      driver.findElement(By.id("password")).sendKeys(password);
+  }
+
+  @Then("I should see the dashboard")
+  public void verifyDashboard() {
+      Assert.assertTrue(driver.findElement(By.id("dashboard")).isDisplayed());
+  }
+
+How code works (Java):
+  @Given("I am on the login page")
+  → This annotation maps the Gherkin step "Given I am on the login page"
+    to this Java method. When Cucumber reads that line, it calls this method.
+
+  public void navigateToLogin() {
+      driver.get("https://example.com/login");
+  }
+  → The actual automation code that opens the login page.
+  → The method name doesn't matter — only the annotation text matters for matching.
+
+  @When("I enter {string} and {string}")
+  → {string} is a parameter placeholder. Cucumber extracts values from quotes in
+    the feature file and passes them to the method parameters.
+  → Feature: When I enter "user@mail.com" and "Pass123"
+    → email = "user@mail.com", password = "Pass123"
+
+  public void enterCredentials(String email, String password) {
+  → Parameters receive the extracted values from the Gherkin step.
+  → Order matters: first {string} → first parameter, second {string} → second.
+
+  @Then("I should see the dashboard")
+  public void verifyDashboard() {
+      Assert.assertTrue(driver.findElement(By.id("dashboard")).isDisplayed());
+  }
+  → Validation step. If assertion fails, Cucumber marks this step as FAILED.
+
+Code (JavaScript — Cucumber.js):
+  const { Given, When, Then } = require('@cucumber/cucumber');
+
+  Given('I am on the login page', async function() {
+      await this.page.goto('https://example.com/login');
+  });
+
+  When('I enter {string} and {string}', async function(email, password) {
+      await this.page.locator('#email').fill(email);
+      await this.page.locator('#password').fill(password);
+  });
+
+How code works (JavaScript):
+  const { Given, When, Then } = require('@cucumber/cucumber');
+  → Import step definition functions from Cucumber.js library.
+
+  Given('I am on the login page', async function() {
+  → Maps the Gherkin step to this function.
+  → Must use 'function()' (not arrow =>) to access 'this' context (World object).
+  → 'this' stores shared state between steps (page, browser, data).
+
+      await this.page.goto('https://example.com/login');
+  → 'this.page' was set up in a Before hook — shared across all steps.
+
+  When('I enter {string} and {string}', async function(email, password) {
+  → {string} extracts quoted values from feature file into parameters.
+  → Works the same as Java version — position-based parameter mapping.
+
+Interview tip: "Step definitions contain the actual automation code.
+The feature file describes WHAT to test, step definitions define HOW."
+
+
+----------------------------------------------------------------
+4. FEATURE FILE STRUCTURE
+----------------------------------------------------------------
+
+File location: src/test/resources/features/login.feature
+
+Rules:
+  - One Feature per file
+  - Multiple Scenarios per Feature
+  - Steps should be reusable across scenarios
+  - Keep steps at business level, not implementation level
+
+BAD step: "I click on the element with id 'submit-btn'"
+GOOD step: "I submit the login form"
+
+
+----------------------------------------------------------------
+5. HOOKS (Before/After)
+----------------------------------------------------------------
+
+Code (Java):
+  @Before
+  public void setUp() {
+      driver = new ChromeDriver();
+  }
+
+  @After
+  public void tearDown(Scenario scenario) {
+      if (scenario.isFailed()) {
+          byte[] screenshot = ((TakesScreenshot) driver).getScreenshotAs(OutputType.BYTES);
+          scenario.attach(screenshot, "image/png", "failure-screenshot");
+      }
+      driver.quit();
+  }
+
+  @Before("@smoke")  // Only runs for scenarios tagged @smoke
+  public void smokeSetup() { ... }
+
+Interview tip: "I used @After hooks to capture screenshots on failure
+and attach them to the Cucumber report. Tagged hooks let me run
+specific setup only for certain scenarios."
+
+
+----------------------------------------------------------------
+6. TAGS
+----------------------------------------------------------------
+
+Code (feature file):
+  @smoke @login
+  Scenario: Successful login
+      Given I am on the login page
+      ...
+
+  @regression @negative
+  Scenario: Login with expired account
+      ...
+
+Run specific tags:
+  mvn test -Dcucumber.filter.tags="@smoke"
+  mvn test -Dcucumber.filter.tags="@smoke and not @wip"
+
+Interview tip: "I tagged scenarios as @smoke, @regression, @critical.
+Jenkins smoke pipeline runs only @smoke tags (fast feedback).
+Nightly pipeline runs @regression (full coverage)."
+
+
+----------------------------------------------------------------
+7. DATA TABLES
+----------------------------------------------------------------
+
+Code (feature):
+  Scenario: Fill registration form
+    When I fill the form with:
+      | field    | value           |
+      | Name     | Dhejo           |
+      | Email    | user@mail.com   |
+      | Phone    | 1234567890      |
+
+Code (step definition):
+  @When("I fill the form with:")
+  public void fillForm(DataTable dataTable) {
+      Map<String, String> data = dataTable.asMap(String.class, String.class);
+      driver.findElement(By.id("name")).sendKeys(data.get("Name"));
+      driver.findElement(By.id("email")).sendKeys(data.get("Email"));
+  }
+
+
+----------------------------------------------------------------
+8. CUCUMBER REPORTS
+----------------------------------------------------------------
+
+Types:
+  - HTML Report (built-in) — pretty, shareable
+  - JSON Report — machine-readable, feeds other tools
+  - Allure Cucumber — rich interactive reports
+  - Cucumber Cloud — online dashboard
+
+Config (TestRunner):
+  @CucumberOptions(
+      features = "src/test/resources/features",
+      glue = "stepDefinitions",
+      plugin = {"pretty", "html:target/cucumber-reports.html",
+                "json:target/cucumber.json"},
+      tags = "@smoke"
+  )
+
+
+----------------------------------------------------------------
+9. COMMON INTERVIEW QUESTIONS
+----------------------------------------------------------------
+
+Q: "What's the difference between Scenario and Scenario Outline?"
+A: "Scenario runs once. Scenario Outline runs multiple times with
+   different data from the Examples table — like data-driven testing."
+
+Q: "How do you share state between steps?"
+A: "Using instance variables in the step definition class, or using
+   dependency injection (PicoContainer/Spring) for complex setups."
+
+Q: "What's Background?"
+A: "Common steps that run before EVERY scenario in a feature file.
+   Like login or navigation that every scenario needs."
+
+Q: "Why is BDD not always recommended with Playwright?"
+A: "Playwright's test runner already provides readable test names,
+   fixtures, and hooks. Adding Cucumber adds complexity without much
+   benefit unless you have non-technical stakeholders writing scenarios.
+   The Gherkin layer becomes overhead that slows development."
+
+Q: "How do you handle step reusability?"
+A: "I write steps at a business level so they're naturally reusable.
+   'I login with valid credentials' can be used in any scenario.
+   I avoid overly specific steps like 'I click button with id X'."

@@ -1,0 +1,233 @@
+================================================================
+GIT — VERSION CONTROL INTERVIEW GUIDE
+================================================================
+
+
+----------------------------------------------------------------
+1. WHAT IS GIT?
+----------------------------------------------------------------
+
+Explanation:
+A distributed version control system that tracks changes to files.
+Every developer has a full copy of the repository history locally.
+
+Why it's used:
+  - Track who changed what, when, and why.
+  - Multiple developers work on same project without conflicts.
+  - Revert to any previous state if something breaks.
+  - Branching allows parallel feature development.
+
+
+----------------------------------------------------------------
+2. ESSENTIAL COMMANDS
+----------------------------------------------------------------
+
+Setup:
+  git init                          # Initialize new repo
+  git clone <url>                   # Download remote repo
+
+Daily workflow:
+  git status                        # See what's changed
+  git add .                         # Stage all changes
+  git add file.js                   # Stage specific file
+  git commit -m "message"           # Save staged changes
+  git push                          # Upload to remote
+  git pull                          # Download + merge remote changes
+
+How commands work:
+  git status
+  → Shows: which files are modified, which are staged, which are untracked.
+  → Red = modified but not staged. Green = staged, ready to commit.
+
+  git add .
+  → Moves ALL changed files to "staging area" (ready to commit).
+  → The '.' means "everything in current directory and below."
+
+  git add file.js
+  → Stages only this one file. Other changes remain unstaged.
+  → Preferred for precise commits (don't add unrelated changes).
+
+  git commit -m "message"
+  → Takes everything in staging area and saves it as a snapshot.
+  → The -m flag provides the commit message inline.
+  → This is LOCAL only — not on GitHub yet.
+
+  git push
+  → Uploads your local commits to the remote repository (GitHub).
+  → Others can now see your changes.
+
+  git pull
+  → Downloads remote changes AND merges them into your branch.
+  → Equivalent to: git fetch + git merge.
+  → Can cause merge conflicts if others edited same lines.
+
+Branching:
+  git branch                        # List local branches
+  git branch feature-login          # Create new branch
+  git checkout feature-login        # Switch to branch
+  git checkout -b feature-login     # Create + switch (shortcut)
+  git switch feature-login          # Newer switch command
+  git merge feature-login           # Merge branch into current
+  git branch -d feature-login       # Delete branch
+
+Remote:
+  git fetch                         # Download remote info (no merge)
+  git remote -v                     # Show remote URLs
+  git push -u origin feature-login  # Push new branch to remote
+
+
+----------------------------------------------------------------
+3. BRANCHING STRATEGY
+----------------------------------------------------------------
+
+Common model (Git Flow):
+  main/master  → Production-ready code (never commit directly)
+  develop      → Integration branch (features merge here)
+  feature/*    → Individual feature branches
+  release/*    → Preparing for release
+  hotfix/*     → Emergency production fixes
+
+Our workflow at Amazon:
+  main         → Production
+  gamma        → Pre-production testing
+  feature/XYZ  → One branch per JIRA ticket
+
+  Developer creates feature/KIDS-1234
+  → Writes code + tests
+  → Creates Pull Request to gamma
+  → Tests run in CI
+  → Code review + approval
+  → Merge to gamma → deploy to gamma environment
+  → Gamma passes → merge to main → deploy to production
+
+Interview tip: "We followed a feature-branch workflow. Each JIRA ticket
+got its own branch. PRs required passing CI tests + code review before
+merging to gamma. This prevented untested code from reaching production."
+
+
+----------------------------------------------------------------
+4. MERGE vs REBASE
+----------------------------------------------------------------
+
+Merge:
+  git checkout main
+  git merge feature-login
+  → Creates a merge commit. History shows the branch clearly.
+  → Safe, preserves full history.
+
+Rebase:
+  git checkout feature-login
+  git rebase main
+  → Replays your commits on top of main. Linear history.
+  → Cleaner, but rewrites history. Never rebase shared branches.
+
+Interview tip: "I use merge for feature branches (preserves context).
+Some teams prefer rebase for cleaner history — it's a team convention."
+
+
+----------------------------------------------------------------
+5. HANDLING CONFLICTS
+----------------------------------------------------------------
+
+When two people edit the same line:
+  git pull  →  CONFLICT in file.js
+
+  <<<<<<< HEAD
+  your version
+  =======
+  their version
+  >>>>>>> branch-name
+
+Resolution:
+  1. Open the conflicted file
+  2. Choose which version to keep (or combine both)
+  3. Remove the <<<, ===, >>> markers
+  4. git add file.js
+  5. git commit
+
+Interview tip: "I resolve conflicts by understanding both changes,
+discussing with the other developer if needed, then manually merging
+the logic. I always run tests after resolving to ensure nothing broke."
+
+
+----------------------------------------------------------------
+6. STASH (SAVE WORK TEMPORARILY)
+----------------------------------------------------------------
+
+Code:
+  git stash               # Save uncommitted changes
+  git stash list          # See saved stashes
+  git stash pop           # Apply and remove latest stash
+  git stash apply         # Apply but keep the stash
+
+Use case: "I'm working on feature-A but need to urgently fix a bug.
+I stash my feature work, switch to hotfix branch, fix the bug,
+then switch back and pop my stash to continue."
+
+
+----------------------------------------------------------------
+7. LOG & HISTORY
+----------------------------------------------------------------
+
+Code:
+  git log                           # Full history
+  git log --oneline                 # Compact one-line view
+  git log --oneline -5              # Last 5 commits
+  git log --author="Dhejo"          # My commits only
+  git diff                          # Unstaged changes
+  git diff --staged                 # Staged changes
+  git blame file.js                 # Who wrote each line
+
+
+----------------------------------------------------------------
+8. UNDO & RESET
+----------------------------------------------------------------
+
+Code:
+  git checkout -- file.js           # Discard unstaged changes in file
+  git reset HEAD file.js            # Unstage a file
+  git reset --soft HEAD~1           # Undo last commit (keep changes staged)
+  git reset --hard HEAD~1           # Undo last commit (DELETE changes)
+  git revert <commit-hash>          # Create new commit that undoes a previous one
+
+Interview tip: "I use 'git revert' in shared branches (creates a new commit,
+safe for collaboration). 'git reset' only on my local unpushed commits."
+
+
+----------------------------------------------------------------
+9. .gitignore
+----------------------------------------------------------------
+
+Code:
+  node_modules/
+  test-results/
+  playwright-report/
+  allure-results/
+  .env
+  *.log
+  state.json
+
+Interview tip: "I maintain .gitignore to exclude dependencies, reports,
+credentials, and generated files. Only source code and configs are tracked."
+
+
+----------------------------------------------------------------
+10. COMMON INTERVIEW QUESTIONS
+----------------------------------------------------------------
+
+Q: "What's the difference between git fetch and git pull?"
+A: "fetch downloads remote changes without merging. pull = fetch + merge.
+   I use fetch to check what's new before deciding to merge."
+
+Q: "How do you revert a pushed commit?"
+A: "git revert <hash> creates a new commit that undoes the old one.
+   Safe for shared branches. Never force-push to main."
+
+Q: "What's a Pull Request?"
+A: "A request to merge your branch into another. It triggers CI tests,
+   allows code review, and provides a discussion thread. Nothing merges
+   until approved."
+
+Q: "How do you handle large binary files in Git?"
+A: "Git LFS (Large File Storage). Tracks large files by reference,
+   not content. Used for test videos, screenshots, data files."

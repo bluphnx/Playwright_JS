@@ -1,0 +1,318 @@
+================================================================
+TESTNG — INTERVIEW GUIDE
+================================================================
+
+
+----------------------------------------------------------------
+1. WHAT IS TESTNG?
+----------------------------------------------------------------
+
+Explanation:
+TestNG (Test Next Generation) is a Java testing framework inspired by
+JUnit. It provides annotations, parallel execution, data-driven testing,
+grouping, and reporting — all essential for automation frameworks.
+
+Why it's used:
+  - More powerful than JUnit for automation (groups, parallel, dependencies).
+  - XML-based test suite configuration (testng.xml).
+  - Built-in data provider for parameterized testing.
+  - Flexible test execution ordering.
+  - Integrates with Maven, Jenkins, Selenium seamlessly.
+
+
+----------------------------------------------------------------
+2. ANNOTATIONS (EXECUTION ORDER)
+----------------------------------------------------------------
+
+Execution order:
+  @BeforeSuite    → runs ONCE before entire suite
+  @BeforeTest     → runs before each <test> in XML
+  @BeforeClass    → runs before the first method in a class
+  @BeforeMethod   → runs before EACH @Test method
+  @Test           → the actual test
+  @AfterMethod    → runs after EACH @Test method
+  @AfterClass     → runs after the last method in a class
+  @AfterTest      → runs after each <test> in XML
+  @AfterSuite     → runs ONCE after entire suite
+
+Code:
+  public class LoginTest {
+
+      WebDriver driver;
+
+      @BeforeClass
+      public void setup() {
+          driver = new ChromeDriver();
+          driver.get("https://example.com");
+      }
+
+      @BeforeMethod
+      public void navigateToLogin() {
+          driver.get("https://example.com/login");
+      }
+
+      @Test
+      public void validLogin() {
+          // test code
+      }
+
+      @Test
+      public void invalidLogin() {
+          // test code
+      }
+
+      @AfterClass
+      public void teardown() {
+          driver.quit();
+      }
+  }
+
+Interview tip: "@BeforeClass opens the browser once. @BeforeMethod
+navigates to login page before each test. @AfterClass closes everything.
+This ensures each test starts fresh without repeating browser launch."
+
+
+----------------------------------------------------------------
+3. ASSERTIONS
+----------------------------------------------------------------
+
+Code:
+  Assert.assertEquals(actual, expected);           // exact match
+  Assert.assertEquals(title, "Dashboard");
+  Assert.assertTrue(element.isDisplayed());        // condition is true
+  Assert.assertFalse(errorMsg.isDisplayed());      // condition is false
+  Assert.assertNotNull(response.getToken());       // not null
+
+Soft assertions (collect all failures):
+  SoftAssert soft = new SoftAssert();
+  soft.assertEquals(name, "Dhejo");
+  soft.assertTrue(isActive);
+  soft.assertEquals(age, 25);
+  soft.assertAll();  // Reports ALL failures at once
+
+Interview tip: "I use hard assertions for critical checks and
+SoftAssert when validating multiple fields on a page — so one
+failure doesn't mask other issues on the same page."
+
+
+----------------------------------------------------------------
+4. DATA PROVIDER (PARAMETERIZED TESTING)
+----------------------------------------------------------------
+
+Code:
+  @DataProvider(name = "loginData")
+  public Object[][] getLoginData() {
+      return new Object[][] {
+          {"user1@mail.com", "Pass123", "Dashboard"},
+          {"admin@mail.com", "Admin1",  "Admin Panel"},
+          {"invalid@mail.com", "wrong", "Error Page"}
+      };
+  }
+
+  @Test(dataProvider = "loginData")
+  public void loginTest(String email, String password, String expectedPage) {
+      loginPage.login(email, password);
+      Assert.assertEquals(driver.getTitle(), expectedPage);
+  }
+
+How code works:
+  @DataProvider(name = "loginData")
+  → Declares this method supplies test data. Name "loginData" is referenced by tests.
+
+  public Object[][] getLoginData() {
+  → Returns a 2D array. Each inner array = one set of test parameters.
+  → Object[][] because parameters can be different types (String, int, boolean).
+
+      return new Object[][] {
+          {"user1@mail.com", "Pass123", "Dashboard"},
+  → Row 1: email="user1@mail.com", password="Pass123", expected="Dashboard"
+
+          {"admin@mail.com", "Admin1",  "Admin Panel"},
+  → Row 2: different user, different expected result.
+
+          {"invalid@mail.com", "wrong", "Error Page"}
+  → Row 3: negative test case with wrong password.
+      };
+  → Total: 3 rows = test runs 3 times with different data.
+
+  @Test(dataProvider = "loginData")
+  → Links this test to the "loginData" provider. TestNG calls this method 3 times.
+
+  public void loginTest(String email, String password, String expectedPage) {
+  → Parameters match the columns of the data array (position-based).
+  → First call: email="user1@mail.com", password="Pass123", expectedPage="Dashboard"
+  → Second call: email="admin@mail.com", etc.
+
+Interview tip: "DataProvider lets me run the same test with multiple
+data sets without duplicating test code. Each row becomes a separate
+test execution in the report."
+
+
+----------------------------------------------------------------
+5. GROUPS
+----------------------------------------------------------------
+
+Code:
+  @Test(groups = {"smoke", "login"})
+  public void validLogin() { ... }
+
+  @Test(groups = {"regression", "login"})
+  public void loginWithExpiredAccount() { ... }
+
+  @Test(groups = {"smoke", "cart"})
+  public void addToCart() { ... }
+
+testng.xml:
+  <suite name="Smoke Suite">
+      <test name="Smoke Tests">
+          <groups>
+              <run>
+                  <include name="smoke"/>
+              </run>
+          </groups>
+          <classes>
+              <class name="tests.LoginTest"/>
+              <class name="tests.CartTest"/>
+          </classes>
+      </test>
+  </suite>
+
+Interview tip: "I grouped tests as smoke, regression, sanity. Jenkins
+smoke job includes only 'smoke' group for fast post-commit validation.
+Nightly job runs 'regression' for full coverage."
+
+
+----------------------------------------------------------------
+6. testng.xml CONFIGURATION
+----------------------------------------------------------------
+
+Code:
+  <!DOCTYPE suite SYSTEM "https://testng.org/testng-1.0.dtd">
+  <suite name="E-Commerce Suite" parallel="tests" thread-count="3">
+
+      <test name="Chrome Tests">
+          <parameter name="browser" value="chrome"/>
+          <classes>
+              <class name="tests.LoginTest"/>
+              <class name="tests.CartTest"/>
+          </classes>
+      </test>
+
+      <test name="Firefox Tests">
+          <parameter name="browser" value="firefox"/>
+          <classes>
+              <class name="tests.LoginTest"/>
+          </classes>
+      </test>
+
+  </suite>
+
+Parallel options:
+  parallel="tests"    → each <test> runs in parallel
+  parallel="classes"  → each class runs in parallel
+  parallel="methods"  → each @Test method runs in parallel
+
+Interview tip: "I configured testng.xml for cross-browser parallel
+execution. Chrome and Firefox tests ran simultaneously, cutting
+execution time in half."
+
+
+----------------------------------------------------------------
+7. LISTENERS
+----------------------------------------------------------------
+
+Code:
+  public class TestListener implements ITestListener {
+
+      @Override
+      public void onTestStart(ITestResult result) {
+          System.out.println("Starting: " + result.getName());
+      }
+
+      @Override
+      public void onTestFailure(ITestResult result) {
+          // Capture screenshot on failure
+          captureScreenshot(result.getName());
+      }
+
+      @Override
+      public void onTestSuccess(ITestResult result) {
+          System.out.println("Passed: " + result.getName());
+      }
+  }
+
+  // Attach to test class:
+  @Listeners(TestListener.class)
+  public class LoginTest { ... }
+
+Interview tip: "I implemented ITestListener for automatic screenshot
+capture on failure, logging test start/end times, and updating
+test management tools (TestRail) with results."
+
+
+----------------------------------------------------------------
+8. DEPENDENCIES
+----------------------------------------------------------------
+
+Code:
+  @Test
+  public void login() { ... }
+
+  @Test(dependsOnMethods = "login")
+  public void addToCart() { ... }  // Only runs if login passes
+
+  @Test(dependsOnMethods = "addToCart")
+  public void placeOrder() { ... }  // Only runs if addToCart passes
+
+Interview tip: "I used dependsOnMethods for sequential E2E flows.
+If login fails, dependent tests (cart, order) are automatically SKIPPED
+rather than failing — giving clearer reports."
+
+
+----------------------------------------------------------------
+9. RETRY (FAILED TEST RE-RUN)
+----------------------------------------------------------------
+
+Code:
+  public class RetryAnalyzer implements IRetryAnalyzer {
+      int count = 0;
+      int maxRetry = 2;
+
+      @Override
+      public boolean retry(ITestResult result) {
+          if (count < maxRetry) {
+              count++;
+              return true;  // Retry
+          }
+          return false;  // Give up
+      }
+  }
+
+  @Test(retryAnalyzer = RetryAnalyzer.class)
+  public void flakyTest() { ... }
+
+Interview tip: "I implemented RetryAnalyzer for tests that occasionally
+fail due to network issues. Max 2 retries before marking as failed."
+
+
+----------------------------------------------------------------
+10. COMMON INTERVIEW QUESTIONS
+----------------------------------------------------------------
+
+Q: "How do you run specific tests from testng.xml?"
+A: "Include specific classes/methods, or use groups. From CLI:
+   mvn test -DsuiteXmlFile=smoke-suite.xml"
+
+Q: "Difference between @BeforeTest and @BeforeClass?"
+A: "@BeforeTest runs once per <test> tag in XML (can contain multiple classes).
+   @BeforeClass runs once per class."
+
+Q: "How do you pass parameters from testng.xml to tests?"
+A: "@Parameters({\"browser\"}) annotation + <parameter> in XML.
+   Or @DataProvider for complex/multiple data sets."
+
+Q: "TestNG vs JUnit?"
+A: "TestNG has groups, parallel execution, dependsOnMethods, DataProvider,
+   testng.xml configuration — all missing or limited in JUnit 4.
+   JUnit 5 has caught up somewhat, but TestNG is still preferred
+   in enterprise automation frameworks."

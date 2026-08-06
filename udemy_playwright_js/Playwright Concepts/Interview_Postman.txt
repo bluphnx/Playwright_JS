@@ -1,0 +1,185 @@
+================================================================
+POSTMAN — API TESTING INTERVIEW GUIDE
+================================================================
+
+
+----------------------------------------------------------------
+1. WHAT IS POSTMAN?
+----------------------------------------------------------------
+
+Explanation:
+A GUI tool for sending HTTP requests, inspecting responses, and building
+API test collections. Used for both manual exploration and automated testing.
+
+Why it's used:
+  - Quick API exploration without writing code.
+  - Organize requests into collections for team sharing.
+  - Environment variables for staging/production switching.
+  - Pre/Post request scripts for dynamic testing.
+  - Newman CLI for running collections in CI/CD.
+
+
+----------------------------------------------------------------
+2. KEY FEATURES
+----------------------------------------------------------------
+
+  Collections   → Group related API requests (Login, Products, Orders)
+  Environments  → Variables for different envs (staging URL, prod URL)
+  Variables     → {{baseUrl}}, {{token}} — reusable across requests
+  Pre-request   → JavaScript that runs BEFORE the request
+  Tests tab     → JavaScript that runs AFTER the response (assertions)
+  Runner        → Execute entire collection sequentially
+  Newman        → CLI tool to run Postman collections in CI/CD
+
+
+----------------------------------------------------------------
+3. ENVIRONMENT VARIABLES
+----------------------------------------------------------------
+
+Setup:
+  Staging environment:
+    baseUrl = https://staging.api.example.com
+    token = (empty — set dynamically)
+
+  Production environment:
+    baseUrl = https://api.example.com
+    token = (empty — set dynamically)
+
+Usage in request URL:
+  {{baseUrl}}/api/products
+
+Interview tip: "I set up separate environments for staging and production.
+The collection stays the same — I just switch environments and all URLs
+update automatically."
+
+
+----------------------------------------------------------------
+4. PRE-REQUEST SCRIPTS
+----------------------------------------------------------------
+
+Code (runs before request is sent):
+  // Generate timestamp
+  pm.variables.set("timestamp", new Date().toISOString());
+
+  // Set random email for testing
+  pm.variables.set("randomEmail", `user${Date.now()}@test.com`);
+
+Interview tip: "I used pre-request scripts to generate dynamic test
+data like unique emails and timestamps, ensuring each test run creates
+fresh data without conflicts."
+
+
+----------------------------------------------------------------
+5. TEST SCRIPTS (ASSERTIONS)
+----------------------------------------------------------------
+
+Code (runs after response is received):
+  // Status code check
+  pm.test("Status is 200", function() {
+      pm.response.to.have.status(200);
+  });
+
+  // Response body validation
+  pm.test("Has token", function() {
+      var json = pm.response.json();
+      pm.expect(json.token).to.not.be.undefined;
+  });
+
+  // Response time check
+  pm.test("Response under 2 seconds", function() {
+      pm.expect(pm.response.responseTime).to.be.below(2000);
+  });
+
+  // Save token for next requests
+  var json = pm.response.json();
+  pm.environment.set("token", json.token);
+
+How code works:
+  pm.test("Status is 200", function() {
+  → Defines a named test. The name appears in Postman's test results tab.
+  → If the assertion inside fails, this test shows as FAILED (red).
+
+      pm.response.to.have.status(200);
+  → 'pm.response' = the response we got back from the server.
+  → '.to.have.status(200)' = assert status code equals 200.
+
+  pm.test("Has token", function() {
+      var json = pm.response.json();
+  → Parse response body as JSON object.
+  → Now you can access json.token, json.message, etc.
+
+      pm.expect(json.token).to.not.be.undefined;
+  → Assert the "token" field exists and has a value (not undefined).
+
+  pm.test("Response under 2 seconds", function() {
+      pm.expect(pm.response.responseTime).to.be.below(2000);
+  → pm.response.responseTime = how many ms the request took.
+  → Assert it's below 2000ms (2 seconds).
+
+  var json = pm.response.json();
+  pm.environment.set("token", json.token);
+  → Extract token from response JSON.
+  → Save it as environment variable "token".
+  → Now {{token}} is available in ALL subsequent requests in this collection.
+  → This is how you chain requests (login → get token → use token next).
+
+
+----------------------------------------------------------------
+6. CHAINING REQUESTS (TOKEN FLOW)
+----------------------------------------------------------------
+
+Request 1: Login
+  POST {{baseUrl}}/auth/login
+  Body: { "email": "user@mail.com", "password": "Pass123" }
+  Tests tab:
+    var json = pm.response.json();
+    pm.environment.set("authToken", json.token);
+
+Request 2: Get Orders (uses token from Request 1)
+  GET {{baseUrl}}/api/orders
+  Headers: Authorization: {{authToken}}
+  Tests tab:
+    pm.test("Orders returned", function() {
+        var json = pm.response.json();
+        pm.expect(json.orders.length).to.be.above(0);
+    });
+
+Interview tip: "I chained requests by saving the login token as an
+environment variable, then referencing it in subsequent requests.
+The Collection Runner executes them in sequence automatically."
+
+
+----------------------------------------------------------------
+7. NEWMAN (CLI FOR CI/CD)
+----------------------------------------------------------------
+
+Code:
+  npm install -g newman
+  newman run my-collection.json -e staging-env.json --reporters cli,html
+
+Interview tip: "I used Newman to run Postman collections in Jenkins as
+part of our CI/CD pipeline. This automated API regression testing without
+needing the Postman GUI."
+
+
+----------------------------------------------------------------
+8. COMMON INTERVIEW QUESTIONS
+----------------------------------------------------------------
+
+Q: "How do you handle authentication in Postman?"
+A: "Login request saves token to environment variable. All subsequent
+   requests use {{token}} in Authorization header. Collection Runner
+   ensures login runs first."
+
+Q: "How do you test negative scenarios?"
+A: "Send requests with invalid data, expired tokens, missing fields.
+   Assert 400/401/403/500 status codes and error message content."
+
+Q: "How do you share collections with the team?"
+A: "Export as JSON and commit to Git. Or use Postman Workspace for
+   real-time collaboration."
+
+Q: "Postman vs REST Assured — when to use which?"
+A: "Postman for exploratory testing, quick validations, and team sharing.
+   REST Assured for automated regression in code, integrated with
+   TestNG/CI pipeline, version-controlled with the project."

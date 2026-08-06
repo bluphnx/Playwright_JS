@@ -1,0 +1,637 @@
+================================================================
+CHAPTER 13: RESUME POINTS DEEP DIVE — EVERY CONCEPT EXPLAINED
+================================================================
+This file explains every technical point from your resume with
+code examples so you can confidently discuss them in interviews.
+================================================================
+
+
+----------------------------------------------------------------
+13.1 PAGE OBJECT MODEL (POM) DESIGN PATTERN
+----------------------------------------------------------------
+
+What: A design pattern where each web page has its own class.
+Why: Keeps locators and actions separate from test logic. If UI changes, you fix one file.
+
+Structure:
+  pageobjects/
+  ├── LoginPage.js
+  ├── DashboardPage.js
+  ├── CartPage.js
+  └── OrderSummaryPage.js
+
+Code (LoginPage.js):
+  class LoginPage {
+      constructor(page) {
+          this.page = page;
+          this.userName = page.locator("[formcontrolname='userEmail']");
+          this.password = page.locator("#userPassword");
+          this.signInBtn = page.locator("#login");
+      }
+
+      async goTo() {
+          await this.page.goto("https://example.com/client");
+      }
+
+      async validLogin(username, password) {
+          await this.userName.fill(username);
+          await this.password.fill(password);
+          await this.signInBtn.click();
+      }
+  }
+  module.exports = { LoginPage };
+
+Code (Test file):
+  const { LoginPage } = require('../pageobjects/LoginPage');
+
+  test('login test', async ({ page }) => {
+      const loginPage = new LoginPage(page);
+      await loginPage.goTo();
+      await loginPage.validLogin("user@mail.com", "Pass123");
+  });
+
+Interview tip: "I implemented POM to separate page-specific locators
+and actions into dedicated classes, making tests readable and
+maintenance easy when UI changes."
+
+
+----------------------------------------------------------------
+13.2 ROLE-BASED LOCATORS (ACCESSIBILITY-FIRST)
+----------------------------------------------------------------
+
+What: Playwright's recommended locators that target elements by their accessibility role.
+Why: More resilient to DOM changes than CSS selectors. IDs/classes change, roles rarely do.
+
+Code:
+  page.getByRole('button', { name: 'Login' })        // <button>Login</button>
+  page.getByRole('link', { name: 'Shop' })            // <a>Shop</a>
+  page.getByRole('heading', { name: 'Dashboard' })    // <h1>Dashboard</h1>
+  page.getByTestId('submit-btn')                      // [data-testid="submit-btn"]
+  page.getByLabel('Username')                         // Input with <label>Username</label>
+  page.getByPlaceholder('Enter email')                // Input with placeholder
+  page.getByText('Welcome back')                      // Element with visible text
+
+Interview tip: "I used role-based locators as my primary strategy because
+they're accessibility-compliant and don't break when developers change
+class names or IDs."
+
+
+----------------------------------------------------------------
+13.3 AUTO-WAIT MECHANISM
+----------------------------------------------------------------
+
+What: Playwright automatically waits for elements to be actionable before performing actions.
+Why: Eliminates the need for Thread.sleep() or explicit waits (unlike Selenium).
+
+What Playwright waits for before .click():
+  - Element is visible
+  - Element is stable (not animating)
+  - Element is enabled
+  - Element is not obscured by another element
+
+Code:
+  // NO explicit waits needed — Playwright handles it internally
+  await page.locator('#submit').click();  // Waits until clickable automatically
+
+  // In Selenium you'd need:
+  // WebDriverWait wait = new WebDriverWait(driver, 10);
+  // wait.until(ExpectedConditions.elementToBeClickable(By.id("submit")));
+
+Interview tip: "Playwright's auto-wait eliminated flaky tests caused by
+timing issues. I rarely needed explicit waits because actions automatically
+retry until the element is actionable."
+
+
+----------------------------------------------------------------
+13.4 CUSTOM FIXTURES
+----------------------------------------------------------------
+
+What: Extend Playwright's test function with reusable preconditions.
+Why: Avoids repeating setup code (login, create profile) across tests.
+
+Code (test-base.js):
+  const { test: base } = require('@playwright/test');
+
+  exports.test = base.extend({
+      authenticatedPage: async ({ browser }, use) => {
+          const context = await browser.newContext({
+              storageState: 'auth.json'
+          });
+          const page = await context.newPage();
+          await use(page);
+          await context.close();
+      },
+      testData: {
+          username: "user@mail.com",
+          password: "Pass123",
+          product: "ZARA COAT 3"
+      }
+  });
+
+Code (test file):
+  const { test } = require('../utils/test-base');
+
+  test('dashboard test', async ({ authenticatedPage }) => {
+      await authenticatedPage.goto('/dashboard');
+      // Already logged in — no login step needed!
+  });
+
+Interview tip: "I created custom fixtures for authenticated user sessions
+and child profile setup, reducing code duplication across 100+ tests."
+
+
+----------------------------------------------------------------
+13.5 TEST HOOKS (LIFECYCLE MANAGEMENT)
+----------------------------------------------------------------
+
+What: Functions that run before/after tests for setup and cleanup.
+Why: DRY principle — don't repeat login/cleanup in every test.
+
+Code:
+  test.beforeAll(async () => {
+      // Runs ONCE before all tests in the file
+      // Good for: API login, database seeding
+  });
+
+  test.beforeEach(async ({ page }) => {
+      // Runs before EACH test
+      // Good for: Navigate to starting page
+      await page.goto('https://example.com');
+  });
+
+  test.afterEach(async ({ page }) => {
+      // Runs after EACH test
+      // Good for: Clear data, logout
+  });
+
+  test.afterAll(async () => {
+      // Runs ONCE after all tests
+      // Good for: Close connections, cleanup
+  });
+
+
+----------------------------------------------------------------
+13.6 NETWORK INTERCEPTION & API MOCKING (page.route)
+----------------------------------------------------------------
+
+What: Intercept network requests and modify/mock responses.
+Why: Test edge cases (errors, empty states, slow loading) without depending on real backend.
+
+Code — Mock an API response:
+  await page.route('**/api/products', route => {
+      route.fulfill({
+          status: 200,
+          contentType: 'application/json',
+          body: JSON.stringify([{ name: 'Mock Product', price: 100 }])
+      });
+  });
+  await page.goto('/products');
+  // Page shows "Mock Product" — no real API call made
+
+Code — Simulate server error:
+  await page.route('**/api/orders', route => {
+      route.fulfill({ status: 500, body: 'Internal Server Error' });
+  });
+  // Test how UI handles a 500 error
+
+Code — Block images (speed up tests):
+  await page.route('**/*.{png,jpg,jpeg}', route => route.abort());
+
+Interview tip: "I used network interception to mock API failures and
+edge cases that are difficult to reproduce with real servers, like
+500 errors and empty product lists."
+
+
+----------------------------------------------------------------
+13.7 API TESTING WITH PLAYWRIGHT REQUEST FIXTURE
+----------------------------------------------------------------
+
+What: Built-in HTTP client — no need for Postman/Axios in test code.
+Why: Validate APIs directly in the same test framework, combine UI + API testing.
+
+Code:
+  const { test, expect, request } = require('@playwright/test');
+
+  test.beforeAll(async () => {
+      const apiContext = await request.newContext();
+
+      // POST - Login
+      const response = await apiContext.post('https://api.example.com/auth/login', {
+          data: { email: 'user@mail.com', password: 'Pass123' }
+      });
+      expect(response.ok()).toBeTruthy();
+      const json = await response.json();
+      console.log(json.token);
+
+      // GET - Fetch products
+      const products = await apiContext.get('https://api.example.com/products');
+      expect(products.status()).toBe(200);
+
+      // PUT - Update profile
+      const update = await apiContext.put('https://api.example.com/profile', {
+          data: { name: 'New Name' },
+          headers: { 'Authorization': json.token }
+      });
+
+      // DELETE - Remove item
+      const del = await apiContext.delete('https://api.example.com/cart/item123', {
+          headers: { 'Authorization': json.token }
+      });
+  });
+
+Interview tip: "I used Playwright's built-in request fixture for API
+testing — login via API, inject token into browser, then run UI tests.
+This eliminated UI login overhead and made tests 3x faster."
+
+
+----------------------------------------------------------------
+13.8 TOKEN INJECTION (API LOGIN + UI TESTING)
+----------------------------------------------------------------
+
+What: Login via API, get token, inject into browser localStorage, skip UI login.
+Why: Faster tests — API login takes 200ms vs UI login taking 3-5 seconds.
+
+Code:
+  test.beforeAll(async () => {
+      const apiContext = await request.newContext();
+      const response = await apiContext.post('/api/auth/login', {
+          data: { email: 'user@mail.com', password: 'Pass123' }
+      });
+      const { token } = await response.json();
+      // Store token for later use
+  });
+
+  test('dashboard', async ({ page }) => {
+      // Inject token into localStorage BEFORE navigating
+      await page.addInitScript(value => {
+          window.localStorage.setItem('token', value);
+      }, token);
+
+      await page.goto('/dashboard');
+      // You're logged in! No UI login needed.
+  });
+
+Interview tip: "I combined API and UI testing by logging in via API,
+extracting the JWT token, and injecting it into browser localStorage
+using addInitScript. This bypassed UI login for 80% of tests."
+
+
+----------------------------------------------------------------
+13.9 CROSS-BROWSER TESTING (PROJECTS)
+----------------------------------------------------------------
+
+What: Run the same tests across Chromium, Firefox, and WebKit from one config.
+Why: Ensure app works across all browsers without maintaining separate test suites.
+
+Code (playwright.config.js):
+  projects: [
+      { name: 'chromium', use: { browserName: 'chromium' } },
+      { name: 'firefox', use: { browserName: 'firefox' } },
+      { name: 'webkit', use: { browserName: 'webkit' } },
+  ]
+
+Run:
+  npx playwright test                        # All browsers
+  npx playwright test --project=chromium     # Just Chrome
+
+Interview tip: "I configured cross-browser testing as projects in the
+config. One codebase, three browsers, parallel execution."
+
+
+----------------------------------------------------------------
+13.10 DEVICE EMULATION (MOBILE TESTING)
+----------------------------------------------------------------
+
+What: Simulate mobile devices (viewport, user agent, touch) in desktop browser.
+Why: Test responsive design without real devices.
+
+Code (playwright.config.js):
+  const { devices } = require('@playwright/test');
+
+  projects: [
+      { name: 'Mobile Safari', use: { ...devices['iPhone 13'] } },
+      { name: 'Mobile Chrome', use: { ...devices['Pixel 5'] } },
+  ]
+
+Code (in test):
+  const context = await browser.newContext({
+      ...devices['iPhone 13'],
+  });
+  const page = await context.newPage();
+  // Page behaves like an iPhone 13
+
+
+----------------------------------------------------------------
+13.11 TRACE VIEWER (DEBUGGING)
+----------------------------------------------------------------
+
+What: Records every action, network call, DOM snapshot during test execution.
+Why: Debug failures without re-running — see exactly what happened.
+
+Config:
+  use: {
+      trace: 'retain-on-failure'  // Only records trace for failed tests
+  }
+
+View trace:
+  npx playwright show-trace test-results/my-test/trace.zip
+
+What trace shows:
+  - DOM snapshot at each step
+  - Network requests and responses
+  - Console logs
+  - Screenshots at each action
+  - Timing information
+
+
+----------------------------------------------------------------
+13.12 SCREENSHOTS & VIDEO RECORDING
+----------------------------------------------------------------
+
+Config:
+  use: {
+      screenshot: 'only-on-failure',   // Captures on failure
+      video: 'retain-on-failure',       // Records video on failure
+  }
+
+Manual screenshot in code:
+  await page.screenshot({ path: 'screenshot.png', fullPage: true });
+
+
+----------------------------------------------------------------
+13.13 PARALLEL EXECUTION (WORKERS)
+----------------------------------------------------------------
+
+What: Run multiple tests simultaneously using multiple worker processes.
+Why: 100 tests at 5 workers = ~5x faster than sequential.
+
+Config:
+  workers: 5,           // Run 5 tests in parallel
+  fullyParallel: true,  // Parallelize within files too
+
+Run:
+  npx playwright test --workers=4
+
+Interview tip: "I configured parallel execution with 5 workers,
+reducing total suite time from 30 minutes to 6 minutes."
+
+
+----------------------------------------------------------------
+13.14 BDD CUCUMBER (FEATURE FILES + STEP DEFINITIONS)
+----------------------------------------------------------------
+
+What: Write tests in plain English (Gherkin) that non-technical people can read.
+Why: Business stakeholders can review and approve test scenarios.
+
+Feature file (ecommerce.feature):
+  Feature: E-Commerce Order Flow
+
+      Scenario Outline: Place order and verify
+          Given I login with "<username>" and "<password>"
+          When I search for "<product>" and add it to cart
+          And I place the order
+          Then I should see the order in order history
+
+      Examples:
+          | username         | password   | product     |
+          | user@mail.com    | Pass123    | ZARA COAT 3 |
+
+Step definitions (steps.js):
+  const { Given, When, Then } = require('@cucumber/cucumber');
+  const { chromium } = require('playwright');
+
+  Given('I login with {string} and {string}', async function(user, pass) {
+      this.browser = await chromium.launch();
+      this.context = await this.browser.newContext();
+      this.page = await this.context.newPage();
+      // ... login logic
+  });
+
+
+----------------------------------------------------------------
+13.15 DATA-DRIVEN TESTING
+----------------------------------------------------------------
+
+What: Run same test with different data sets.
+Why: Test multiple scenarios without duplicating test code.
+
+Using JSON:
+  // testdata.json
+  [
+      { "username": "user1@mail.com", "product": "ZARA COAT 3" },
+      { "username": "user2@mail.com", "product": "ADIDAS ORIGINAL" }
+  ]
+
+  // test file
+  const testdata = require('../utils/testdata.json');
+
+  for (const data of testdata) {
+      test(`Place order for ${data.product}`, async ({ page }) => {
+          await loginPage.validLogin(data.username, data.password);
+          await dashboardPage.addToCart(data.product);
+      });
+  }
+
+
+----------------------------------------------------------------
+13.16 STORAGE STATE (SESSION REUSE)
+----------------------------------------------------------------
+
+What: Save browser session (cookies + localStorage) to file and reuse.
+Why: Login once, reuse across all tests. Eliminates repeated login overhead.
+
+Save:
+  await context.storageState({ path: 'auth.json' });
+
+Reuse:
+  const context = await browser.newContext({ storageState: 'auth.json' });
+
+
+----------------------------------------------------------------
+13.17 waitForResponse() — WAIT FOR SPECIFIC API CALLS
+----------------------------------------------------------------
+
+What: Pause test until a specific network response is received.
+Why: Ensure data is fully loaded before asserting UI values.
+
+Code:
+  const responsePromise = page.waitForResponse('**/api/pricing');
+  await page.locator('#load-prices').click();
+  const response = await responsePromise;
+  const data = await response.json();
+  console.log(data.price);
+  // Now assert UI shows the correct price
+
+
+----------------------------------------------------------------
+13.18 SOFT ASSERTIONS (expect.soft)
+----------------------------------------------------------------
+
+What: Assertions that don't stop test execution on failure.
+Why: Collect multiple failures in one test run instead of stopping at the first.
+
+Code:
+  await expect.soft(page.locator('.currency')).toHaveText('$');    // Non-critical
+  await expect.soft(page.locator('.format')).toHaveText('USD');    // Non-critical
+  await expect(page.locator('.total')).toHaveText('$99.99');       // Critical — stops on fail
+
+Interview tip: "I used soft assertions for cosmetic checks (formatting,
+currency symbols) and hard assertions for critical business logic."
+
+
+----------------------------------------------------------------
+13.19 TEST RETRIES
+----------------------------------------------------------------
+
+What: Automatically retry failed tests before marking them as failed.
+Why: Handles flaky tests caused by network delays or server hiccups.
+
+Config:
+  retries: 2,  // Retry failed tests up to 2 times
+
+Run specific:
+  npx playwright test --retries=2
+
+
+----------------------------------------------------------------
+13.20 ENVIRONMENT-BASED CONFIGURATION
+----------------------------------------------------------------
+
+What: Different configs for staging, gamma, production.
+Why: Run same tests against different environments.
+
+Config:
+  projects: [
+      {
+          name: 'staging',
+          use: { baseURL: 'https://staging.example.com' }
+      },
+      {
+          name: 'production',
+          use: { baseURL: 'https://www.example.com' }
+      }
+  ]
+
+Run:
+  npx playwright test --project=staging
+
+
+----------------------------------------------------------------
+13.21 GREP (TAG-BASED TEST EXECUTION)
+----------------------------------------------------------------
+
+What: Run specific subset of tests using tags/patterns.
+Why: Run only smoke tests, or only pricing tests, not the full suite.
+
+Code:
+  test.describe('@smoke Login', () => { ... });
+  test.describe('@regression Full Flow', () => { ... });
+
+Run:
+  npx playwright test --grep @smoke
+  npx playwright test --grep @pricing
+  npx playwright test --grep "Login"
+
+
+----------------------------------------------------------------
+13.22 page.evaluate() — RUN JAVASCRIPT IN BROWSER
+----------------------------------------------------------------
+
+What: Execute arbitrary JavaScript inside the browser context.
+Why: Access DOM properties, computed values, or browser APIs not exposed by Playwright.
+
+Code:
+  const price = await page.evaluate(() => {
+      return document.querySelector('.price').innerText;
+  });
+
+  // Calculate discount in browser
+  const discount = await page.evaluate(() => {
+      const original = parseFloat(document.querySelector('.original').innerText);
+      const sale = parseFloat(document.querySelector('.sale').innerText);
+      return ((original - sale) / original * 100).toFixed(2);
+  });
+
+
+----------------------------------------------------------------
+13.23 CODEGEN (AUTO-GENERATE TESTS)
+----------------------------------------------------------------
+
+What: Record browser interactions and auto-generate Playwright code.
+Why: Rapid script creation — especially useful for new pages.
+
+Run:
+  npx playwright codegen https://example.com
+
+This opens a browser + inspector. Click around and it generates
+the Playwright code for you. Copy-paste and refine.
+
+
+----------------------------------------------------------------
+13.24 ALLURE REPORTS
+----------------------------------------------------------------
+
+What: Rich interactive HTML reports with charts, timelines, and attachments.
+Why: Stakeholder-friendly reporting beyond basic pass/fail.
+
+Setup:
+  npm install -D allure-playwright
+
+Config:
+  reporter: [['allure-playwright']]
+
+Generate:
+  npx allure generate ./allure-results --clean
+  npx allure open
+
+
+----------------------------------------------------------------
+13.25 JENKINS CI/CD INTEGRATION
+----------------------------------------------------------------
+
+What: Automate test execution on code commits or schedules.
+Why: Catch bugs early, ensure quality gates before deployment.
+
+Jenkinsfile:
+  pipeline {
+      agent any
+      triggers { cron('H 2 * * *') }
+      stages {
+          stage('Install') { steps { sh 'npm ci' } }
+          stage('Test')    { steps { sh 'npx playwright test' } }
+          stage('Report')  { steps { sh 'npx allure generate ./allure-results' } }
+      }
+      post {
+          always { archiveArtifacts 'playwright-report/**' }
+          failure { mail to: 'team@company.com', subject: 'Tests Failed' }
+      }
+  }
+
+
+----------------------------------------------------------------
+13.26 INTERVIEW QUICK REFERENCE
+----------------------------------------------------------------
+
+Q: "How do you handle authentication in tests?"
+A: "Login via API, get JWT token, inject into localStorage using
+   addInitScript. Skip UI login for speed. Save storageState for reuse."
+
+Q: "How do you handle flaky tests?"
+A: "Auto-wait handles most timing issues. For APIs, I use waitForResponse().
+   Configured retries:2 for network flakiness. Trace Viewer for debugging."
+
+Q: "How do you handle dynamic elements?"
+A: "Role-based locators (getByRole, getByTestId) are resilient.
+   For lists, I use filter({ hasText }) instead of fragile nth() indexes."
+
+Q: "How do you run tests in CI/CD?"
+A: "Jenkins pipeline with nightly cron schedule. Tests run in parallel
+   with 5 workers. Allure reports published as artifacts. Email on failure."
+
+Q: "How do you test mobile responsiveness?"
+A: "Playwright's device emulation — configured iPhone/Pixel viewports
+   as projects. Same tests run on mobile dimensions automatically."
+
+Q: "What's your test architecture?"
+A: "Page Object Model with custom fixtures. Data-driven via JSON files.
+   API tests and UI tests in same framework. Cross-browser via projects."

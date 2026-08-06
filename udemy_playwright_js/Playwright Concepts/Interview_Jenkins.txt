@@ -1,0 +1,325 @@
+================================================================
+JENKINS — CI/CD INTERVIEW GUIDE
+================================================================
+
+
+----------------------------------------------------------------
+1. WHAT IS JENKINS?
+----------------------------------------------------------------
+
+Explanation:
+An open-source automation server for Continuous Integration and
+Continuous Delivery. It builds, tests, and deploys code automatically.
+
+CI (Continuous Integration):
+  → Automatically build and test every code change.
+  → Catch bugs immediately, not days later.
+
+CD (Continuous Delivery):
+  → Automatically deploy tested code to staging/production.
+  → Reduce manual deployment steps and human error.
+
+Why it's used:
+  - Automates repetitive tasks (build, test, deploy).
+  - Triggers on code commits or schedules (nightly).
+  - Provides dashboards for build health.
+  - Integrates with Git, Maven, Docker, Slack, JIRA.
+
+
+----------------------------------------------------------------
+2. KEY CONCEPTS
+----------------------------------------------------------------
+
+  Job/Project    → A configured task (build, test, deploy)
+  Build          → One execution of a job
+  Pipeline       → Multi-stage workflow (code → build → test → deploy)
+  Agent/Node     → Machine where builds run
+  Workspace      → Directory where job runs on the agent
+  Artifact       → Files produced by build (reports, screenshots)
+  Trigger        → What starts the job (commit, schedule, manual)
+  Plugin         → Extensions for additional functionality
+
+
+----------------------------------------------------------------
+3. PIPELINE (Jenkinsfile)
+----------------------------------------------------------------
+
+Code:
+  pipeline {
+      agent any
+
+      triggers {
+          cron('H 2 * * *')                    // Nightly at ~2 AM
+          // pollSCM('H/5 * * * *')            // Check Git every 5 min
+      }
+
+      environment {
+          BASE_URL = 'https://staging.example.com'
+      }
+
+      stages {
+          stage('Install') {
+              steps {
+                  sh 'npm ci'
+                  sh 'npx playwright install'
+              }
+          }
+
+          stage('Run Tests') {
+              steps {
+                  sh 'npx playwright test --reporter=html'
+              }
+          }
+
+          stage('Generate Report') {
+              steps {
+                  sh 'npx allure generate ./allure-results --clean'
+              }
+          }
+      }
+
+      post {
+          always {
+              archiveArtifacts artifacts: 'playwright-report/**', allowEmptyArchive: true
+              archiveArtifacts artifacts: 'test-results/**', allowEmptyArchive: true
+          }
+          failure {
+              mail to: 'team@company.com',
+                   subject: "FAILED: ${env.JOB_NAME} #${env.BUILD_NUMBER}",
+                   body: "Check: ${env.BUILD_URL}"
+          }
+          success {
+              echo 'All tests passed!'
+          }
+      }
+  }
+
+How code works:
+  pipeline {
+  → Declares a declarative pipeline (structured, readable format).
+
+      agent any
+  → "Run this pipeline on any available Jenkins agent/machine."
+  → Could also be: agent { docker { image 'node:18' } } for containers.
+
+      triggers {
+          cron('H 2 * * *')
+      }
+  → Automatically triggers this pipeline at ~2 AM daily.
+  → 'H' picks a random minute to spread load across multiple jobs.
+
+      environment {
+          BASE_URL = 'https://staging.example.com'
+      }
+  → Defines environment variables available to all stages.
+  → Accessed as ${BASE_URL} in shell commands.
+
+      stage('Install') {
+          steps {
+              sh 'npm ci'
+  → 'npm ci' = clean install from package-lock.json (deterministic).
+  → Faster than 'npm install' in CI — deletes node_modules first.
+
+              sh 'npx playwright install'
+  → Downloads browser binaries (Chromium, Firefox, WebKit).
+  → Required on fresh CI agents that don't have browsers.
+          }
+      }
+
+      stage('Run Tests') {
+          steps {
+              sh 'npx playwright test --reporter=html'
+  → Executes all tests and generates HTML report.
+  → Exit code 0 = all passed. Non-zero = failures (stage turns red).
+          }
+      }
+
+      post {
+          always {
+              archiveArtifacts artifacts: 'playwright-report/**'
+  → Saves the report folder as a downloadable build artifact.
+  → 'always' = runs whether tests pass or fail.
+          }
+          failure {
+              mail to: 'team@company.com', ...
+  → Sends email ONLY when tests fail.
+  → ${env.BUILD_URL} links directly to the failed build page.
+          }
+      }
+
+Interview tip: "I wrote a declarative Jenkinsfile with stages for install,
+test, and report. Post section handles notifications — email on failure,
+artifact archiving always. The file lives in Git alongside the code."
+
+
+----------------------------------------------------------------
+4. TRIGGERS
+----------------------------------------------------------------
+
+Code:
+  triggers {
+      cron('H 2 * * *')           // Nightly at 2 AM
+      cron('H 2 * * 1-5')        // Weekdays only at 2 AM
+      pollSCM('H/5 * * * *')     // Check Git every 5 min, build if changes
+      upstream(upstreamProjects: 'build-job', threshold: 'SUCCESS')
+  }
+
+Other trigger types:
+  - GitHub Webhook → build immediately on push
+  - Manual → "Build Now" button
+  - Parameterized → user selects options before build
+
+Interview tip: "We had two pipelines: smoke (triggered on every commit
+via webhook, runs 15 tests in 2 minutes) and nightly regression
+(cron scheduled, runs full 100+ test suite)."
+
+
+----------------------------------------------------------------
+5. PARAMETERIZED BUILDS
+----------------------------------------------------------------
+
+Code:
+  parameters {
+      choice(name: 'BROWSER', choices: ['chromium', 'firefox', 'webkit'])
+      choice(name: 'ENVIRONMENT', choices: ['staging', 'production'])
+      string(name: 'TEST_TAG', defaultValue: '@smoke', description: 'Test tag')
+  }
+
+  stages {
+      stage('Run Tests') {
+          steps {
+              sh "npx playwright test --project=${params.BROWSER} --grep ${params.TEST_TAG}"
+          }
+      }
+  }
+
+Interview tip: "I parameterized our pipeline so QA could choose browser,
+environment, and test tag from a dropdown before triggering the build.
+No code changes needed for different configurations."
+
+
+----------------------------------------------------------------
+6. PARALLEL STAGES
+----------------------------------------------------------------
+
+Code:
+  stage('Cross-Browser Tests') {
+      parallel {
+          stage('Chrome') {
+              steps { sh 'npx playwright test --project=chromium' }
+          }
+          stage('Firefox') {
+              steps { sh 'npx playwright test --project=firefox' }
+          }
+          stage('Safari') {
+              steps { sh 'npx playwright test --project=webkit' }
+          }
+      }
+  }
+
+Interview tip: "I configured parallel stages in Jenkins to run all
+three browsers simultaneously, reducing cross-browser testing time
+from 30 minutes to 10 minutes."
+
+
+----------------------------------------------------------------
+7. ARTIFACTS & REPORTS
+----------------------------------------------------------------
+
+Code:
+  post {
+      always {
+          // Save test reports
+          archiveArtifacts artifacts: 'playwright-report/**'
+          archiveArtifacts artifacts: 'allure-report/**'
+          archiveArtifacts artifacts: 'test-results/**/*.png'  // Screenshots
+
+          // Publish HTML report (requires HTML Publisher plugin)
+          publishHTML([
+              reportDir: 'playwright-report',
+              reportFiles: 'index.html',
+              reportName: 'Playwright Report'
+          ])
+      }
+  }
+
+Interview tip: "I archived HTML reports and failure screenshots as build
+artifacts. Anyone could access the latest report from Jenkins dashboard
+without running tests locally."
+
+
+----------------------------------------------------------------
+8. ENVIRONMENT VARIABLES
+----------------------------------------------------------------
+
+Built-in:
+  ${env.BUILD_NUMBER}      // Current build number
+  ${env.JOB_NAME}          // Job name
+  ${env.BUILD_URL}         // URL to this build
+  ${env.WORKSPACE}         // Job workspace path
+
+Custom:
+  environment {
+      BASE_URL = 'https://staging.example.com'
+      CREDENTIALS = credentials('my-creds-id')  // From Jenkins credential store
+  }
+
+Interview tip: "I stored sensitive data (API keys, passwords) in Jenkins
+Credential Store, referenced via credentials() — never hardcoded in
+Jenkinsfile or committed to Git."
+
+
+----------------------------------------------------------------
+9. NOTIFICATIONS
+----------------------------------------------------------------
+
+Code (Email):
+  post {
+      failure {
+          mail to: 'qa-team@company.com',
+               subject: "FAILED: ${env.JOB_NAME}",
+               body: "Build ${env.BUILD_NUMBER} failed. Check: ${env.BUILD_URL}"
+      }
+  }
+
+Code (Slack - requires plugin):
+  post {
+      failure {
+          slackSend channel: '#qa-alerts',
+                    message: "Tests FAILED: ${env.BUILD_URL}",
+                    color: 'danger'
+      }
+      success {
+          slackSend channel: '#qa-alerts',
+                    message: "Tests PASSED",
+                    color: 'good'
+      }
+  }
+
+
+----------------------------------------------------------------
+10. COMMON INTERVIEW QUESTIONS
+----------------------------------------------------------------
+
+Q: "How do you handle test failures in CI?"
+A: "Build is marked 'unstable' (yellow), not 'failed' (red). Slack
+   notification goes out. Team reviews HTML report next morning.
+   Critical failures trigger immediate investigation."
+
+Q: "Declarative vs Scripted pipeline?"
+A: "Declarative (pipeline { ... }) is structured and readable — I prefer it.
+   Scripted (node { ... }) is more flexible but harder to maintain.
+   Declarative covers 90% of use cases."
+
+Q: "How do you debug Jenkins failures?"
+A: "Check Console Output for error logs. Archived artifacts show screenshots
+   and traces. I can also SSH into the agent to inspect the workspace."
+
+Q: "How often do your tests run?"
+A: "Smoke: every commit (2 minutes, 15 critical tests).
+   Nightly regression: 2 AM daily (full suite, 100+ tests).
+   On-demand: before releases, parameterized builds."
+
+Q: "What plugins do you use?"
+A: "Git, Pipeline, HTML Publisher, Allure, Slack Notification, Credentials,
+   NodeJS (for npm). These cover our full workflow."
