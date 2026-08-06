@@ -1,0 +1,321 @@
+================================================================
+MAVEN — BUILD TOOL INTERVIEW GUIDE
+================================================================
+
+
+----------------------------------------------------------------
+1. WHAT IS MAVEN?
+----------------------------------------------------------------
+
+Explanation:
+A Java build automation and dependency management tool. It compiles code,
+manages library downloads, runs tests, and packages applications — all
+from a single configuration file (pom.xml).
+
+Why it's used:
+  - Automatically downloads all required libraries (dependencies).
+  - Standardized project structure across teams.
+  - One command to build, test, and package: mvn clean install
+  - Integrates seamlessly with Jenkins, TestNG, Selenium.
+  - Manages dependency versions — no "works on my machine" issues.
+
+
+----------------------------------------------------------------
+2. PROJECT STRUCTURE (STANDARD)
+----------------------------------------------------------------
+
+  my-project/
+  ├── pom.xml                          ← Configuration file
+  ├── src/
+  │   ├── main/
+  │   │   └── java/                    ← Application code
+  │   └── test/
+  │       ├── java/                    ← Test classes
+  │       │   └── tests/
+  │       │       ├── LoginTest.java
+  │       │       └── CartTest.java
+  │       └── resources/
+  │           ├── testng.xml           ← TestNG configuration
+  │           └── features/            ← Cucumber features
+  │               └── login.feature
+  └── target/                          ← Build output (auto-generated)
+      ├── classes/
+      ├── test-classes/
+      └── surefire-reports/
+
+Interview tip: "Maven enforces a standard directory structure.
+src/test/java for test code, src/test/resources for config files.
+This makes any Maven project immediately navigable."
+
+
+----------------------------------------------------------------
+3. POM.XML (Project Object Model)
+----------------------------------------------------------------
+
+Code:
+  <project>
+      <modelVersion>4.0.0</modelVersion>
+      <groupId>com.amazon.qa</groupId>
+      <artifactId>parent-dashboard-tests</artifactId>
+      <version>1.0.0</version>
+      <packaging>jar</packaging>
+
+      <properties>
+          <maven.compiler.source>11</maven.compiler.source>
+          <maven.compiler.target>11</maven.compiler.target>
+          <selenium.version>4.15.0</selenium.version>
+          <testng.version>7.8.0</testng.version>
+      </properties>
+
+      <dependencies>
+          <!-- Selenium -->
+          <dependency>
+              <groupId>org.seleniumhq.selenium</groupId>
+              <artifactId>selenium-java</artifactId>
+              <version>${selenium.version}</version>
+          </dependency>
+
+          <!-- TestNG -->
+          <dependency>
+              <groupId>org.testng</groupId>
+              <artifactId>testng</artifactId>
+              <version>${testng.version}</version>
+              <scope>test</scope>
+          </dependency>
+
+          <!-- REST Assured -->
+          <dependency>
+              <groupId>io.rest-assured</groupId>
+              <artifactId>rest-assured</artifactId>
+              <version>5.3.2</version>
+              <scope>test</scope>
+          </dependency>
+
+          <!-- Cucumber -->
+          <dependency>
+              <groupId>io.cucumber</groupId>
+              <artifactId>cucumber-java</artifactId>
+              <version>7.14.0</version>
+          </dependency>
+      </dependencies>
+
+      <build>
+          <plugins>
+              <plugin>
+                  <groupId>org.apache.maven.plugins</groupId>
+                  <artifactId>maven-surefire-plugin</artifactId>
+                  <version>3.2.2</version>
+                  <configuration>
+                      <suiteXmlFiles>
+                          <suiteXmlFile>src/test/resources/testng.xml</suiteXmlFile>
+                      </suiteXmlFiles>
+                  </configuration>
+              </plugin>
+          </plugins>
+      </build>
+  </project>
+
+Interview tip: "pom.xml is the single source of truth for our project.
+It defines dependencies (Selenium, TestNG, Cucumber), build plugins
+(Surefire for test execution), and properties (version management)."
+
+
+----------------------------------------------------------------
+4. MAVEN COMMANDS
+----------------------------------------------------------------
+
+  mvn clean                    # Delete target/ folder (fresh start)
+  mvn compile                  # Compile main code
+  mvn test-compile             # Compile test code
+  mvn test                     # Run tests
+  mvn clean test               # Clean + run tests (most common)
+  mvn install                  # Build + install to local repo
+  mvn clean install            # Full clean build
+
+How commands work:
+  mvn clean
+  → Deletes the 'target/' folder (all compiled code, reports, JARs).
+  → Ensures a fresh build with no leftover files from previous runs.
+
+  mvn compile
+  → Compiles src/main/java code into target/classes/.
+  → Downloads any missing dependencies from Maven Central.
+
+  mvn test
+  → Compiles BOTH main and test code, then runs all tests.
+  → Uses Surefire plugin which looks for classes ending in *Test.java.
+  → Generates reports in target/surefire-reports/.
+
+  mvn clean test
+  → Most common command: fresh start + run tests.
+  → Equivalent to: delete everything → compile → run tests.
+
+  mvn install
+  → Does everything (compile, test, package) PLUS installs the JAR
+    to your local .m2 repository so other local projects can use it.
+
+With parameters:
+  mvn test -DsuiteXmlFile=smoke.xml          # Specific TestNG suite
+  mvn test -Dbrowser=chrome                  # Pass system property
+  mvn test -Dcucumber.filter.tags="@smoke"   # Run specific Cucumber tags
+  mvn test -Dtest=LoginTest                  # Run specific test class
+  mvn test -Dmaven.test.failure.ignore=true  # Don't fail build on test failure
+
+How parameters work:
+  -D sets a system property accessible in code via System.getProperty("browser").
+  -DsuiteXmlFile=smoke.xml → Surefire uses smoke.xml instead of default testng.xml.
+  -Dtest=LoginTest → Only compiles and runs LoginTest class (fast iteration).
+
+
+----------------------------------------------------------------
+5. MAVEN LIFECYCLE
+----------------------------------------------------------------
+
+Phases (in order):
+  validate   → Check project is correct
+  compile    → Compile source code
+  test       → Run unit tests
+  package    → Create JAR/WAR
+  verify     → Run integration tests
+  install    → Install to local repository
+  deploy     → Upload to remote repository
+
+When you run "mvn test", Maven executes: validate → compile → test
+When you run "mvn install", Maven executes ALL phases up to install.
+
+Interview tip: "When I run 'mvn clean test', Maven first cleans old output,
+then compiles all code, then executes tests via Surefire plugin. The
+Surefire plugin picks up our testng.xml to know which tests to run."
+
+
+----------------------------------------------------------------
+6. DEPENDENCY MANAGEMENT
+----------------------------------------------------------------
+
+Scopes:
+  compile  → Available everywhere (default)
+  test     → Available only in test code (Selenium, TestNG)
+  provided → Available at compile, not packaged (servlet-api)
+  runtime  → Available at runtime, not compile (JDBC driver)
+
+Code:
+  <dependency>
+      <groupId>org.testng</groupId>
+      <artifactId>testng</artifactId>
+      <version>7.8.0</version>
+      <scope>test</scope>          ← Only in test code
+  </dependency>
+
+Version management with properties:
+  <properties>
+      <selenium.version>4.15.0</selenium.version>
+  </properties>
+
+  <dependency>
+      <version>${selenium.version}</version>  ← Reference property
+  </dependency>
+
+Interview tip: "I manage all versions in <properties> block at the top.
+When upgrading Selenium, I change ONE line, not 5 scattered dependencies."
+
+
+----------------------------------------------------------------
+7. SUREFIRE PLUGIN (TEST EXECUTION)
+----------------------------------------------------------------
+
+Code:
+  <plugin>
+      <groupId>org.apache.maven.plugins</groupId>
+      <artifactId>maven-surefire-plugin</artifactId>
+      <configuration>
+          <suiteXmlFiles>
+              <suiteXmlFile>src/test/resources/${suite}.xml</suiteXmlFile>
+          </suiteXmlFiles>
+          <systemPropertyVariables>
+              <browser>${browser}</browser>
+              <env>${environment}</env>
+          </systemPropertyVariables>
+      </configuration>
+  </plugin>
+
+Run:
+  mvn test -Dsuite=smoke -Dbrowser=chrome -Denvironment=staging
+
+Interview tip: "Surefire plugin is the bridge between Maven and TestNG.
+I parameterized the suite file and browser so Jenkins can pass different
+values for different pipeline stages."
+
+
+----------------------------------------------------------------
+8. PROFILES (ENVIRONMENT SWITCHING)
+----------------------------------------------------------------
+
+Code:
+  <profiles>
+      <profile>
+          <id>staging</id>
+          <properties>
+              <base.url>https://staging.example.com</base.url>
+          </properties>
+      </profile>
+      <profile>
+          <id>production</id>
+          <properties>
+              <base.url>https://www.example.com</base.url>
+          </properties>
+      </profile>
+  </profiles>
+
+Run:
+  mvn test -Pstaging       # Activate staging profile
+  mvn test -Pproduction    # Activate production profile
+
+Interview tip: "I configured Maven profiles for different environments.
+Jenkins nightly job uses -Pstaging, pre-release validation uses -Pproduction."
+
+
+----------------------------------------------------------------
+9. MAVEN vs NPM (FOR YOUR CONTEXT)
+----------------------------------------------------------------
+
+| Feature          | Maven (Java)          | npm (JavaScript)       |
+|------------------|-----------------------|------------------------|
+| Config file      | pom.xml               | package.json           |
+| Dependencies     | <dependencies>        | "dependencies": {}     |
+| Install          | mvn install           | npm install            |
+| Run tests        | mvn test              | npx playwright test    |
+| Lock file        | (none/pom is exact)   | package-lock.json      |
+| Registry         | Maven Central         | npm registry           |
+| Build output     | target/               | node_modules/          |
+
+Interview tip: "In my Java/Selenium projects, Maven managed dependencies.
+In my Playwright/JS projects, npm does the same. The concepts are identical
+— different tools for different ecosystems."
+
+
+----------------------------------------------------------------
+10. COMMON INTERVIEW QUESTIONS
+----------------------------------------------------------------
+
+Q: "What is pom.xml?"
+A: "Project Object Model — the core configuration file. It defines
+   dependencies, build plugins, project metadata, and profiles.
+   Maven reads this file to know how to build and test the project."
+
+Q: "What's the difference between mvn install and mvn deploy?"
+A: "install puts the artifact in your local .m2 repository.
+   deploy uploads it to a remote repository (like Nexus/Artifactory)
+   for other teams to use."
+
+Q: "How do you resolve dependency conflicts?"
+A: "mvn dependency:tree shows all transitive dependencies. I use
+   <exclusions> to remove conflicting transitive deps, or
+   <dependencyManagement> to force specific versions."
+
+Q: "What's a transitive dependency?"
+A: "A dependency of your dependency. If Selenium depends on Guava,
+   Guava is a transitive dependency. Maven downloads it automatically."
+
+Q: "How do you skip tests during build?"
+A: "mvn install -DskipTests (compiles tests but doesn't run them)
+   mvn install -Dmaven.test.skip=true (skips compilation too)"

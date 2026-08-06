@@ -1,0 +1,354 @@
+================================================================
+JAVA CONCEPTS FOR AUTOMATION TESTING — INTERVIEW GUIDE
+================================================================
+
+
+----------------------------------------------------------------
+1. DATA TYPES & VARIABLES
+----------------------------------------------------------------
+
+Explanation:
+Java has 8 primitive types and reference types (objects, arrays, strings).
+Variables must be declared with a type before use.
+
+Code:
+  int age = 25;
+  double price = 99.99;
+  boolean isActive = true;
+  String name = "Dhejo";          // Reference type (object)
+  char grade = 'A';
+
+How code works:
+  int age = 25;
+  → 'int' declares the type (whole number). 'age' is the variable name.
+  → '25' is the value. Once declared as int, it can ONLY hold integers.
+
+  double price = 99.99;
+  → 'double' is for decimal numbers (floating point).
+  → You can't assign "hello" to this — compiler will throw an error.
+
+  boolean isActive = true;
+  → Can only be 'true' or 'false'. Used in if conditions.
+
+  String name = "Dhejo";
+  → String is a class (uppercase S) not a primitive. It's an object.
+  → Has methods: name.length(), name.toUpperCase(), name.contains("he").
+
+  char grade = 'A';
+  → Single character only. Uses single quotes ('A'), not double ("A").
+
+Interview tip: "Java is statically typed — every variable has a declared
+type at compile time. This catches type errors early, unlike JavaScript
+which is dynamically typed."
+
+Follow-up: "What's the difference between int and Integer?"
+Answer: "int is a primitive (faster, no methods). Integer is a wrapper
+class (can be null, has methods like parseInt). Autoboxing converts
+between them automatically."
+
+
+----------------------------------------------------------------
+2. OOP CONCEPTS (Classes, Objects, Inheritance, Polymorphism)
+----------------------------------------------------------------
+
+Explanation:
+Java is object-oriented. Everything lives inside a class.
+Four pillars: Encapsulation, Inheritance, Polymorphism, Abstraction.
+
+Code:
+  public class BasePage {
+      WebDriver driver;
+
+      public BasePage(WebDriver driver) {
+          this.driver = driver;
+      }
+
+      public String getTitle() {
+          return driver.getTitle();
+      }
+  }
+
+  public class LoginPage extends BasePage {
+      public LoginPage(WebDriver driver) {
+          super(driver);     // calls parent constructor
+      }
+
+      public void login(String user, String pass) {
+          driver.findElement(By.id("email")).sendKeys(user);
+          driver.findElement(By.id("password")).sendKeys(pass);
+          driver.findElement(By.id("submit")).click();
+      }
+  }
+
+How code works:
+  public class BasePage {
+  → Declares a class named BasePage. 'public' means accessible from anywhere.
+
+      WebDriver driver;
+  → Instance variable to hold the browser reference. Shared by all methods.
+
+      public BasePage(WebDriver driver) {
+          this.driver = driver;
+      }
+  → Constructor — runs when you do 'new BasePage(driver)'.
+  → 'this.driver' = the class variable. 'driver' = the parameter passed in.
+  → Stores the browser reference so all methods can use it.
+
+      public String getTitle() {
+          return driver.getTitle();
+      }
+  → A method that returns the page title as a String.
+  → Any child class (LoginPage) inherits this method for free.
+
+  public class LoginPage extends BasePage {
+  → 'extends' means LoginPage INHERITS everything from BasePage.
+  → LoginPage gets getTitle() automatically without rewriting it.
+
+      public LoginPage(WebDriver driver) {
+          super(driver);
+      }
+  → 'super(driver)' calls BasePage's constructor to set up the driver.
+  → Without super(), the parent's driver would be null.
+
+      public void login(String user, String pass) {
+          driver.findElement(By.id("email")).sendKeys(user);
+  → findElement locates the element. sendKeys types into it.
+  → 'driver' works here because BasePage set it up via super().
+
+Interview tip: "In my Selenium framework, I used inheritance for POM.
+BasePage holds common methods (getTitle, waitForElement). Each page
+extends BasePage and adds its own locators and methods."
+
+Follow-up: "What is Polymorphism in the context of testing?"
+Answer: "Method overriding — a child class can override a parent method.
+For example, BasePage has a generic navigate() method, and LoginPage
+overrides it with specific login URL navigation."
+
+
+----------------------------------------------------------------
+3. ACCESS MODIFIERS
+----------------------------------------------------------------
+
+  public    → accessible from anywhere
+  private   → accessible only within the class
+  protected → accessible within the class and subclasses
+  default   → accessible within the same package
+
+Interview tip: "I use private for locators (no external access),
+public for action methods (called by tests), and protected for
+methods shared with child page objects."
+
+
+----------------------------------------------------------------
+4. INTERFACE vs ABSTRACT CLASS
+----------------------------------------------------------------
+
+Interface:
+  - All methods are abstract (no body) — Java 8+ allows default methods
+  - A class can implement MULTIPLE interfaces
+  - Used for: defining contracts
+
+Abstract class:
+  - Can have both abstract and concrete methods
+  - A class can extend only ONE abstract class
+  - Used for: shared base functionality
+
+Code:
+  public interface Clickable {
+      void click();
+      void doubleClick();
+  }
+
+  public abstract class BasePage {
+      WebDriver driver;
+      abstract void navigate();  // subclass MUST implement this
+
+      public String getTitle() {  // shared implementation
+          return driver.getTitle();
+      }
+  }
+
+Interview tip: "WebDriver itself is an interface. ChromeDriver,
+FirefoxDriver implement it. That's why we write:
+WebDriver driver = new ChromeDriver(); — polymorphism in action."
+
+
+----------------------------------------------------------------
+5. COLLECTIONS (List, Map, Set)
+----------------------------------------------------------------
+
+Code:
+  // List — ordered, allows duplicates
+  List<String> products = new ArrayList<>();
+  products.add("iPhone");
+  products.add("Samsung");
+  products.get(0);  // "iPhone"
+
+  // Map — key-value pairs
+  Map<String, String> testData = new HashMap<>();
+  testData.put("username", "user@mail.com");
+  testData.put("password", "Pass123");
+  testData.get("username");  // "user@mail.com"
+
+  // Set — unique values, no duplicates
+  Set<String> browsers = new HashSet<>();
+  browsers.add("Chrome");
+  browsers.add("Chrome");  // ignored — already exists
+  browsers.size();  // 1
+
+How code works:
+  List<String> products = new ArrayList<>();
+  → List is the interface, ArrayList is the implementation.
+  → <String> = generics — this list can ONLY hold Strings.
+  → new ArrayList<>() creates an empty list. <> infers the type.
+
+  products.add("iPhone");
+  → Adds "iPhone" to the end of the list. List is now: ["iPhone"]
+
+  products.get(0);
+  → Gets item at index 0 (zero-based). Returns "iPhone".
+
+  Map<String, String> testData = new HashMap<>();
+  → Map stores key-value pairs. First String = key type, Second = value type.
+  → Like a dictionary: look up a value by its key.
+
+  testData.put("username", "user@mail.com");
+  → Stores "user@mail.com" with key "username".
+
+  testData.get("username");
+  → Retrieves the value for key "username" → "user@mail.com".
+
+  Set<String> browsers = new HashSet<>();
+  → Set only stores UNIQUE values. Duplicates are silently ignored.
+  → No index access — order is not guaranteed.
+
+  browsers.add("Chrome");
+  browsers.add("Chrome");  // Set already has "Chrome", so this is a no-op.
+  browsers.size();          // 1 — only one "Chrome" stored.
+
+Interview tip: "I use HashMap for test data, ArrayList for collecting
+web elements, and HashSet when I need unique values (like extracting
+distinct error messages from a page)."
+
+
+----------------------------------------------------------------
+6. EXCEPTION HANDLING
+----------------------------------------------------------------
+
+Code:
+  try {
+      WebElement element = driver.findElement(By.id("missing"));
+      element.click();
+  } catch (NoSuchElementException e) {
+      System.out.println("Element not found: " + e.getMessage());
+  } catch (Exception e) {
+      System.out.println("Unexpected error: " + e.getMessage());
+  } finally {
+      // Always runs — cleanup
+      driver.quit();
+  }
+
+How code works:
+  try {
+  → "Try to execute this code. If anything goes wrong, jump to catch."
+
+      WebElement element = driver.findElement(By.id("missing"));
+  → Searches the page for element with id="missing".
+  → If not found, Java THROWS a NoSuchElementException.
+  → Execution immediately jumps to the matching catch block.
+
+      element.click();
+  → This line NEVER runs if findElement throws an exception above.
+
+  } catch (NoSuchElementException e) {
+  → Catches specifically NoSuchElementException.
+  → 'e' holds the exception details (message, stack trace).
+  → Code inside this block runs instead of crashing the program.
+
+  } catch (Exception e) {
+  → Catches ANY other exception not caught above.
+  → Acts as a safety net for unexpected errors.
+  → More specific catches should come BEFORE generic ones.
+
+  } finally {
+      driver.quit();
+  }
+  → ALWAYS runs — whether an exception occurred or not.
+  → Perfect for cleanup: closing browsers, database connections.
+  → Even if you return from inside try/catch, finally still executes.
+
+Common Selenium exceptions:
+  NoSuchElementException      — element not found
+  StaleElementReferenceException — element no longer in DOM
+  TimeoutException            — wait exceeded
+  ElementClickInterceptedException — element obscured
+
+Interview tip: "I use try-catch for scenarios where failure is expected
+(like checking if an element exists). For test assertions, I let
+exceptions propagate so the test properly fails and reports the issue."
+
+
+----------------------------------------------------------------
+7. STRING METHODS
+----------------------------------------------------------------
+
+Code:
+  String text = "  Hello World  ";
+  text.trim();              // "Hello World"
+  text.toLowerCase();       // "  hello world  "
+  text.contains("World");   // true
+  text.split(" ");          // ["", "", "Hello", "World", "", ""]
+  text.replace("World", "Java");  // "  Hello Java  "
+  text.substring(2, 7);    // "Hello"
+  text.equals("Hello");    // false (case-sensitive)
+  text.equalsIgnoreCase("hello world"); // false (has spaces)
+
+Interview tip: "I use String methods for extracting data from web elements —
+splitting order IDs, trimming whitespace, verifying partial text matches."
+
+
+----------------------------------------------------------------
+8. WAITS IN JAVA/SELENIUM CONTEXT
+----------------------------------------------------------------
+
+  // Implicit wait — applies globally (BAD practice)
+  driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(10));
+
+  // Explicit wait — for specific condition (GOOD practice)
+  WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
+  wait.until(ExpectedConditions.visibilityOfElementLocated(By.id("btn")));
+
+  // Fluent wait — custom polling interval
+  Wait<WebDriver> fluentWait = new FluentWait<>(driver)
+      .withTimeout(Duration.ofSeconds(30))
+      .pollingEvery(Duration.ofSeconds(2))
+      .ignoring(NoSuchElementException.class);
+
+How code works:
+  driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(10));
+  → Sets a GLOBAL timeout for ALL findElement calls.
+  → If element not found immediately, Selenium retries for 10 seconds.
+  → BAD because: applies everywhere, can't customize per element,
+    conflicts with explicit waits causing unpredictable behavior.
+
+  WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
+  → Creates a wait object with 10 second maximum.
+  → Polls every 500ms by default (checks condition repeatedly).
+
+  wait.until(ExpectedConditions.visibilityOfElementLocated(By.id("btn")));
+  → Keeps checking "is the element with id='btn' visible?"
+  → If visible within 10 seconds → returns the element, continues.
+  → If not visible after 10 seconds → throws TimeoutException.
+  → GOOD because: specific to this one element, clear condition.
+
+  Wait<WebDriver> fluentWait = new FluentWait<>(driver)
+      .withTimeout(Duration.ofSeconds(30))      // Max wait: 30 seconds
+      .pollingEvery(Duration.ofSeconds(2))       // Check every 2 seconds (not 500ms)
+      .ignoring(NoSuchElementException.class);   // Don't crash if element not in DOM yet
+  → Custom wait with adjustable polling interval.
+  → Ignoring exceptions means it won't crash during retries.
+  → Used when element appears slowly and you don't want to poll aggressively.
+
+Interview tip: "In Selenium I used explicit waits with ExpectedConditions.
+In Playwright, auto-wait eliminates this entirely — which is why I
+migrated. Playwright's approach is cleaner and less error-prone."

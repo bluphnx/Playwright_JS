@@ -13,13 +13,13 @@ test("E2E - using CSS Selectors - place order in Client website", async ({ brows
 
     // variables 
     const OpenUrl = page.goto("https://rahulshettyacademy.com/client");
-    const userName = page.locator("[formcontrolname='userEmail']");
-    const Password = page.locator("#userPassword");
-    const SignIn = page.locator("#login");
-    const cardTitles = page.locator(".card-body b");
-    const cardPrices = page.locator("div.card-body .text-muted");
-    const allAddToCart = page.locator("button.w-10");
-    const cartQuantityNo = page.locator("button[routerlink*='dashboard'] label");
+    const userName = page.locator("[formcontrolname='userEmail']"); // [role='value']
+    const Password = page.locator("#userPassword"); // #id
+    const SignIn = page.locator("#login"); // #id
+    const cardTitles = page.locator(".card-body b"); // .class
+    const cardPrices = page.locator("div.card-body .text-muted"); // parent->tagname.classname .class
+    const allAddToCart = page.locator("button.w-10");// tagname.classname
+    const cartQuantityNo = page.locator("button[routerlink*='dashboard'] label"); // regular expression [role*='partial-value']
     const AddedToCartSuccessMsg = page.locator("#toast-container");
     const email = "r123am@gmail.com";
     const myOrdersTab = page.locator("button[routerlink*='myorders']");

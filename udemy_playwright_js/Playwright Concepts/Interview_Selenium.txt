@@ -1,0 +1,309 @@
+================================================================
+SELENIUM — INTERVIEW GUIDE
+================================================================
+
+
+----------------------------------------------------------------
+1. WHAT IS SELENIUM?
+----------------------------------------------------------------
+
+Explanation:
+An open-source browser automation framework. Selenium WebDriver
+communicates directly with browsers via browser-specific drivers
+(ChromeDriver, GeckoDriver, etc.).
+
+Components:
+  - Selenium WebDriver → Browser automation API
+  - Selenium Grid → Parallel/remote execution
+  - Selenium IDE → Record/playback browser extension
+
+Why it's used:
+  - Industry standard for web automation (since 2004).
+  - Supports Java, Python, C#, JavaScript, Ruby.
+  - Huge community, extensive documentation.
+  - Works with all major browsers.
+
+
+----------------------------------------------------------------
+2. WEBDRIVER SETUP
+----------------------------------------------------------------
+
+Code:
+  // Before Selenium 4 (with WebDriverManager)
+  WebDriverManager.chromedriver().setup();
+  WebDriver driver = new ChromeDriver();
+
+  // Selenium 4+ (built-in driver management)
+  WebDriver driver = new ChromeDriver();
+
+  // With options
+  ChromeOptions options = new ChromeOptions();
+  options.addArguments("--headless");
+  options.addArguments("--window-size=1920,1080");
+  WebDriver driver = new ChromeDriver(options);
+
+  // Navigation
+  driver.get("https://example.com");
+  driver.navigate().to("https://example.com");
+  driver.navigate().back();
+  driver.navigate().forward();
+  driver.navigate().refresh();
+
+
+----------------------------------------------------------------
+3. LOCATOR STRATEGIES
+----------------------------------------------------------------
+
+Code:
+  driver.findElement(By.id("email"));              // By ID
+  driver.findElement(By.name("username"));         // By name attribute
+  driver.findElement(By.className("btn-primary")); // By class
+  driver.findElement(By.tagName("input"));         // By HTML tag
+  driver.findElement(By.linkText("Click Here"));   // Exact link text
+  driver.findElement(By.partialLinkText("Click")); // Partial link text
+  driver.findElement(By.cssSelector("#form .btn"));// CSS selector
+  driver.findElement(By.xpath("//input[@id='email']")); // XPath
+
+How code works:
+  driver.findElement(By.id("email"));
+  → Searches the entire page for ONE element with id="email".
+  → Returns a WebElement object you can interact with (click, type, read).
+  → Throws NoSuchElementException if not found.
+
+  driver.findElement(By.cssSelector("#form .btn"));
+  → '#form' = element with id="form".
+  → '.btn' = child element with class="btn" inside #form.
+  → Space means "descendant" — looks inside #form for .btn.
+
+  driver.findElement(By.xpath("//input[@id='email']"));
+  → '//' = search anywhere in the page.
+  → 'input' = must be an <input> element.
+  → '[@id='email']' = must have attribute id equal to "email".
+  → XPath can traverse UP the DOM (parent::, ancestor::) — CSS cannot.
+
+  driver.findElements(By.className("product"));  // Note: findElements (plural)
+  → Returns a List<WebElement> of ALL matching elements.
+  → Returns empty list (not exception) if none found.
+
+Priority (most to least reliable):
+  1. ID (unique, fastest)
+  2. Name
+  3. CSS Selector (versatile, fast)
+  4. XPath (powerful, slower)
+  5. LinkText (only for <a> tags)
+  6. ClassName (often not unique)
+
+Interview tip: "I prefer CSS selectors over XPath for speed and readability.
+I use XPath only when I need to traverse up the DOM (parent/ancestor)
+which CSS can't do."
+
+
+----------------------------------------------------------------
+4. ELEMENT INTERACTIONS
+----------------------------------------------------------------
+
+Code:
+  // Input
+  element.sendKeys("text");
+  element.clear();
+  element.sendKeys(Keys.ENTER);
+
+  // Click
+  element.click();
+
+  // Select dropdown
+  Select dropdown = new Select(driver.findElement(By.id("country")));
+  dropdown.selectByVisibleText("India");
+  dropdown.selectByValue("IN");
+  dropdown.selectByIndex(2);
+
+  // Checkbox/Radio
+  element.click();
+  element.isSelected();  // true/false
+
+  // Get info
+  element.getText();
+  element.getAttribute("value");
+  element.getAttribute("href");
+  element.isDisplayed();
+  element.isEnabled();
+
+
+----------------------------------------------------------------
+5. WAITS
+----------------------------------------------------------------
+
+Code:
+  // Implicit wait (BAD — applies globally, causes confusion)
+  driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(10));
+
+  // Explicit wait (GOOD — waits for specific condition)
+  WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
+  wait.until(ExpectedConditions.visibilityOfElementLocated(By.id("btn")));
+  wait.until(ExpectedConditions.elementToBeClickable(By.id("submit")));
+  wait.until(ExpectedConditions.titleContains("Dashboard"));
+  wait.until(ExpectedConditions.urlContains("/dashboard"));
+
+  // Fluent wait (custom polling)
+  Wait<WebDriver> fluentWait = new FluentWait<>(driver)
+      .withTimeout(Duration.ofSeconds(30))
+      .pollingEvery(Duration.ofSeconds(2))
+      .ignoring(NoSuchElementException.class);
+
+Interview tip: "I never use implicit waits — they conflict with explicit
+waits and cause unpredictable behavior. I always use explicit waits
+with specific ExpectedConditions for each scenario."
+
+
+----------------------------------------------------------------
+6. ACTIONS CLASS (MOUSE & KEYBOARD)
+----------------------------------------------------------------
+
+Code:
+  Actions actions = new Actions(driver);
+
+  // Hover
+  actions.moveToElement(element).perform();
+
+  // Double click
+  actions.doubleClick(element).perform();
+
+  // Right click
+  actions.contextClick(element).perform();
+
+  // Drag and drop
+  actions.dragAndDrop(source, target).perform();
+
+  // Key combinations
+  actions.keyDown(Keys.CONTROL).click(element).keyUp(Keys.CONTROL).perform();
+
+  // Chain actions
+  actions.moveToElement(menu)
+         .pause(Duration.ofSeconds(1))
+         .click(submenuItem)
+         .perform();
+
+
+----------------------------------------------------------------
+7. HANDLING WINDOWS & FRAMES
+----------------------------------------------------------------
+
+Code (Windows/Tabs):
+  // Get current window
+  String mainWindow = driver.getWindowHandle();
+
+  // Switch to new window
+  Set<String> allWindows = driver.getWindowHandles();
+  for (String window : allWindows) {
+      if (!window.equals(mainWindow)) {
+          driver.switchTo().window(window);
+      }
+  }
+
+  // Switch back
+  driver.switchTo().window(mainWindow);
+
+Code (Frames):
+  driver.switchTo().frame("frameName");        // By name
+  driver.switchTo().frame(0);                  // By index
+  driver.switchTo().frame(element);            // By WebElement
+  driver.switchTo().defaultContent();          // Back to main page
+  driver.switchTo().parentFrame();             // Back one level
+
+Code (Alerts):
+  Alert alert = driver.switchTo().alert();
+  alert.getText();     // Read message
+  alert.accept();      // Click OK
+  alert.dismiss();     // Click Cancel
+  alert.sendKeys("input");  // Type in prompt
+
+
+----------------------------------------------------------------
+8. SCREENSHOTS
+----------------------------------------------------------------
+
+Code:
+  // Full page screenshot
+  File src = ((TakesScreenshot) driver).getScreenshotAs(OutputType.FILE);
+  FileUtils.copyFile(src, new File("screenshot.png"));
+
+  // Element screenshot
+  WebElement element = driver.findElement(By.id("chart"));
+  File src = element.getScreenshotAs(OutputType.FILE);
+
+
+----------------------------------------------------------------
+9. PAGE OBJECT MODEL (SELENIUM)
+----------------------------------------------------------------
+
+Code:
+  public class LoginPage {
+      WebDriver driver;
+
+      // Locators
+      @FindBy(id = "email") WebElement emailField;
+      @FindBy(id = "password") WebElement passwordField;
+      @FindBy(id = "submit") WebElement submitBtn;
+
+      public LoginPage(WebDriver driver) {
+          this.driver = driver;
+          PageFactory.initElements(driver, this);
+      }
+
+      public DashboardPage login(String email, String password) {
+          emailField.sendKeys(email);
+          passwordField.sendKeys(password);
+          submitBtn.click();
+          return new DashboardPage(driver);
+      }
+  }
+
+How code works:
+  @FindBy(id = "email") WebElement emailField;
+  → Annotation that declares "find element with id='email' and store in emailField."
+  → The element is NOT searched yet — it's lazy (searched when first used).
+
+  PageFactory.initElements(driver, this);
+  → Activates all @FindBy annotations in this class.
+  → Without this line, all @FindBy fields would be null.
+  → 'this' = the current object instance.
+
+  public DashboardPage login(String email, String password) {
+  → Returns DashboardPage — tells the caller "after login, you're on dashboard."
+  → This creates a fluent chain: loginPage.login(user, pass).viewProfile();
+
+      emailField.sendKeys(email);
+  → Types the email text into the email input field.
+  → @FindBy automatically locates the element when .sendKeys is called.
+
+      return new DashboardPage(driver);
+  → Creates and returns a new page object for the next page.
+  → The test knows which page it's on after calling login().
+
+Interview tip: "I used @FindBy with PageFactory for clean locator
+declaration. Methods return the next page object (login returns
+DashboardPage) creating a fluent API: loginPage.login().addToCart()."
+
+
+----------------------------------------------------------------
+10. SELENIUM vs PLAYWRIGHT COMPARISON
+----------------------------------------------------------------
+
+| Feature              | Selenium               | Playwright              |
+|----------------------|------------------------|-------------------------|
+| Auto-wait            | No (need explicit)     | Yes (built-in)          |
+| Speed                | Slower                 | Faster (no HTTP bridge) |
+| Browser install      | Manual drivers         | Auto-bundled            |
+| API testing          | No (need RestAssured)  | Built-in (request)      |
+| Network intercept    | No                     | Yes (page.route)        |
+| Multi-tab            | Complex                | Easy (waitForEvent)     |
+| Parallel             | Grid needed            | Built-in workers        |
+| Mobile               | Appium needed          | Device emulation        |
+| Languages            | Java,Python,C#,JS,Ruby | JS/TS,Python,Java,C#    |
+| iframes              | switchTo().frame()     | frameLocator() (easier) |
+| Trace/debugging      | No                     | Trace Viewer, UI Mode   |
+
+Interview tip: "I migrated from Selenium to Playwright because:
+auto-wait eliminated flaky tests, built-in API testing removed REST
+Assured dependency, parallel execution without Grid, and much faster
+execution speed. Same POM principles apply in both."

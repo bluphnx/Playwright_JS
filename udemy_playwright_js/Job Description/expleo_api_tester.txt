@@ -1,0 +1,70 @@
+ Automation API Tester for Enterprises
+ Overview
+
+
+    IN-TN-Chennai 
+Job area
+    IT & Digital 
+Employment type
+    Permanent 
+Workplace
+    Hybrid 
+ID
+    2026-54137 
+
+
+Automation API Tester for Banking Project
+Responsibilities
+
+    Review API specifications (REST, SOAP, GraphQL etc.) / requirement documents and understand business logic and edge cases.
+
+    Design test cases for API / service endpoints: positive, negative, boundary, error conditions, schema / contract validation, versioning.
+
+    Develop, maintain, and enhance test automation scripts & frameworks (API / integration testing) using tools like RestAssured, Postman, SoapUI, or equivalent.
+
+    Create and maintain test data, stubs / mocks / service virtualization where external dependencies are unavailable or unreliable.
+
+    Execute automated & manual tests (for integration / regression) and analyze results.
+
+    Identify defects; log, track, and follow up on them with devs; validate fixes.
+
+    Ensure tests are integrated into CI/CD pipelines to enable automated regression / build validation.
+
+    Perform non‑functional testing as required: e.g. performance, load, latency, reliability, and possibly security of APIs.
+
+    Monitor and report test metrics: coverage, pass/fail rates, defect density, test reliability, regression times etc.
+
+    Collaborate with cross‑functional teams: Development, Product, Ops / DevOps, to ensure that API related issues (scalability, security, error handling, monitoring) are addressed.
+
+Essential skills
+
+    Strong expertise in Java (experienced in writing API scripts according to best practices).
+    Proficiency in BDD/Gherkin with Cucumber.
+    Experience with API investigation/manual tools such as Postman, Bruno, and Insomnia.
+    Playwright: ability to understand and write code (good to have, as UI tests may move to Playwright).
+    Ruby with Cucumber (Selenium framework): experience in writing and executing UI automation scripts.
+    Able to write and execute functional, regression, and smoke test cases.
+    Experience in peer review of test cases.
+    Hands-on experience with test management tools.
+    Experience in the banking sector is preferred.
+    Experience integrating automation into CI/CD pipelines (Jenkins).
+    Good understanding of GitLab for code versioning and maintenance
+
+Desired skills
+
+    Java – strong coding skills, best practices for API test automation.
+    REST API Automation – 5–8 years with Rest-Assured and Wiremock.
+    API Tools (manual/investigation): Postman, Bruno, Insomnia.
+    Swagger – interpretation and test case derivation.
+    CI/CD – Jenkins integration for running automation pipelines.
+    Version Control – GitLab for structured code maintenance.
+    BDD/Gherkin with Cucumber.
+    Playwright (UI automation) – nice-to-have.
+    Ruby + Cucumber (Selenium) – UI automation scripting.
+
+Experience
+
+     
+    5–8 years of REST API automation experience using Rest-Assured frameworks and Wiremock for mocks.
+     
+
