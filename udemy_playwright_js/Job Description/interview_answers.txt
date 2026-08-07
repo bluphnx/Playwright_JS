@@ -1,0 +1,404 @@
+================================================================
+INTERVIEW QUESTIONS — PROFESSIONAL ANSWERS
+================================================================
+
+
+================================================================
+Q1: How can you handle iframes in Playwright?
+================================================================
+
+"Playwright provides three approaches to handle iframes:"
+
+METHOD 1 — frameLocator() (Recommended):
+  const frame = page.frameLocator('#iframe-id');
+  await frame.locator('button.submit').click();
+
+  → Creates a scoped locator that automatically targets elements inside the iframe.
+  → No need to "switch" in and out like Selenium. Playwright handles it seamlessly.
+  → Works with all locator strategies inside: getByRole, getByText, CSS, etc.
+
+METHOD 2 — frame() for named frames:
+  const frame = page.frame({ name: 'payment-frame' });
+  await frame.locator('#card-number').fill('4111111111111111');
+
+  → Accesses a frame by its 'name' attribute or URL.
+  → Returns a Frame object (like a mini-page) with its own locator methods.
+  → Useful when the iframe has a known name attribute.
+
+METHOD 3 — contentFrame() for element-based access:
+  const frameElement = page.locator('iframe#checkout');
+  const frame = await frameElement.contentFrame();
+  await frame.locator('#pay-button').click();
+
+  → First locate the iframe element, then get its content frame.
+  → Useful when the iframe doesn't have a name but has identifiable attributes.
+
+"In my project, I primarily used frameLocator() because it integrates
+directly with Playwright's locator chaining and auto-wait mechanism.
+For example, on the Parent Dashboard, we had an iframe for payment
+processing and I accessed it as:
+page.frameLocator('#payment-iframe').getByRole('button', {name: 'Pay Now'})"
+
+KEY DIFFERENCE FROM SELENIUM:
+  - Selenium: driver.switchTo().frame() → you're 'inside' the frame globally
+  - Playwright: frameLocator() → scoped access, no switching back and forth
+
+
+================================================================
+Q2: What are the locator strategies in Playwright and what is recommended?
+================================================================
+
+"Playwright provides multiple locator strategies. The recommended order is:"
+
+PRIORITY ORDER (most reliable first):
+  1. getByRole()        → page.getByRole('button', { name: 'Submit' })
+  2. getByTestId()      → page.getByTestId('login-btn')
+  3. getByLabel()       → page.getByLabel('Email Address')
+  4. getByPlaceholder() → page.getByPlaceholder('Enter email')
+  5. getByText()        → page.getByText('Welcome back')
+  6. getByAltText()     → page.getByAltText('Company Logo')
+  7. CSS Selector       → page.locator('#email')
+  8. XPath             → page.locator('//input[@type="email"]')
+
+"getByRole is the MOST recommended because:"
+  - It targets semantic HTML roles (how assistive technologies see elements).
+  - Resilient to DOM changes — developers rename classes/IDs, but roles stay stable.
+  - Acts as implicit accessibility testing — if getByRole can't find it, the element
+    likely has accessibility issues.
+
+"In my project, I used getByRole as the primary strategy. For elements without
+proper ARIA roles, I requested developers to add data-testid attributes.
+CSS selectors were my fallback for complex dynamic elements."
+
+EXAMPLE FROM MY PROJECT:
+  // Instead of brittle CSS:
+  page.locator('#btn-submit-form-redesign-v2')  // breaks on every redesign
+
+  // I used resilient role-based:
+  page.getByRole('button', { name: 'Submit' })  // survives redesigns
+
+
+================================================================
+Q3: What are the different types of waits in Playwright?
+================================================================
+
+"Playwright has a fundamentally different approach to waiting compared to
+Selenium. There are three main categories:"
+
+1. AUTO-WAIT (Built-in, no code needed):
+   → Every action (click, fill, type) automatically waits for the element
+     to be visible, stable, enabled, and not obscured.
+   → This eliminates 90% of explicit waits you'd write in Selenium.
+   → Example: await page.locator('#btn').click(); // auto-waits internally
+
+2. WAIT FOR ELEMENT STATE:
+   → await locator.waitFor()                          // wait for element to appear
+   → await locator.waitFor({ state: 'visible' })     // wait until visible
+   → await locator.waitFor({ state: 'hidden' })      // wait until hidden/gone
+   → await locator.waitFor({ state: 'attached' })    // wait until in DOM
+   → await expect(locator).toBeVisible()             // assertion that auto-retries
+
+3. WAIT FOR NAVIGATION/NETWORK:
+   → await page.waitForURL('**/dashboard')           // wait for URL change
+   → await page.waitForLoadState('networkidle')      // wait for all network done
+   → await page.waitForResponse('**/api/products')   // wait for specific API response
+   → await page.waitForTimeout(2000)                 // hard wait (AVOID in tests)
+
+"In my framework, I relied primarily on auto-wait. For dynamically loaded
+content (like toast messages or API-driven elements), I used waitFor() or
+waitForResponse(). I never used waitForTimeout in production tests — that's
+a code smell indicating a synchronization problem."
+
+COMPARISON WITH SELENIUM:
+  Selenium: WebDriverWait + ExpectedConditions for EVERY interaction
+  Playwright: Auto-wait handles it. Explicit waits only for edge cases.
+
+
+================================================================
+Q4: How would you handle alerts?
+================================================================
+
+"In Playwright, you register a dialog listener BEFORE the action that
+triggers the alert. This is different from Selenium where you switch to
+the alert after it appears."
+
+CODE:
+  // Accept (click OK)
+  page.on('dialog', dialog => dialog.accept());
+  await page.locator('#delete-btn').click();
+
+  // Dismiss (click Cancel)
+  page.on('dialog', dialog => dialog.dismiss());
+  await page.locator('#confirm-btn').click();
+
+  // Read message and accept
+  page.on('dialog', async dialog => {
+      console.log(dialog.message());  // "Are you sure you want to delete?"
+      await dialog.accept();
+  });
+
+  // Handle prompt (with input)
+  page.on('dialog', dialog => dialog.accept('My input text'));
+  await page.locator('#prompt-btn').click();
+
+KEY POINTS:
+  - Listener MUST be registered BEFORE the action that triggers the dialog.
+  - If no listener is registered, Playwright auto-dismisses the dialog.
+  - Works for alert(), confirm(), prompt(), and beforeunload dialogs.
+  - page.on('dialog') fires for ALL dialogs — handle different types with
+    dialog.type() which returns 'alert', 'confirm', 'prompt', or 'beforeunload'.
+
+"In my project, I used dialog handlers for confirmation modals when
+deleting child profiles. I registered the listener before clicking
+the delete button and validated the confirmation message text."
+
+
+================================================================
+Q5: Can you walk me through your Playwright framework?
+================================================================
+
+"Let me walk you through the framework architecture I built:"
+
+FOLDER STRUCTURE:
+  project-root/
+  ├── playwright.config.js         → Central configuration (browsers, timeouts, reporters)
+  ├── package.json                 → Dependencies and npm scripts
+  ├── .env.staging                 → Staging environment variables
+  ├── .env.production              → Production environment variables
+  ├── pageobjects/                 → Page Object Model classes
+  │   ├── LoginPage.js
+  │   ├── DashboardPage.js
+  │   ├── ProfilePage.js
+  │   └── SettingsPage.js
+  ├── utils/
+  │   ├── test-base.js             → Custom fixtures (authenticated page, test data)
+  │   ├── dataReader.js            → Reads test data from JSON/CSV files
+  │   └── APIutils.js              → API helper methods (login, create order)
+  ├── testdata/
+  │   ├── users.json               → User credentials for different scenarios
+  │   └── products.json            → Product test data
+  ├── tests/
+  │   ├── login.spec.js
+  │   ├── dashboard.spec.js
+  │   └── e2e-order.spec.js
+  ├── screenshots/                 → Auto-captured on failure
+  ├── allure-results/              → Allure report data
+  └── playwright-report/           → Built-in HTML report
+
+FIXTURES — WHAT AND WHY:
+"Fixtures are Playwright's dependency injection mechanism. They provide
+reusable preconditions to tests without repeating setup code."
+
+  // test-base.js
+  const { test: base } = require('@playwright/test');
+  exports.test = base.extend({
+      authenticatedPage: async ({ browser }, use) => {
+          const context = await browser.newContext({ storageState: 'auth.json' });
+          const page = await context.newPage();
+          await use(page);  // Test runs here with pre-authenticated page
+          await context.close();  // Cleanup after test
+      }
+  });
+
+"Why fixtures over beforeAll/beforeEach?"
+  - Composable: fixtures can depend on other fixtures.
+  - Automatic cleanup: the code after 'use()' always runs.
+  - Selective: only tests that need a fixture request it.
+  - Shareable: fixtures work across test files via imports.
+
+CONFIGURATION (playwright.config.js):
+  - Browsers: Chromium, Firefox, WebKit as separate projects
+  - Timeouts: 30s test, 5s assertion (overridden per test if needed)
+  - Reporters: HTML + Allure for dual reporting
+  - Screenshots: only-on-failure
+  - Trace: retain-on-failure (for Trace Viewer debugging)
+  - Workers: 5 parallel (reduces 30-min suite to 6 minutes)
+  - Retries: 2 (handles intermittent network issues)
+
+ENVIRONMENT FILES:
+  - Separate .env files per environment (staging, pre-prod, production)
+  - Base URL, API endpoints, credentials per environment
+  - Switch via: npx playwright test --project=staging
+
+REPORTING:
+  - HTML report (built-in) for developer use — fast, auto-attached traces
+  - Allure report for stakeholders — trends, pie charts, history
+  - Screenshots auto-attached on every failure
+
+
+================================================================
+Q6: How many test cases do you automate everyday?
+================================================================
+
+"It varies depending on the complexity of the test scenarios. On average,
+I automate 2-4 test cases per day. Here's the breakdown:"
+
+  - Simple tests (login validation, field checks): 4-5 per day
+  - Medium tests (form submission, multi-step flow): 2-3 per day
+  - Complex E2E tests (full order flow with API + UI): 1-2 per day
+
+"It's not just writing the test — there's also locator identification,
+handling edge cases, adding proper assertions, writing reusable page
+object methods, and ensuring the test is stable enough for CI execution."
+
+
+================================================================
+Q7: What is the process you follow from beginning to end for automating?
+================================================================
+
+"Here's our end-to-end process:"
+
+1. REQUIREMENT ANALYSIS:
+   → Manual testers write test cases in TestRail.
+   → I review them for automation feasibility (can it be automated?
+     is it worth automating? is it stable enough?).
+   → We skip tests that are purely visual, require hardware, or are
+     one-time verifications.
+
+2. FRAMEWORK SETUP (if new feature/page):
+   → Create page object class for the new page.
+   → Identify locators using Playwright Inspector or Codegen.
+   → Add reusable methods for common actions on that page.
+
+3. TEST DEVELOPMENT:
+   → Create a feature branch: git checkout -b feature/KIDS-1234
+   → Write the test using existing page objects.
+   → Add test data to JSON/CSV files if data-driven.
+   → Run locally to verify: npx playwright test --headed
+
+4. CODE REVIEW:
+   → Push branch to GitHub.
+   → Create Pull Request.
+   → AI code review tool checks basic standards first.
+   → Senior engineer reviews for logic, readability, and best practices.
+   → Address review comments, push fixes.
+
+5. MERGE & CI:
+   → Approved PR → merge to main branch.
+   → Jenkins triggers smoke tests automatically on merge.
+   → Nightly regression includes the new test.
+
+6. MAINTENANCE:
+   → Monitor test stability over 2-3 sprints.
+   → Fix flakiness if detected.
+   → Update when UI changes.
+
+
+================================================================
+Q8: What are the best practices to review code changes as a senior?
+================================================================
+
+"When reviewing automation code, I focus on these key areas:"
+
+1. READABILITY & NAMING:
+   → Are variable/method names descriptive? (loginPage vs lp)
+   → Can someone understand the test without reading comments?
+   → Is POM structure followed consistently?
+
+2. LOCATOR QUALITY:
+   → Are resilient locators used (getByRole, testId) vs brittle ones (nth, CSS)?
+   → Will the locator break on the next UI redesign?
+   → Are locators defined in page objects, not scattered in tests?
+
+3. ASSERTION COVERAGE:
+   → Are assertions meaningful? (not just checking page loaded)
+   → Are negative scenarios covered? (error messages, invalid inputs)
+   → Are web-first assertions used? (await expect(locator) vs manual waits)
+
+4. TEST INDEPENDENCE:
+   → Does the test depend on other tests' data or execution order?
+   → Does it clean up after itself?
+   → Can it run in parallel without conflicts?
+
+5. WAIT STRATEGY:
+   → No hard waits (waitForTimeout)?
+   → Proper use of auto-wait, waitFor(), or waitForResponse()?
+
+6. CODE DUPLICATION:
+   → Is repeated logic extracted into page object methods?
+   → Is test data externalized (not hardcoded in test)?
+
+7. ERROR HANDLING:
+   → Are edge cases handled (element not found, API timeout)?
+   → Does the test give meaningful failure messages?
+
+
+================================================================
+Q9: Write a reverse string program
+================================================================
+
+JAVASCRIPT:
+  function reverseString(str) {
+      return str.split('').reverse().join('');
+  }
+  console.log(reverseString("hello"));  // "olleh"
+
+How it works:
+  str.split('')    → Converts string to array: ['h','e','l','l','o']
+  .reverse()       → Reverses array: ['o','l','l','e','h']
+  .join('')        → Joins array back to string: "olleh"
+
+ALTERNATIVE (loop):
+  function reverseString(str) {
+      let reversed = '';
+      for (let i = str.length - 1; i >= 0; i--) {
+          reversed += str[i];
+      }
+      return reversed;
+  }
+
+How it works:
+  → Start from last character (index = length - 1).
+  → Move backwards (i--) until index 0.
+  → Append each character to 'reversed' string.
+
+JAVA:
+  public String reverseString(String str) {
+      return new StringBuilder(str).reverse().toString();
+  }
+
+How it works:
+  → StringBuilder is a mutable string class (efficient for modifications).
+  → .reverse() reverses characters in place.
+  → .toString() converts back to regular String.
+
+
+================================================================
+Q10: Manual testing techniques — Error Guessing Technique?
+================================================================
+
+"Error guessing is an experience-based testing technique where the tester
+uses their knowledge of common software failures to predict where defects
+are likely to exist — without formal test case documentation."
+
+HOW IT WORKS:
+  → Based on tester's intuition, domain knowledge, and past defect patterns.
+  → "Where has this type of app typically failed before?"
+  → Not random — it's educated guessing based on experience.
+
+COMMON ERROR GUESSING SCENARIOS:
+  - Boundary values (0, -1, max+1, empty string)
+  - Null/undefined inputs
+  - Special characters in text fields (@#$%^&*)
+  - Very long strings (10000 characters)
+  - Spaces (leading, trailing, only spaces)
+  - Date fields (Feb 29, Dec 31, timezone edges)
+  - Network interruptions mid-transaction
+  - Concurrent user actions (same item, last unit)
+  - Browser back button during multi-step forms
+  - Session timeout during checkout
+  - Copy-paste vs typing in form fields
+
+"In my project, I used error guessing extensively during bug bashes.
+For the Parent Dashboard, I'd test scenarios like:
+  - Adding a 5th child profile (max is 4)
+  - Setting time limit to 0 minutes
+  - Entering special characters in child's name
+  - Changing timezone while time limits are active
+  These intuition-based tests caught 15-20% of the defects I raised."
+
+HOW TO EXPLAIN:
+"Error guessing is not guesswork — it's informed prediction. An experienced
+tester knows that login pages fail with SQL injection, date pickers fail
+at year boundaries, and payment forms fail with international card formats.
+I apply this knowledge proactively rather than waiting for formal test cases."

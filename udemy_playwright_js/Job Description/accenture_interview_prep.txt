@@ -1,0 +1,573 @@
+================================================================
+ACCENTURE — FULL INTERVIEW PREPARATION
+================================================================
+Role: Application Developer (Playwright SME)
+Location: Bengaluru
+Experience Required: 3+ years in Playwright
+================================================================
+
+
+================================================================
+PART 1: JD ANALYSIS — WHAT THEY'RE LOOKING FOR
+================================================================
+
+MUST-HAVE (Non-negotiable):
+  ✓ Playwright proficiency (3+ years minimum)
+  ✓ Automated test script development & maintenance
+  ✓ HTML, CSS, JavaScript understanding
+  ✓ Debugging & troubleshooting skills
+  ✓ CI/CD familiarity
+  ✓ Version control (Git)
+
+ROLE EXPECTATIONS:
+  ✓ Work independently as a Subject Matter Expert (SME)
+  ✓ Contribute solutions in team discussions
+  ✓ Cross-functional collaboration (understand business requirements)
+  ✓ Document processes and code changes
+  ✓ Mentor junior team members
+
+YOUR POSITIONING:
+  "4.9 years at Amazon, Playwright automation from scratch, SME-level
+  ownership of Parent Dashboard framework, mentor juniors, CI/CD with
+  Jenkins, cross-browser testing, full POM framework."
+
+  → You exceed their 3-year Playwright requirement.
+  → You have SME experience (built framework from scratch at Amazon).
+  → You mentor juniors (they specifically ask for this).
+
+
+================================================================
+PART 2: EXPECTED INTERVIEW ROUNDS
+================================================================
+
+Accenture typically has 3-4 rounds:
+
+ROUND 1: Technical Screening (45-60 min)
+  → Playwright deep-dive questions
+  → JavaScript/TypeScript fundamentals
+  → Framework architecture discussion
+  → Small coding exercise
+
+ROUND 2: Technical + Project Discussion (45-60 min)
+  → Walk through your framework
+  → Real-world problem-solving scenarios
+  → Debugging approach
+  → CI/CD and team workflow
+
+ROUND 3: Managerial/HR (30 min)
+  → Behavioral questions
+  → Why Accenture? Why leaving Amazon?
+  → Salary discussion
+  → Notice period
+
+OPTIONAL ROUND 4: Client/Senior Leadership
+  → Higher-level architecture discussion
+  → Communication skills assessment
+
+
+================================================================
+PART 3: PLAYWRIGHT DEEP-DIVE QUESTIONS & ANSWERS
+================================================================
+
+----------------------------------------------------------------
+Q1: "Tell me about your experience with Playwright."
+----------------------------------------------------------------
+
+ANSWER:
+"I have nearly 5 years of experience with Playwright at Amazon. I built
+the automation framework for the Kids Parent Dashboard from scratch —
+starting from technology selection through to full CI/CD integration.
+
+My framework uses Playwright with JavaScript/TypeScript, structured with
+Page Object Model. I've automated 100+ test cases covering end-to-end
+flows across 3 browsers and 5 locales. The framework uses custom fixtures
+for authentication, network interception for edge case testing, and
+Playwright's built-in API testing for backend validation.
+
+Key achievements:
+- Reduced test execution from 30 minutes to 6 minutes with parallel workers
+- Brought flaky test rate from 15% to under 2% using auto-wait
+- Integrated with Jenkins for nightly regression and PR-triggered smoke tests
+- Mentored 2 junior engineers on Playwright best practices"
+
+
+----------------------------------------------------------------
+Q2: "How do you structure your Playwright framework?"
+----------------------------------------------------------------
+
+ANSWER:
+"My framework follows this architecture:
+
+  project/
+  ├── playwright.config.js     → Multi-browser, parallel, timeouts, reporters
+  ├── pageobjects/             → POM classes (LoginPage, DashboardPage, etc.)
+  ├── utils/
+  │   ├── fixtures.js          → Custom fixtures (authenticated page, test data)
+  │   ├── APIutils.js          → API helper methods (login, create data)
+  │   └── dataReader.js        → External test data management
+  ├── tests/                   → Test specs organized by feature
+  ├── testdata/                → JSON/CSV data files
+  └── Jenkinsfile              → CI/CD pipeline definition
+
+Key design decisions:
+1. POM for maintainability — locators change in one place.
+2. Custom fixtures for DRY authentication — API login + token injection.
+3. Data-driven testing with JSON files for multiple scenarios.
+4. Network interception for testing error states without breaking real services.
+5. Parallel execution (5 workers) for speed.
+6. Dual reporting — HTML for devs, Allure for stakeholders."
+
+
+----------------------------------------------------------------
+Q3: "Explain auto-wait in Playwright. How is it different from Selenium?"
+----------------------------------------------------------------
+
+ANSWER:
+"Playwright's auto-wait is built into every action — click, fill, type,
+check. Before performing any action, Playwright automatically verifies:
+- Element is attached to DOM
+- Element is visible
+- Element is stable (not animating)
+- Element is enabled
+- Element is not obscured
+
+In Selenium, you'd write explicit waits for every interaction:
+  WebDriverWait wait = new WebDriverWait(driver, 10);
+  wait.until(ExpectedConditions.elementToBeClickable(By.id('btn')));
+  driver.findElement(By.id('btn')).click();
+
+In Playwright, it's just:
+  await page.locator('#btn').click();  // Waits automatically
+
+This eliminated 90% of timing-related flakiness in my test suite and
+made tests about 40% shorter in terms of code lines."
+
+
+----------------------------------------------------------------
+Q4: "How do you handle authentication in your tests?"
+----------------------------------------------------------------
+
+ANSWER:
+"I use a two-strategy approach depending on the scenario:
+
+Strategy 1 — API login + token injection (for most tests):
+  - Call login API in test.beforeAll → get JWT token (200ms).
+  - Use page.addInitScript() to inject token into localStorage.
+  - Navigate to app → already authenticated.
+  - 10x faster than UI login per test.
+
+Strategy 2 — storageState (for session-based auth):
+  - Login via UI once in a setup project.
+  - Save cookies/localStorage to auth.json via context.storageState().
+  - All subsequent tests load auth.json — skip login entirely.
+
+I keep 2-3 dedicated UI login tests to validate the actual login flow,
+but the remaining 97% use API shortcut for speed."
+
+
+----------------------------------------------------------------
+Q5: "How do you handle flaky tests?"
+----------------------------------------------------------------
+
+ANSWER:
+"My approach to flakiness is layered:
+
+1. Prevention (design):
+   - Auto-wait handles most timing issues.
+   - Role-based locators (getByRole) resist DOM changes.
+   - Test isolation — each test creates its own data.
+
+2. Detection:
+   - Playwright's retry mechanism (retries: 2 in config).
+   - Allure reports track flaky tests over time.
+   - Mark tests with test.fixme() while investigating.
+
+3. Debugging:
+   - Trace Viewer — DOM snapshots, network, console at each step.
+   - video: 'retain-on-failure' — see exactly what happened.
+   - waitForResponse() for API-dependent elements.
+
+4. Resolution:
+   - Replace brittle locators with resilient ones.
+   - Add waitFor() for dynamically loaded content.
+   - Use network interception to control timing for edge cases.
+
+This reduced our flaky rate from 15% to under 2%."
+
+
+----------------------------------------------------------------
+Q6: "Explain network interception in Playwright."
+----------------------------------------------------------------
+
+ANSWER:
+"page.route() intercepts HTTP requests before they reach the server.
+I use it for three purposes:
+
+1. Mock API responses (test edge cases):
+   await page.route('**/api/profiles', route => {
+       route.fulfill({ status: 200, body: JSON.stringify([]) });
+   });
+   → Tests empty state without deleting real data.
+
+2. Simulate errors:
+   await page.route('**/api/orders', route => {
+       route.fulfill({ status: 500, body: 'Server Error' });
+   });
+   → Tests error handling UI without breaking real servers.
+
+3. Speed up tests:
+   await page.route('**/*.{png,jpg}', route => route.abort());
+   → Blocks images/analytics — tests run 30% faster.
+
+In my project, this gave me 100% coverage of error scenarios that would
+be impossible to reproduce on real environments."
+
+
+----------------------------------------------------------------
+Q7: "How do you do cross-browser testing?"
+----------------------------------------------------------------
+
+ANSWER:
+"Playwright supports Chromium, Firefox, and WebKit from a single codebase.
+I configure them as projects in playwright.config.js:
+
+  projects: [
+      { name: 'chromium', use: { browserName: 'chromium' } },
+      { name: 'firefox', use: { browserName: 'firefox' } },
+      { name: 'webkit', use: { browserName: 'webkit' } },
+  ]
+
+Same test code runs against all three browsers in parallel. No separate
+drivers, no separate configs.
+
+I can run selectively too:
+  npx playwright test --project=chromium
+
+This caught 3-4 browser-specific bugs per release — mainly CSS rendering
+differences in Safari and dropdown behavior in Firefox."
+
+
+----------------------------------------------------------------
+Q8: "How do you integrate Playwright with CI/CD?"
+----------------------------------------------------------------
+
+ANSWER:
+"I integrated with Jenkins using two pipeline configurations:
+
+1. Smoke pipeline (triggered on every PR):
+   - Runs 15 critical tests in 2 minutes.
+   - Gates PR merges — can't merge without passing tests.
+   - Fast developer feedback.
+
+2. Nightly regression (cron: H 2 * * *):
+   - Full 100+ test suite.
+   - Cross-browser execution.
+   - Allure report published as build artifact.
+   - Slack notification on failure.
+
+Pipeline stages: npm ci → playwright install → run tests → generate report → notify.
+
+I also configured:
+- retries: 2 for handling intermittent network issues.
+- Screenshots + traces archived for debugging failures remotely.
+- Parallel stages for running 3 browsers simultaneously."
+
+
+----------------------------------------------------------------
+Q9: "How do you debug a failing test?"
+----------------------------------------------------------------
+
+ANSWER:
+"My debugging workflow:
+
+1. Check the error message and stack trace — usually tells me the line.
+
+2. Check the HTML report — auto-attached screenshot shows the page state.
+
+3. Trace Viewer (npx playwright show-trace):
+   - See DOM snapshot at the exact step that failed.
+   - Inspect network requests (did the API return expected data?).
+   - Check console logs for JavaScript errors.
+   - See timing between steps.
+
+4. Run headed with slowMo:
+   npx playwright test --headed
+   → Watch the test execute in real-time.
+
+5. page.pause() for interactive debugging:
+   → Freezes execution, opens Playwright Inspector.
+   → Try locators, step through actions.
+
+6. If it's a timing issue: check if waitFor() or waitForResponse() is needed.
+
+7. If it's a locator issue: check if the DOM changed — update the locator."
+
+
+----------------------------------------------------------------
+Q10: "Explain Page Object Model in Playwright."
+----------------------------------------------------------------
+
+ANSWER:
+"POM separates page-specific logic from test logic.
+
+Structure:
+  // LoginPage.js
+  class LoginPage {
+      constructor(page) {
+          this.page = page;
+          this.email = page.getByPlaceholder('Email');
+          this.password = page.locator('#password');
+          this.submitBtn = page.getByRole('button', { name: 'Login' });
+      }
+
+      async goTo() { await this.page.goto('/login'); }
+
+      async login(email, password) {
+          await this.email.fill(email);
+          await this.password.fill(password);
+          await this.submitBtn.click();
+      }
+  }
+
+  // Test file
+  test('login test', async ({ page }) => {
+      const loginPage = new LoginPage(page);
+      await loginPage.goTo();
+      await loginPage.login('user@mail.com', 'Pass123');
+  });
+
+Benefits:
+- If the email field's locator changes → update ONE file, not 50 tests.
+- Tests read like English: loginPage.login() → dashboardPage.addToCart()
+- New team members understand the flow instantly.
+- Code reviews are faster — tests are concise."
+
+
+----------------------------------------------------------------
+Q11: "What locator strategy do you recommend?"
+----------------------------------------------------------------
+
+ANSWER:
+"My priority order:
+1. getByRole — most resilient, accessibility-compliant
+2. getByTestId — stable if developers maintain data-testid attributes
+3. getByLabel/getByPlaceholder — for form fields
+4. CSS selectors — fallback for complex elements
+5. XPath — last resort, only when traversing up the DOM
+
+I avoid:
+- Indexes (nth) when filter can identify the element.
+- Class-based selectors alone (classes change with styling).
+- Auto-generated locators without review.
+
+In my project, switching from CSS to getByRole reduced test breakage
+during UI redesigns by 80%."
+
+
+----------------------------------------------------------------
+Q12: "How do you handle test data?"
+----------------------------------------------------------------
+
+ANSWER:
+"Three approaches depending on the scenario:
+
+1. JSON files (most common):
+   - External JSON files in testdata/ folder.
+   - Test reads data at runtime.
+   - Easy to add new scenarios without changing code.
+
+2. Custom fixtures:
+   - Fixed test data injected via fixture definitions.
+   - Used for common preconditions (authenticated user config).
+
+3. API-generated data:
+   - Create data via API in test.beforeAll.
+   - Ensures fresh, unique data for each run.
+   - Cleanup in test.afterAll.
+
+Data-driven example:
+  const testdata = require('./testdata.json');
+  for (const data of testdata) {
+      test(`Order ${data.product}`, async ({ page }) => {
+          await loginPage.login(data.email, data.password);
+          await dashboard.addToCart(data.product);
+      });
+  }"
+
+
+================================================================
+PART 4: JAVASCRIPT/HTML/CSS QUESTIONS
+================================================================
+
+----------------------------------------------------------------
+Q13: "Explain async/await in JavaScript."
+----------------------------------------------------------------
+
+ANSWER:
+"async/await is JavaScript's way of handling asynchronous operations
+in a readable, synchronous-looking way.
+
+- 'async' marks a function as asynchronous — it returns a Promise.
+- 'await' pauses execution until the Promise resolves.
+
+Without await:
+  const text = locator.textContent();  // Promise { <pending> }
+
+With await:
+  const text = await locator.textContent();  // 'Actual text'
+
+In Playwright, almost every interaction is async because it communicates
+with the browser. That's why nearly every Playwright method needs await."
+
+
+----------------------------------------------------------------
+Q14: "What CSS selectors do you use for locating elements?"
+----------------------------------------------------------------
+
+ANSWER:
+  #id                    → Element with specific ID
+  .class                 → Element with specific class
+  tag.class              → Specific tag with class: input.form-control
+  [attribute='value']    → Attribute match: [name='email']
+  [attr*='partial']      → Contains: [href*='login']
+  parent child           → Descendant: .form input
+  parent > child         → Direct child: ul > li
+  :nth-child(2)          → Second child element
+  :first-child, :last-child → First/last
+
+"I understand CSS deeply because Playwright's locator engine uses it
+as one of its primary selector strategies."
+
+
+----------------------------------------------------------------
+Q15: "Explain the difference between let, const, and var."
+----------------------------------------------------------------
+
+ANSWER:
+  const → Cannot be reassigned. Use for locators, URLs, fixed values.
+  let   → Can be reassigned. Use for counters, accumulated values.
+  var   → Old style. Function-scoped (not block-scoped). Avoid it.
+
+  const page = await context.newPage();  // Never reassigned → const
+  let count = 0;                         // Will increment → let
+  count++;                               // ✅ works with let
+
+"In my automation code, I use const for 95% of variables. Only let for
+loop counters or values that genuinely need to change."
+
+
+================================================================
+PART 5: BEHAVIORAL QUESTIONS
+================================================================
+
+----------------------------------------------------------------
+Q16: "Why are you leaving Amazon?"
+----------------------------------------------------------------
+
+ANSWER:
+"I've had a great experience at Amazon over the past 5 years — building
+the Kids automation framework from scratch and growing from junior to
+senior associate. I'm now looking for my next challenge where I can
+apply my Playwright expertise at a larger scale, work across multiple
+projects and clients, and continue growing as a technical leader.
+Accenture's multi-client model gives me that exposure to diverse
+domains and technologies."
+
+
+----------------------------------------------------------------
+Q17: "Tell me about a challenging problem you solved."
+----------------------------------------------------------------
+
+ANSWER:
+"Our biggest challenge was reducing flaky test rate from 15% to under 2%.
+
+The root cause was our Parent Dashboard loading child profiles from
+multiple async APIs. Tests would fail intermittently because elements
+appeared at unpredictable times.
+
+My approach:
+1. Analyzed trace files to identify the timing patterns.
+2. Replaced CSS locators with getByRole (more stable).
+3. Added waitForResponse() for API-dependent elements.
+4. Used network interception to control timing in edge case tests.
+5. Configured parallel workers with proper test isolation.
+
+Result: Flaky rate dropped from 15% to 1.8% over one sprint.
+The team gained confidence in the automation suite and started
+blocking PRs on test failures — which wasn't possible before."
+
+
+----------------------------------------------------------------
+Q18: "How do you mentor junior team members?"
+----------------------------------------------------------------
+
+ANSWER:
+"At Amazon, I mentored 2 junior engineers:
+- Conducted weekly code review sessions explaining POM patterns.
+- Created documentation (framework wiki, locator strategy guide).
+- Pair-programmed on their first test automation assignments.
+- Reviewed their PRs with constructive feedback on locator quality,
+  assertion coverage, and test isolation.
+
+After 3 months, both were independently writing and maintaining tests.
+One of them took over the regression suite maintenance for a module."
+
+
+----------------------------------------------------------------
+Q19: "How do you handle tight deadlines?"
+----------------------------------------------------------------
+
+ANSWER:
+"I prioritize based on risk. When deadlines are tight:
+1. Automate critical path first (login, core purchase flow).
+2. Use test.describe with tags (@smoke, @critical) for phased delivery.
+3. Communicate early if timeline is unrealistic — with data on complexity.
+4. Parallelize work if team is available.
+
+In one sprint, we had 15 new test cases to automate in 5 days. I split
+the work: 8 high-priority cases first (delivered in 3 days), remaining
+7 lower-priority in the next sprint. Stakeholders appreciated the
+transparency."
+
+
+================================================================
+PART 6: QUESTIONS YOU SHOULD ASK THEM
+================================================================
+
+1. "What type of applications will I be testing — web, mobile, or both?"
+2. "Is this a dedicated client project or an internal tools team?"
+3. "What's the current state of the automation framework — building from
+    scratch or maintaining existing?"
+4. "What browsers and devices do the applications need to support?"
+5. "How large is the QA team and how is work distributed?"
+6. "What's the CI/CD setup — Jenkins, GitHub Actions, Azure DevOps?"
+7. "Are there opportunities to grow into a tech lead or architect role?"
+
+
+================================================================
+PART 7: QUICK REVISION CHECKLIST (BEFORE INTERVIEW)
+================================================================
+
+□ Playwright architecture (browser → context → page)
+□ Auto-wait mechanism explanation
+□ Locator strategies (getByRole priority)
+□ POM pattern with code example
+□ Fixtures (what, why, how to create)
+□ Network interception (page.route) with example
+□ API testing (request fixture, GET/POST)
+□ Token injection (addInitScript + localStorage)
+□ Cross-browser testing (projects in config)
+□ Parallel execution (workers)
+□ Trace Viewer debugging workflow
+□ CI/CD integration (Jenkins pipeline)
+□ async/await explanation
+□ Promise.all for multi-tab handling
+□ storageState for session reuse
+□ Data-driven testing (JSON + for loop)
+□ BDD Cucumber (feature files + step definitions)
+□ Assertions (web-first vs generic, when to await)
+□ Timeouts hierarchy (test > assertion > action)
+□ HTML/CSS selectors for locating elements
+□ Your project story (Parent Dashboard, 100+ tests, 2% flaky rate)
+□ Why leaving Amazon answer ready
+□ Salary expectation ready (40% hike = ~9.88L → ask 10-12L)

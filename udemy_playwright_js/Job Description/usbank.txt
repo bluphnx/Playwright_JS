@@ -1,0 +1,60 @@
+Job description
+
+At U.S. Bancorp India, we are on a journey to do our best. We believe it takes all of us to bring our shared ambition to life, and each person is unique in their potential. A career with U.S. Bancorp India gives you a wide, ever-growing range of opportunities to discover what makes you thrive at every stage of your career. Try new things, learn new skills and discover what you excel at-all from Day One.
+
+Automation Engineer 3
+
+At U.S. Bank, we''re passionate about helping customers and the communities where we live and work. The fifth-largest bank in the United States, we are one of the country''s most respected, innovative and successful financial institutions. U.S. Bank is an equal opportunity employer committed to creating a diverse workforce. We consider all qualified applicants without regard to race, religion, color, sex, national origin, age, sexual orientation, gender identity, disability or veteran status, among other factors.
+
+Job Description
+
+The Automation Engineer tests, creates, implements and supports robotics process and desktop automations. Performs design, scripting, testing, implementing, maintaining and modifying automations of moderate complexity, significance, and risk. Creates comprehensive test plans and test cases; defines automation data needs across systems and creates a plan to coordinate this test data. Creates and executes performance tests to ensure the expected automation performance levels are achieved. Performs, and at times, leads clients and technical staff to investigate, analyze, and resolve technical problems. Writes documentation that describes automation capabilities and operating procedures. Estimates and defines time tables and project tasks; analyzes and estimates cost and time. Conducts analysis of organizational needs for the creation and implementation of automation solutions; participates in feasibility assessments of new automation opportunities and helps determine best approach for automation.
+
+Basic Qualifications
+
+    Bachelor's degree, or equivalent work experience
+    Five to six years of relevant work experience with programming concepts, development logic or automating simple to medium complexity processes 
+
+
+Preferred Skills/Experience
+
+    Basic knowledge of data and process modeling, system and application testing, software development life cycle, application design and architecture, programming, implementation, change controls, and robotics suites
+    Basic knowledge of Java VBA languages, or other configuration/scripting type technology - Demonstrated problem-solving, project management, and teamwork/collaboration skills
+    Comprehensive analytical, technical and application development/programming skills
+    Adept at forging relationships, influencing others, overcoming resistance, and producing results
+
+
+Preferred Skills/Experience
+
+    Experience and direction setting in functional and performance testing.
+    Good functional testing experience with Selenium and Playwright.
+    Automated performance and load testing experience using LoadRunner and JMeter.
+    Good experience with Automation tools/Frameworks (Practitest)
+    Experience with Cloud, API or other, Postman and Insomnia.
+    Object-oriented programming background (java, java script, typescript, SQL, .NET )
+    Web Services / WSDL / SOAP / JMS /JSON preferably via Tibco middleware, Rest, and GraphQL
+    Database connectivity, preferably exposure to IBM UDB 10.X or greater and PostGreSQL DB experience.
+    Experience working in Agile methodology
+    Demonstrated experience in developing and integrating software solutions in the financial services industry, credit card and collections system experience a plus
+    Experience in cloud-native deployments (AWS/Azure/PegaCloud) and modernization initiatives.
+
+
+Secondary Preferred Skills/Experience
+
+    Pegasystems experience.
+        Pega Deployment manager.
+        Familiar with unit test case in Pega Infinity.
+    Experience defining dev ops standards.
+    Experience in DevOps CI/CD pipeline, system integration, containerized deployments and Ansible scripting. 
+
+
+If there's anything we can do to accommodate a disability during any portion of the application or hiring process, please refer to our disability accommodations for applicants - https://careers.usbank.com/global/en/disability-accommodations-for-applicants.
+
+Posting may be closed earlier due to high volume of applicants.
+
+This is an U.S. Bancorp India posting. U.S. Bancorp India is a part of the U.S. Bank family.
+Role: Blockchain Quality Assurance Engineer
+Industry Type: Banking
+Department: Engineering - Software & QA
+Employment Type: Full Time, Permanent
+Role Category: Quality Assurance and Testing

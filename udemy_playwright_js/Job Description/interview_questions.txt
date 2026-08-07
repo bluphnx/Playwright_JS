@@ -1,0 +1,46 @@
+how can you handle iframes in playwright?
+method 1 - using frame locator
+method 2 - using frame() for named frame
+method 3 using contentFrame()
+---
+what are the locator strategies in playwright and what is recommended?
+getbyrole,getbylabel,getbytext,
+---
+what are the different types of waits in playwright?
+1-> auto-wait
+2-> wait for element state
+3-> wait for navigation
+---
+how would you handle alerts ?
+---
+can you walk me through the playwright framework?
+- what are fixtures? why we use it?
+
+page object model
+datareader.js -> all data present
+environment files -> env files
+seperate files for staging pre-prod
+
+playwright.config.js
+
+screenshot folder
+
+report folder -> allure, HTML
+---
+how many testcases do you automate everyday?
+what is the process you are following from beginning to end for automating testcase?
+manual testers will write cases and we will check the feasibility to automate them or not and write them
+and team will be assigned different pages and we will write and send for review (push to branch) 
+to our seniors they will review and ask to merge and we will merge with main
+
+once written -> get review > changes > push 
+
+what are the best practice to review code changes as a senior?
+is the code are readable and appropriate naming conventions followed
+the guidelines are huge, let me list some now,...
+ai code review > fix and send > senior review > fix and mergee > final push
+
+write reverse a string progream
+
+manual testing techniques > error guessing technique?
+

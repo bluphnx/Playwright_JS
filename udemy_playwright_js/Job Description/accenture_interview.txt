@@ -1,0 +1,42 @@
+time type
+    Full time
+
+posted on
+    Posted Yesterday
+
+job requisition id
+    ATCI-5701675-S2062951
+
+Application Developer
+Job Description
+Project Role : Application Developer
+Project Role Description : Design, build and configure applications to meet business process and application requirements.
+Must have skills : Playwright
+Good to have skills : NA
+Minimum 3 year(s) of experience is required
+Educational Qualification : 15 years full time education
+
+Summary:
+As an Application Developer, a typical day involves designing, building, and configuring applications that align with business processes and meet specific application requirements. This role requires engaging with various stakeholders to understand needs, translating those needs into functional software solutions, and continuously refining applications to enhance performance and usability. The position demands a proactive approach to problem-solving and collaboration within a dynamic environment to ensure that applications effectively support organizational goals and user expectations.
+
+Roles & Responsibilities:
+- Expected to perform independently and become an SME.
+- Required active participation/contribution in team discussions.
+- Contribute in providing solutions to work related problems.
+- Collaborate with cross-functional teams to gather and analyze requirements for application development.
+- Maintain and update existing applications to improve functionality and user experience.
+- Document development processes, code changes, and application configurations for future reference.
+- Assist junior team members by sharing knowledge and providing guidance to support their growth.
+
+Professional & Technical Skills:
+- Must To Have Skills: Proficiency in Playwright.
+- Experience in developing and maintaining automated test scripts using Playwright.
+- Strong understanding of web technologies including HTML, CSS, and JavaScript.
+- Ability to troubleshoot and debug application issues effectively.
+- Familiarity with continuous integration and deployment processes.
+- Knowledge of version control systems and collaborative development workflows.
+
+Additional Information:
+- The candidate should have minimum 3 years of experience in Playwright.
+- This position is based at our Bengaluru office.
+- A 15 years full time education is required.

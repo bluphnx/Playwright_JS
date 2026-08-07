@@ -1,0 +1,513 @@
+================================================================
+JAVASCRIPT PROGRAM QUESTIONS — INTERVIEW CODING PROBLEMS
+================================================================
+
+
+----------------------------------------------------------------
+1. REVERSE A STRING
+----------------------------------------------------------------
+
+Code:
+  function reverseString(str) {
+      return str.split('').reverse().join('');
+  }
+  console.log(reverseString("hello"));  // "olleh"
+
+How it works:
+  str.split('')    → Breaks string into array: ['h','e','l','l','o']
+  .reverse()       → Reverses the array: ['o','l','l','e','h']
+  .join('')        → Joins array back to string: "olleh"
+
+Alternative (loop):
+  function reverseString(str) {
+      let reversed = '';
+      for (let i = str.length - 1; i >= 0; i--) {
+          reversed += str[i];
+      }
+      return reversed;
+  }
+
+How it works:
+  → Start from last index (length - 1).
+  → Move backwards (i--) to index 0.
+  → Append each character to 'reversed' string.
+  → "hello" → o → ol → oll → olle → olleh
+
+
+----------------------------------------------------------------
+2. CHECK PALINDROME
+----------------------------------------------------------------
+
+Code:
+  function isPalindrome(str) {
+      const cleaned = str.toLowerCase().replace(/[^a-z0-9]/g, '');
+      return cleaned === cleaned.split('').reverse().join('');
+  }
+
+How it works:
+  str.toLowerCase()               → "RaceCar" → "racecar"
+  .replace(/[^a-z0-9]/g, '')     → Remove non-alphanumeric (regex)
+  → /[^a-z0-9]/g means: any char NOT in a-z or 0-9, globally (all occurrences)
+  cleaned.split('').reverse().join('')  → Reverse the cleaned string
+  cleaned === reversed            → Compare: "racecar" === "racecar" → true
+
+Test:
+  isPalindrome("racecar")   → true
+  isPalindrome("hello")     → false
+  isPalindrome("A man a plan a canal Panama") → true
+
+
+----------------------------------------------------------------
+3. FIND DUPLICATES IN ARRAY
+----------------------------------------------------------------
+
+Code:
+  function findDuplicates(arr) {
+      const count = {};
+      const duplicates = [];
+
+      for (const item of arr) {
+          count[item] = (count[item] || 0) + 1;
+      }
+
+      for (const key in count) {
+          if (count[key] > 1) {
+              duplicates.push(key);
+          }
+      }
+      return duplicates;
+  }
+
+How it works:
+  const count = {};
+  → Empty object to store frequency of each item.
+
+  count[item] = (count[item] || 0) + 1;
+  → If count[item] exists, increment it. If undefined, treat as 0 then add 1.
+  → "|| 0" is the default value trick — undefined || 0 = 0.
+
+  for (const key in count)
+  → Loop through all keys (unique values) in the count object.
+
+  if (count[key] > 1) duplicates.push(key);
+  → If frequency > 1, it's a duplicate — add to results.
+
+  findDuplicates([1, 2, 3, 2, 4, 3]) → ["2", "3"]
+
+Alternative (using filter):
+  const duplicates = arr.filter((item, index) => arr.indexOf(item) !== index);
+  → indexOf returns FIRST occurrence. If current index !== first, it's a duplicate.
+
+
+----------------------------------------------------------------
+4. REMOVE DUPLICATES FROM ARRAY
+----------------------------------------------------------------
+
+Code:
+  // Method 1: Set (simplest)
+  const unique = [...new Set(arr)];
+
+  // Method 2: filter
+  const unique = arr.filter((item, index) => arr.indexOf(item) === index);
+
+How it works:
+  new Set(arr)
+  → Set only keeps unique values. [1,2,2,3,3] → Set{1,2,3}
+  [...new Set(arr)]
+  → Spread operator converts Set back to array: [1,2,3]
+
+  arr.filter((item, index) => arr.indexOf(item) === index)
+  → For each item, check if its FIRST occurrence index matches current index.
+  → If yes: it's the first time we see it → keep.
+  → If no: it appeared earlier → filter out.
+
+
+----------------------------------------------------------------
+5. FIND LARGEST/SMALLEST IN ARRAY
+----------------------------------------------------------------
+
+Code:
+  const arr = [3, 7, 1, 9, 2];
+
+  // Method 1: Math.max/min with spread
+  const max = Math.max(...arr);  // 9
+  const min = Math.min(...arr);  // 1
+
+  // Method 2: reduce
+  const max = arr.reduce((a, b) => a > b ? a : b);
+  const min = arr.reduce((a, b) => a < b ? a : b);
+
+How it works:
+  Math.max(...arr)
+  → Spread operator unpacks array: Math.max(3, 7, 1, 9, 2)
+  → Math.max finds the largest value: 9
+
+  arr.reduce((a, b) => a > b ? a : b)
+  → Reduce goes through array with an "accumulator" (a) and current item (b).
+  → At each step: keep the larger of the two.
+  → Step 1: a=3, b=7 → 7 > 3 → keep 7
+  → Step 2: a=7, b=1 → 7 > 1 → keep 7
+  → Step 3: a=7, b=9 → 9 > 7 → keep 9
+  → Step 4: a=9, b=2 → 9 > 2 → keep 9 → final answer: 9
+
+
+----------------------------------------------------------------
+6. FLATTEN NESTED ARRAY
+----------------------------------------------------------------
+
+Code:
+  // Method 1: flat()
+  const nested = [1, [2, 3], [4, [5, 6]]];
+  const flat = nested.flat(Infinity);  // [1, 2, 3, 4, 5, 6]
+
+  // Method 2: recursion
+  function flatten(arr) {
+      let result = [];
+      for (const item of arr) {
+          if (Array.isArray(item)) {
+              result = result.concat(flatten(item));
+          } else {
+              result.push(item);
+          }
+      }
+      return result;
+  }
+
+How it works:
+  nested.flat(Infinity)
+  → flat() flattens one level by default. Infinity flattens ALL levels.
+  → [1, [2, 3], [4, [5, 6]]] → [1, 2, 3, 4, 5, 6]
+
+  Recursive version:
+  → Loop through each item.
+  → If item is an array → recursively flatten it and concatenate results.
+  → If item is a value → push directly to results.
+  → Handles any depth of nesting.
+
+
+----------------------------------------------------------------
+7. COUNT VOWELS IN A STRING
+----------------------------------------------------------------
+
+Code:
+  function countVowels(str) {
+      const matches = str.toLowerCase().match(/[aeiou]/g);
+      return matches ? matches.length : 0;
+  }
+
+How it works:
+  str.toLowerCase()      → Normalize: "Hello" → "hello"
+  .match(/[aeiou]/g)    → Find ALL characters that are vowels (global flag g)
+  → Returns array of matches: ['e', 'o'] for "hello"
+  → Returns null if no matches found.
+  matches ? matches.length : 0
+  → If matches exist, return count. If null (no vowels), return 0.
+
+Alternative (loop):
+  function countVowels(str) {
+      let count = 0;
+      for (const char of str.toLowerCase()) {
+          if ('aeiou'.includes(char)) count++;
+      }
+      return count;
+  }
+
+
+----------------------------------------------------------------
+8. FIBONACCI SERIES
+----------------------------------------------------------------
+
+Code:
+  function fibonacci(n) {
+      const series = [0, 1];
+      for (let i = 2; i < n; i++) {
+          series.push(series[i-1] + series[i-2]);
+      }
+      return series;
+  }
+  console.log(fibonacci(8));  // [0, 1, 1, 2, 3, 5, 8, 13]
+
+How it works:
+  → Start with [0, 1].
+  → Each new number = sum of previous two numbers.
+  → series[i-1] = last number, series[i-2] = second to last.
+  → Push result to array, repeat until we have n numbers.
+
+  i=2: series[1] + series[0] = 1 + 0 = 1 → [0, 1, 1]
+  i=3: series[2] + series[1] = 1 + 1 = 2 → [0, 1, 1, 2]
+  i=4: series[3] + series[2] = 2 + 1 = 3 → [0, 1, 1, 2, 3]
+
+
+----------------------------------------------------------------
+9. SORT ARRAY
+----------------------------------------------------------------
+
+Code:
+  // Built-in sort (for strings)
+  const sorted = arr.sort();
+
+  // Numeric sort (MUST provide compare function!)
+  const sorted = arr.sort((a, b) => a - b);     // ascending
+  const sorted = arr.sort((a, b) => b - a);     // descending
+
+How it works:
+  arr.sort() without callback sorts as STRINGS:
+  → [10, 2, 1].sort() → [1, 10, 2]  ← WRONG for numbers! (compares "10" < "2")
+
+  arr.sort((a, b) => a - b)
+  → Compare function: if result < 0 → a comes first. > 0 → b comes first. 0 → equal.
+  → a=10, b=2: 10-2 = 8 (positive) → b(2) comes before a(10).
+  → [10, 2, 1] → [1, 2, 10] ← CORRECT
+
+IMPORTANT: Always use compare function for numbers! Default sort is string-based.
+
+
+----------------------------------------------------------------
+10. MAP, FILTER, REDUCE
+----------------------------------------------------------------
+
+Code:
+  const numbers = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
+
+  // MAP — transform each element
+  const doubled = numbers.map(n => n * 2);
+  // [2, 4, 6, 8, 10, 12, 14, 16, 18, 20]
+
+  // FILTER — keep elements that pass condition
+  const evens = numbers.filter(n => n % 2 === 0);
+  // [2, 4, 6, 8, 10]
+
+  // REDUCE — accumulate into single value
+  const sum = numbers.reduce((total, n) => total + n, 0);
+  // 55
+
+How it works:
+  .map(n => n * 2)
+  → Calls the function on EVERY element, returns new array of results.
+  → Original array unchanged. New array same length.
+
+  .filter(n => n % 2 === 0)
+  → Calls function on every element. Keeps only elements where function returns true.
+  → n % 2 === 0 means "remainder when divided by 2 is 0" = even number.
+
+  .reduce((total, n) => total + n, 0)
+  → Accumulates: starts with 0, adds each number.
+  → Step 1: total=0, n=1 → 0+1=1
+  → Step 2: total=1, n=2 → 1+2=3
+  → Step 3: total=3, n=3 → 3+3=6 ... → final: 55
+
+Chaining:
+  const result = numbers
+      .filter(n => n % 2 === 0)     // [2, 4, 6, 8, 10]
+      .map(n => n * 10)             // [20, 40, 60, 80, 100]
+      .reduce((sum, n) => sum + n, 0);  // 300
+
+
+----------------------------------------------------------------
+11. FIND SECOND LARGEST
+----------------------------------------------------------------
+
+Code:
+  function secondLargest(arr) {
+      const unique = [...new Set(arr)];
+      unique.sort((a, b) => b - a);
+      return unique[1];
+  }
+
+How it works:
+  [...new Set(arr)]        → Remove duplicates: [9, 9, 7, 5] → [9, 7, 5]
+  .sort((a, b) => b - a)  → Sort descending: [9, 7, 5]
+  unique[1]               → Second element = second largest: 7
+
+Alternative (single pass, no sort):
+  function secondLargest(arr) {
+      let first = -Infinity, second = -Infinity;
+      for (const num of arr) {
+          if (num > first) {
+              second = first;
+              first = num;
+          } else if (num > second && num !== first) {
+              second = num;
+          }
+      }
+      return second;
+  }
+
+
+----------------------------------------------------------------
+12. CHECK ANAGRAM
+----------------------------------------------------------------
+
+Code:
+  function isAnagram(s1, s2) {
+      const normalize = str => str.toLowerCase().split('').sort().join('');
+      return normalize(s1) === normalize(s2);
+  }
+
+How it works:
+  normalize("Listen")
+  → .toLowerCase()   → "listen"
+  → .split('')       → ['l','i','s','t','e','n']
+  → .sort()          → ['e','i','l','n','s','t']
+  → .join('')        → "eilnst"
+
+  normalize("Silent") → "eilnst"
+  "eilnst" === "eilnst" → true (anagram!)
+
+
+----------------------------------------------------------------
+13. DEBOUNCE FUNCTION
+----------------------------------------------------------------
+
+Code:
+  function debounce(fn, delay) {
+      let timer;
+      return function(...args) {
+          clearTimeout(timer);
+          timer = setTimeout(() => fn(...args), delay);
+      };
+  }
+
+  const search = debounce((query) => {
+      console.log("Searching:", query);
+  }, 300);
+
+How it works:
+  → Returns a new function that wraps the original.
+  → Every time the returned function is called, it resets the timer.
+  → Only executes 'fn' after 'delay' ms of NO calls.
+  → Use case: search input — don't call API on every keystroke,
+    wait until user stops typing for 300ms.
+
+  User types: h → e → l → l → o (rapid typing)
+  → Each keystroke resets the 300ms timer.
+  → Only the LAST call fires after 300ms of silence.
+  → API called once with "hello", not 5 times.
+
+
+----------------------------------------------------------------
+14. PROMISE & ASYNC/AWAIT
+----------------------------------------------------------------
+
+Code (Promise):
+  function fetchData() {
+      return new Promise((resolve, reject) => {
+          setTimeout(() => {
+              resolve("Data loaded");
+          }, 2000);
+      });
+  }
+
+  fetchData().then(data => console.log(data));
+
+How it works:
+  new Promise((resolve, reject) => {...})
+  → Creates a Promise — represents a future value.
+  → resolve("Data loaded") → success path, .then() receives this value.
+  → reject("Error") → failure path, .catch() receives this.
+  → setTimeout simulates an async operation (API call, file read).
+
+Code (async/await):
+  async function getData() {
+      const data = await fetchData();
+      console.log(data);  // "Data loaded" — after 2 seconds
+  }
+
+How it works:
+  async → Marks function as asynchronous (returns a Promise).
+  await → Pauses execution UNTIL the Promise resolves.
+  → Without await: data = Promise { <pending> }
+  → With await: data = "Data loaded" (the resolved value)
+
+
+----------------------------------------------------------------
+15. CLOSURE
+----------------------------------------------------------------
+
+Code:
+  function counter() {
+      let count = 0;
+      return {
+          increment: () => ++count,
+          decrement: () => --count,
+          getCount: () => count
+      };
+  }
+
+  const myCounter = counter();
+  myCounter.increment();  // 1
+  myCounter.increment();  // 2
+  myCounter.decrement();  // 1
+  myCounter.getCount();   // 1
+
+How it works:
+  → counter() runs and creates 'count' variable.
+  → It returns an object with 3 functions.
+  → Those functions "close over" the 'count' variable — they remember it.
+  → Even after counter() finishes, 'count' survives because the returned
+    functions still reference it.
+  → This is a CLOSURE — functions that remember their creation environment.
+  → 'count' is private — only accessible through the returned methods.
+
+Interview tip: "Closures are used in Playwright for page.on('dialog', ...) —
+the callback function closes over variables from the outer scope."
+
+
+----------------------------------------------------------------
+16. DESTRUCTURING
+----------------------------------------------------------------
+
+Code:
+  // Object destructuring
+  const { test, expect } = require('@playwright/test');
+
+  // Array destructuring
+  const [newPage] = await Promise.all([...]);
+
+  // With renaming
+  const { name: firstName } = user;  // user.name → firstName
+
+  // With defaults
+  const { timeout = 5000 } = options;  // Use 5000 if not provided
+
+How it works:
+  const { test, expect } = require('@playwright/test');
+  → require() returns an object: { test: fn, expect: fn, ... }
+  → Destructuring extracts only 'test' and 'expect' into variables.
+  → Without destructuring: const module = require(...); module.test(...)
+
+  const [newPage] = await Promise.all([...]);
+  → Promise.all returns an array: [page, response]
+  → [newPage] extracts the first element into 'newPage'.
+  → Second element is ignored.
+
+
+----------------------------------------------------------------
+17. SPREAD & REST OPERATORS
+----------------------------------------------------------------
+
+Code:
+  // SPREAD (...) — expand array/object
+  const arr1 = [1, 2, 3];
+  const arr2 = [...arr1, 4, 5];     // [1, 2, 3, 4, 5]
+  const obj2 = { ...obj1, age: 25 }; // Copy obj1 + add age
+
+  // REST (...) — collect remaining arguments
+  function sum(...numbers) {
+      return numbers.reduce((a, b) => a + b, 0);
+  }
+  sum(1, 2, 3, 4);  // 10
+
+How it works:
+  [...arr1, 4, 5]
+  → Spread: "unpack" arr1's elements into a new array, then add 4, 5.
+  → Creates a copy — original arr1 is unchanged.
+
+  function sum(...numbers)
+  → Rest: collects ALL arguments into an array called 'numbers'.
+  → sum(1, 2, 3, 4) → numbers = [1, 2, 3, 4]
+  → Works with any number of arguments.
+
+Same operator (...) but different behavior based on context:
+  → In function parameter: REST (collects)
+  → In array/object literal: SPREAD (expands)
