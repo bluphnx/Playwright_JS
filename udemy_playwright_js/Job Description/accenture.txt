@@ -1,0 +1,48 @@
+https://www.accenture.com/in-en/careers/jobdetails?id=ATCI-5683458-S2059413_en&title=Test+Automation+Engineer
+
+Test Automation Engineer
+
+Job No. ATCI-5683458-S2059413 | Bengaluru | Required Skill: Playwright 
+Project Role : Test Automation Engineer
+Project Role Description : Use quality processes, automation tools, and methodologies to transform testing products and solutions. Run end-to-end quality engineering function with a focus on automation to improve control, accuracy and integrity.
+Must have skills : Playwright
+Good to have skills : NA
+Minimum 3 year(s) of experience is required
+Educational Qualification : 15 years full time education
+
+Summary:
+As a Custom Software Engineer, a typical day involves developing tailored software solutions by designing, coding, and improving various components within systems or applications. The role requires working with modern frameworks and following agile methodologies to ensure the delivery of scalable and high-performing software that meets unique business requirements. Collaboration with cross-functional teams and continuous refinement of software elements to enhance overall system efficiency are integral parts of the daily routine.
+
+Roles & Responsibilities:
+- Expected to be an SME, collaborate and manage the team to perform.
+- Responsible for team decisions.
+- Engage with multiple teams and contribute on key decisions.
+- Provide solutions to problems for their immediate team and across multiple teams.
+- Lead efforts to identify and implement best practices within the team to improve software quality and delivery timelines.
+- Mentor junior team members to support their professional growth and ensure alignment with project goals.
+- Coordinate with stakeholders to gather requirements and translate them into technical specifications.
+- Drive continuous improvement initiatives to optimize development processes and enhance team productivity.
+
+Professional & Technical Skills:
+-2+ years of hands on experience designing, developing, and maintaining automated test frameworks and scripts using Playwright with JavaScript/TypeScript.
+-6+ years of experience in a similar role, with a proven track record as a QA / Test Automation Engineer.
+-5+ years of experience working in Agile delivery environments.
+-Demonstrated experience leveraging AI assisted testing capabilities to improve test coverage, efficiency, and overall quality outcomes.
+-Strong hands on experience with CI/CD pipelines, including setting up, configuring, and maintaining Jenkins jobs for automated test execution, reporting, and pipeline integration.
+-Practical experience with modern project and test management tools, such as Jira and Xray, supporting test planning, execution, and traceability.
+-Experience in API testing and test automation, with the ability to quickly adapt to new technologies, methodologies, and evolving project requirements.
+-Strong programming skills in JavaScript/TypeScript, with hands on experience using Playwright and related test automation tools.
+-Solid familiarity with version control systems such as Git / Bitbucket, and collaborative development workflows.
+-Strong analytical and critical thinking skills, with a keen attention to detail and the ability to identify both subtle defects and broader quality risks.
+-Excellent written and verbal communication skills, with the ability to collaborate effectively and engage with both technical and non technical stakeholders.
+-Business level proficiency in English, both written and spoken.
+- Must To Have Skills: Proficiency in Selenium.
+- Good To Have Skills: Experience with JavaScript, Automated Testing.
+- Strong understanding of software development life cycle methodologies.
+- Experience with version control systems such as Git.
+- Familiarity with continuous integration and continuous deployment practices.
+
+Additional Information:
+- The candidate should have minimum 5 years of experience in Playwright.
+- This position is based at our Bengaluru office.
+- A 15 years full time education is required.

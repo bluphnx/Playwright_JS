@@ -1,0 +1,398 @@
+================================================================
+JAVA PROGRAM QUESTIONS — INTERVIEW CODING PROBLEMS
+================================================================
+
+
+----------------------------------------------------------------
+1. REVERSE A STRING
+----------------------------------------------------------------
+
+Code:
+  public String reverseString(String str) {
+      return new StringBuilder(str).reverse().toString();
+  }
+
+How it works:
+  new StringBuilder(str)  → Creates mutable string from "hello"
+  .reverse()              → Reverses in place: "olleh"
+  .toString()             → Converts back to regular String
+
+Alternative (without built-in):
+  public String reverseString(String str) {
+      char[] chars = str.toCharArray();
+      int left = 0, right = chars.length - 1;
+      while (left < right) {
+          char temp = chars[left];
+          chars[left] = chars[right];
+          chars[right] = temp;
+          left++;
+          right--;
+      }
+      return new String(chars);
+  }
+
+How it works:
+  → Convert string to character array.
+  → Two pointers: one at start, one at end.
+  → Swap characters and move pointers toward center.
+  → "hello" → swap h/o → "oellh" → swap e/l → "olleh" → done.
+
+
+----------------------------------------------------------------
+2. CHECK IF STRING IS PALINDROME
+----------------------------------------------------------------
+
+Code:
+  public boolean isPalindrome(String str) {
+      String cleaned = str.toLowerCase().replaceAll("[^a-z0-9]", "");
+      String reversed = new StringBuilder(cleaned).reverse().toString();
+      return cleaned.equals(reversed);
+  }
+
+How it works:
+  str.toLowerCase()                → "RaceCar" → "racecar"
+  .replaceAll("[^a-z0-9]", "")    → Remove non-alphanumeric: "racecar"
+  reverse it                       → "racecar"
+  compare original with reversed   → "racecar" == "racecar" → true
+
+Test cases:
+  isPalindrome("racecar")   → true
+  isPalindrome("hello")     → false
+  isPalindrome("A man a plan a canal Panama") → true
+
+
+----------------------------------------------------------------
+3. FIND DUPLICATE CHARACTERS IN A STRING
+----------------------------------------------------------------
+
+Code:
+  public void findDuplicates(String str) {
+      Map<Character, Integer> charCount = new HashMap<>();
+
+      for (char c : str.toCharArray()) {
+          charCount.put(c, charCount.getOrDefault(c, 0) + 1);
+      }
+
+      for (Map.Entry<Character, Integer> entry : charCount.entrySet()) {
+          if (entry.getValue() > 1) {
+              System.out.println(entry.getKey() + " appears " + entry.getValue() + " times");
+          }
+      }
+  }
+
+How it works:
+  str.toCharArray()            → Convert "hello" to ['h','e','l','l','o']
+  for (char c : ...)           → Loop through each character
+  charCount.getOrDefault(c, 0) → Get current count, or 0 if first time seeing this char
+  + 1                          → Increment the count
+  charCount.put(c, ...)        → Store updated count
+
+  Second loop: filter entries where count > 1 (duplicates).
+  For "hello": {h=1, e=1, l=2, o=1} → output: "l appears 2 times"
+
+
+----------------------------------------------------------------
+4. COUNT VOWELS AND CONSONANTS
+----------------------------------------------------------------
+
+Code:
+  public void countVowelsConsonants(String str) {
+      int vowels = 0, consonants = 0;
+      str = str.toLowerCase().replaceAll("[^a-z]", "");
+
+      for (char c : str.toCharArray()) {
+          if ("aeiou".indexOf(c) != -1) {
+              vowels++;
+          } else {
+              consonants++;
+          }
+      }
+      System.out.println("Vowels: " + vowels + ", Consonants: " + consonants);
+  }
+
+How it works:
+  str.toLowerCase()              → Normalize to lowercase
+  .replaceAll("[^a-z]", "")     → Remove spaces, numbers, special chars
+  "aeiou".indexOf(c) != -1     → Check if character exists in "aeiou" string
+  → If found (index >= 0): it's a vowel. If -1: it's a consonant.
+
+
+----------------------------------------------------------------
+5. FIND LARGEST AND SMALLEST IN AN ARRAY
+----------------------------------------------------------------
+
+Code:
+  public void findMinMax(int[] arr) {
+      int min = arr[0];
+      int max = arr[0];
+
+      for (int i = 1; i < arr.length; i++) {
+          if (arr[i] > max) max = arr[i];
+          if (arr[i] < min) min = arr[i];
+      }
+      System.out.println("Max: " + max + ", Min: " + min);
+  }
+
+How it works:
+  → Assume first element is both min and max.
+  → Loop through remaining elements.
+  → If current > max, update max.
+  → If current < min, update min.
+  → After loop: max and min hold the answers.
+
+  arr = [3, 7, 1, 9, 2] → Max: 9, Min: 1
+
+
+----------------------------------------------------------------
+6. REMOVE DUPLICATES FROM ARRAY
+----------------------------------------------------------------
+
+Code:
+  public int[] removeDuplicates(int[] arr) {
+      Set<Integer> unique = new LinkedHashSet<>();
+      for (int num : arr) {
+          unique.add(num);
+      }
+      return unique.stream().mapToInt(Integer::intValue).toArray();
+  }
+
+How it works:
+  LinkedHashSet → Stores unique values only, maintains insertion order.
+  Adding duplicate to Set = no-op (silently ignored).
+  arr = [1, 2, 2, 3, 3, 4] → Set = {1, 2, 3, 4} → array [1, 2, 3, 4]
+
+Alternative (without Set):
+  Arrays.sort(arr);  // Sort first so duplicates are adjacent
+  // Then skip elements equal to previous
+
+
+----------------------------------------------------------------
+7. CHECK IF NUMBER IS PRIME
+----------------------------------------------------------------
+
+Code:
+  public boolean isPrime(int n) {
+      if (n <= 1) return false;
+      if (n <= 3) return true;
+      if (n % 2 == 0 || n % 3 == 0) return false;
+
+      for (int i = 5; i * i <= n; i += 6) {
+          if (n % i == 0 || n % (i + 2) == 0) return false;
+      }
+      return true;
+  }
+
+How it works:
+  → Numbers ≤ 1 are not prime.
+  → 2 and 3 are prime.
+  → If divisible by 2 or 3, not prime.
+  → Check from 5 to √n (optimization — no factor exists beyond √n).
+  → Check only 6k±1 forms (all primes > 3 are of this form).
+
+Simple version:
+  public boolean isPrime(int n) {
+      if (n <= 1) return false;
+      for (int i = 2; i <= Math.sqrt(n); i++) {
+          if (n % i == 0) return false;
+      }
+      return true;
+  }
+
+
+----------------------------------------------------------------
+8. FIBONACCI SERIES
+----------------------------------------------------------------
+
+Code:
+  public void fibonacci(int count) {
+      int a = 0, b = 1;
+      System.out.print(a + " " + b);
+
+      for (int i = 2; i < count; i++) {
+          int next = a + b;
+          System.out.print(" " + next);
+          a = b;
+          b = next;
+      }
+  }
+
+How it works:
+  → Start with 0, 1.
+  → Next number = sum of previous two.
+  → 0, 1, 1, 2, 3, 5, 8, 13, 21, 34...
+  → After computing 'next', shift: a becomes b, b becomes next.
+
+  fibonacci(7) → 0 1 1 2 3 5 8
+
+
+----------------------------------------------------------------
+9. SORT AN ARRAY (BUBBLE SORT)
+----------------------------------------------------------------
+
+Code:
+  public void bubbleSort(int[] arr) {
+      int n = arr.length;
+      for (int i = 0; i < n - 1; i++) {
+          for (int j = 0; j < n - i - 1; j++) {
+              if (arr[j] > arr[j + 1]) {
+                  int temp = arr[j];
+                  arr[j] = arr[j + 1];
+                  arr[j + 1] = temp;
+              }
+          }
+      }
+  }
+
+How it works:
+  → Compare adjacent elements, swap if left > right.
+  → After each pass, the largest unsorted element "bubbles" to the end.
+  → Repeat n-1 times until fully sorted.
+  → [5, 3, 8, 1] → [3, 5, 1, 8] → [3, 1, 5, 8] → [1, 3, 5, 8]
+
+Interview note: "In practice I'd use Arrays.sort() but I understand the
+underlying algorithm. Bubble sort is O(n²) — not efficient for large data."
+
+
+----------------------------------------------------------------
+10. REVERSE AN ARRAY
+----------------------------------------------------------------
+
+Code:
+  public void reverseArray(int[] arr) {
+      int left = 0, right = arr.length - 1;
+      while (left < right) {
+          int temp = arr[left];
+          arr[left] = arr[right];
+          arr[right] = temp;
+          left++;
+          right--;
+      }
+  }
+
+How it works:
+  → Two pointers: left starts at 0, right starts at end.
+  → Swap elements at both pointers.
+  → Move pointers toward center.
+  → Stop when they meet/cross.
+  → [1, 2, 3, 4, 5] → swap 1/5 → [5, 2, 3, 4, 1] → swap 2/4 → [5, 4, 3, 2, 1]
+
+
+----------------------------------------------------------------
+11. FIND SECOND LARGEST IN ARRAY
+----------------------------------------------------------------
+
+Code:
+  public int secondLargest(int[] arr) {
+      int first = Integer.MIN_VALUE;
+      int second = Integer.MIN_VALUE;
+
+      for (int num : arr) {
+          if (num > first) {
+              second = first;
+              first = num;
+          } else if (num > second && num != first) {
+              second = num;
+          }
+      }
+      return second;
+  }
+
+How it works:
+  → Track two values: first (largest) and second (second largest).
+  → If current num > first: old first becomes second, num becomes first.
+  → Else if current num > second (and not equal to first): update second.
+  → Single pass through array — O(n) time.
+  → [3, 7, 1, 9, 5] → first=9, second=7
+
+
+----------------------------------------------------------------
+12. STRING ANAGRAM CHECK
+----------------------------------------------------------------
+
+Code:
+  public boolean isAnagram(String s1, String s2) {
+      char[] arr1 = s1.toLowerCase().toCharArray();
+      char[] arr2 = s2.toLowerCase().toCharArray();
+      Arrays.sort(arr1);
+      Arrays.sort(arr2);
+      return Arrays.equals(arr1, arr2);
+  }
+
+How it works:
+  → Convert both strings to char arrays.
+  → Sort both arrays alphabetically.
+  → If sorted versions are equal → they're anagrams.
+  → "listen" → sorted: "eilnst"
+  → "silent" → sorted: "eilnst"
+  → Equal → anagram!
+
+
+----------------------------------------------------------------
+13. FACTORIAL
+----------------------------------------------------------------
+
+Code (loop):
+  public int factorial(int n) {
+      int result = 1;
+      for (int i = 2; i <= n; i++) {
+          result *= i;
+      }
+      return result;
+  }
+
+Code (recursion):
+  public int factorial(int n) {
+      if (n <= 1) return 1;
+      return n * factorial(n - 1);
+  }
+
+How recursion works:
+  factorial(5)
+  → 5 * factorial(4)
+  → 5 * 4 * factorial(3)
+  → 5 * 4 * 3 * factorial(2)
+  → 5 * 4 * 3 * 2 * factorial(1)
+  → 5 * 4 * 3 * 2 * 1 = 120
+
+
+----------------------------------------------------------------
+14. SWAP TWO NUMBERS WITHOUT TEMP VARIABLE
+----------------------------------------------------------------
+
+Code:
+  int a = 5, b = 10;
+  a = a + b;    // a = 15
+  b = a - b;    // b = 15 - 10 = 5
+  a = a - b;    // a = 15 - 5 = 10
+  // Now: a = 10, b = 5
+
+Alternative (XOR):
+  a = a ^ b;
+  b = a ^ b;
+  a = a ^ b;
+
+How XOR works:
+  → XOR: same bits = 0, different bits = 1
+  → a=5 (101), b=10 (1010)
+  → a^b stores the "difference" — enough info to reconstruct both.
+
+
+----------------------------------------------------------------
+15. CHECK IF ARRAY CONTAINS A VALUE
+----------------------------------------------------------------
+
+Code:
+  public boolean contains(int[] arr, int target) {
+      for (int num : arr) {
+          if (num == target) return true;
+      }
+      return false;
+  }
+
+  // Or using streams:
+  boolean found = Arrays.stream(arr).anyMatch(n -> n == target);
+
+How it works:
+  → Loop through every element.
+  → If match found, return true immediately (short-circuit).
+  → If loop ends without finding, return false.
