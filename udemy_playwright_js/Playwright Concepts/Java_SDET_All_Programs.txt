@@ -1,0 +1,694 @@
+================================================================
+JAVA PROGRAMS FOR QA/SDET INTERVIEW — COMPLETE GUIDE
+================================================================
+All programs with line-by-line explanation and dry runs.
+Sections: Numbers | Strings | Arrays
+================================================================
+
+
+================================================================
+SECTION 1: NUMBER PROGRAMS
+================================================================
+
+
+================================================================
+4.) SWAP TWO NUMBERS WITHOUT THIRD VARIABLE
+================================================================
+
+CODE:
+  int a = 5, b = 10;
+  a = a + b;    // a = 15
+  b = a - b;    // b = 15 - 10 = 5
+  a = a - b;    // a = 15 - 5 = 10
+
+HOW IT WORKS:
+  Step 1: a = a + b → a = 5 + 10 = 15 (a now holds SUM of both)
+  Step 2: b = a - b → b = 15 - 10 = 5 (subtract old b from sum → original a)
+  Step 3: a = a - b → a = 15 - 5 = 10 (subtract new b from sum → original b)
+
+  The SUM acts as temporary storage. By subtracting one value from
+  the sum, you recover the other value.
+
+INTERVIEW TIP: "The arithmetic trick works but can overflow for large
+numbers. XOR swap (a ^= b; b ^= a; a ^= b;) avoids overflow."
+
+
+================================================================
+5.) FACTORIAL OF A NUMBER
+================================================================
+
+CODE:
+  int factorial = 1;
+  int number = 5;
+  for (int i = 1; i <= number; i++) {
+      factorial = factorial * i;
+  }
+  // Output: 120
+
+HOW IT WORKS:
+  Factorial = product of all numbers from 1 to n.
+  5! = 5 × 4 × 3 × 2 × 1 = 120
+
+  DRY RUN (number = 5):
+    i=1: factorial = 1 * 1 = 1
+    i=2: factorial = 1 * 2 = 2
+    i=3: factorial = 2 * 3 = 6
+    i=4: factorial = 6 * 4 = 24
+    i=5: factorial = 24 * 5 = 120
+
+  WHY start factorial at 1? Because multiplying by 0 gives 0.
+  WHY loop from 1 to n? We multiply every integer in that range.
+
+
+================================================================
+6.) REVERSE A NUMBER
+================================================================
+
+CODE:
+  int no = 15786, rev = 0, r;
+  while (no > 0) {
+      r = no % 10;        // Extract last digit
+      rev = rev * 10 + r; // Append digit to reversed number
+      no = no / 10;       // Remove last digit from original
+  }
+  // Output: 68751
+
+HOW IT WORKS:
+  The MODULO trick: num % 10 always gives the LAST digit.
+  The DIVISION trick: num / 10 always REMOVES the last digit.
+  Build the reversed number by multiplying by 10 (shift left) and adding new digit.
+
+  DRY RUN (no = 15786):
+    r = 15786 % 10 = 6,  rev = 0*10 + 6 = 6,    no = 15786/10 = 1578
+    r = 1578 % 10 = 8,   rev = 6*10 + 8 = 68,   no = 1578/10 = 157
+    r = 157 % 10 = 7,    rev = 68*10 + 7 = 687,  no = 157/10 = 15
+    r = 15 % 10 = 5,     rev = 687*10 + 5 = 6875, no = 15/10 = 1
+    r = 1 % 10 = 1,      rev = 6875*10 + 1 = 68751, no = 1/10 = 0
+    Loop ends (no = 0). Result: 68751 ✓
+
+KEY PATTERN: % 10 extracts last digit. / 10 removes last digit.
+This pattern is used in: reverse number, palindrome, Armstrong, digit count, sum of digits.
+
+
+================================================================
+7.) ARMSTRONG NUMBER
+================================================================
+
+CODE:
+  int no = 153, arm = 0, d = no;
+  while (no > 0) {
+      int a = no % 10;     // Extract last digit
+      no = no / 10;        // Remove last digit
+      arm = arm + a*a*a;   // Add cube of digit
+  }
+  if (arm == d) → "Armstrong number"
+
+HOW IT WORKS:
+  Armstrong number: sum of cubes of digits = the number itself.
+  153 → 1³ + 5³ + 3³ = 1 + 125 + 27 = 153 ✓
+
+  DRY RUN (no = 153):
+    a = 153%10 = 3, arm = 0 + 3*3*3 = 27,  no = 153/10 = 15
+    a = 15%10 = 5,  arm = 27 + 5*5*5 = 152, no = 15/10 = 1
+    a = 1%10 = 1,   arm = 152 + 1*1*1 = 153, no = 1/10 = 0
+    arm(153) == d(153) → Armstrong! ✓
+
+  Other Armstrong numbers: 0, 1, 153, 370, 371, 407
+
+
+================================================================
+8.) NUMBER OF DIGITS IN A NUMBER
+================================================================
+
+CODE:
+  int no = 12345, a = 0;
+  while (no > 0) {
+      no = no / 10;
+      a++;
+  }
+  // Output: 5
+
+HOW IT WORKS:
+  Keep dividing by 10 until number becomes 0. Count iterations.
+  Each /10 removes one digit. When no digits left → no = 0 → loop stops.
+
+  DRY RUN (no = 12345):
+    no = 12345/10 = 1234, a = 1
+    no = 1234/10 = 123,   a = 2
+    no = 123/10 = 12,     a = 3
+    no = 12/10 = 1,       a = 4
+    no = 1/10 = 0,        a = 5
+    Loop ends. Answer: 5 digits.
+
+
+================================================================
+9.) PALINDROME NUMBER
+================================================================
+
+CODE:
+  int originalNumber = num;
+  int reversedNumber = 0;
+  while (num != 0) {
+      int digit = num % 10;
+      reversedNumber = reversedNumber * 10 + digit;
+      num = num / 10;
+  }
+  return originalNumber == reversedNumber;
+
+HOW IT WORKS:
+  A palindrome reads the same forwards and backwards (121, 1001, 12321).
+  Strategy: Reverse the number, then compare with original.
+  Uses the SAME reverse logic as Program 6.
+
+  DRY RUN (num = 1001):
+    Save original: originalNumber = 1001
+    digit=1, rev=1, num=100
+    digit=0, rev=10, num=10
+    digit=0, rev=100, num=1
+    digit=1, rev=1001, num=0
+    1001 == 1001 → Palindrome! ✓
+
+
+================================================================
+10.) SUM OF DIGITS
+================================================================
+
+CODE:
+  int number = 12345, sum = 0;
+  while (number > 0) {
+      int digit = number % 10;
+      sum = sum + digit;
+      number = number / 10;
+  }
+  // Output: 15
+
+HOW IT WORKS:
+  Extract each digit (% 10), add to sum, remove digit (/ 10).
+  12345 → 1+2+3+4+5 = 15
+
+  DRY RUN:
+    digit=5, sum=5, number=1234
+    digit=4, sum=9, number=123
+    digit=3, sum=12, number=12
+    digit=2, sum=14, number=1
+    digit=1, sum=15, number=0 → Answer: 15
+
+
+================================================================
+SECTION 2: STRING PROGRAMS
+================================================================
+
+
+================================================================
+S1.) REVERSE A STRING
+================================================================
+
+CODE:
+  String input = "hello";
+  String nstr = "";
+  for (int i = 0; i < input.length(); i++) {
+      char ch = input.charAt(i);
+      nstr = ch + nstr;   // Prepend character
+  }
+  // Output: "olleh"
+
+HOW IT WORKS:
+  Instead of appending to the end, PREPEND each character to the front.
+  
+  DRY RUN ("hello"):
+    i=0: ch='h', nstr = 'h' + "" = "h"
+    i=1: ch='e', nstr = 'e' + "h" = "eh"
+    i=2: ch='l', nstr = 'l' + "eh" = "leh"
+    i=3: ch='l', nstr = 'l' + "leh" = "lleh"
+    i=4: ch='o', nstr = 'o' + "lleh" = "olleh" ✓
+
+KEY INSIGHT: nstr = ch + nstr (prepend) reverses the order.
+If we did nstr = nstr + ch (append), we'd get the same string back.
+
+
+================================================================
+S2.) REVERSE EACH WORD IN A STRING
+================================================================
+
+CODE:
+  String[] words = inputString.split(" ");
+  for each word: reverse it using the prepend technique
+  // Input: "Java is good" → Output: "avaJ si doog"
+
+HOW IT WORKS:
+  1. Split the sentence into words by space: ["Java", "is", "good"]
+  2. Reverse each word individually: ["avaJ", "si", "doog"]
+  3. Join back with spaces: "avaJ si doog"
+
+  The word order stays the same. Only characters within each word are reversed.
+
+
+================================================================
+S3.) FIND DUPLICATE CHARACTERS IN A STRING
+================================================================
+
+CODE:
+  HashMap<Character, Integer> charCountMap = new HashMap<>();
+  for (char c : strArray) {
+      if (charCountMap.containsKey(c)) {
+          charCountMap.put(c, charCountMap.get(c) + 1);
+      } else {
+          charCountMap.put(c, 1);
+      }
+  }
+  // Print entries where count > 1
+
+HOW IT WORKS:
+  HashMap stores key-value pairs: character → count.
+  For each character:
+    - If already in map: increment its count.
+    - If new: add with count 1.
+  After loop: filter characters with count > 1 → duplicates.
+
+  "Learn Java Programming":
+    a → 4, g → 2, m → 2, n → 2, r → 3
+
+
+================================================================
+S4.) COUNT WORD OCCURRENCES IN A STRING
+================================================================
+
+CODE:
+  HashMap<String, Integer> charCountMap = new HashMap<>();
+  for (String s : inputString.split(" ")) {
+      if (charCountMap.containsKey(s)) {
+          charCountMap.put(s, charCountMap.get(s) + 1);
+      } else {
+          charCountMap.put(s, 1);
+      }
+  }
+
+HOW IT WORKS:
+  Same as duplicate characters but works on WORDS instead of characters.
+  Split by space, count each word.
+  "Test Automation Java Automation" → {Java=1, Automation=2, Test=1}
+
+
+================================================================
+S5.) COUNT WORDS IN A STRING
+================================================================
+
+CODE:
+  int count = 1;
+  for (int i = 0; i < s.length() - 1; i++) {
+      if ((s.charAt(i) == ' ') && (s.charAt(i + 1) != ' ')) {
+          count++;
+      }
+  }
+
+HOW IT WORKS:
+  Start with count=1 (even one word means count is 1).
+  Every time we find a space followed by a non-space → new word starts.
+  This handles multiple consecutive spaces correctly.
+
+
+================================================================
+S6.) ALL PERMUTATIONS OF A STRING
+================================================================
+
+CODE:
+  static void permute(String str, String prefix) {
+      if (str.length() == 0) {
+          System.out.println(prefix);
+      } else {
+          for (int i = 0; i < str.length(); i++) {
+              String rem = str.substring(0,i) + str.substring(i+1);
+              permute(rem, prefix + str.charAt(i));
+          }
+      }
+  }
+
+HOW IT WORKS (RECURSION):
+  "abc" → pick each character as first, permute the rest.
+  Pick 'a': permute "bc" → "abc", "acb"
+  Pick 'b': permute "ac" → "bac", "bca"
+  Pick 'c': permute "ab" → "cab", "cba"
+  
+  Base case: when string is empty, print the prefix (complete permutation).
+  n! permutations total: 3! = 6 for "abc".
+
+
+================================================================
+S7.) STRING PALINDROME
+================================================================
+
+CODE:
+  int start = 0, end = str.length() - 1;
+  while (start < end) {
+      if (str.charAt(start) != str.charAt(end)) return false;
+      start++;
+      end--;
+  }
+  return true;
+
+HOW IT WORKS:
+  Two pointers: one at start, one at end.
+  Compare characters. If different → not palindrome. Move inward.
+  If all pairs match → palindrome.
+  "madam": m==m ✓, a==a ✓, d==d (middle) ✓ → palindrome!
+
+
+================================================================
+S8.) CHECK IF TWO STRINGS ARE ANAGRAMS
+================================================================
+
+CODE:
+  int[] charCount = new int[256];
+  for (int i = 0; i < str1.length(); i++) {
+      charCount[str1.charAt(i)]++;
+      charCount[str2.charAt(i)]--;
+  }
+  // If all counts are 0 → anagram
+
+HOW IT WORKS:
+  Create an array of 256 slots (one per ASCII character).
+  For str1: INCREMENT the count for each character.
+  For str2: DECREMENT the count for each character.
+  If strings are anagrams → every increment is cancelled by a decrement → all zeros.
+  "listen" and "silent" → same characters, same frequencies → anagram!
+
+
+================================================================
+S9.) COUNT VOWELS AND CONSONANTS
+================================================================
+
+CODE:
+  for (char c : str.toLowerCase().toCharArray()) {
+      if (c >= 'a' && c <= 'z') {
+          if (c == 'a' || c == 'e' || c == 'i' || c == 'o' || c == 'u')
+              vowels++;
+          else
+              consonants++;
+      }
+  }
+
+HOW IT WORKS:
+  - Convert to lowercase (handle both cases).
+  - Check if it's a letter (a-z) — skip spaces/numbers.
+  - Check if it's one of aeiou → vowel. Otherwise → consonant.
+  "Hello World" → Vowels: 3 (e,o,o), Consonants: 7 (H,l,l,W,r,l,d)
+
+
+================================================================
+S10.) PRINT UNIQUE CHARACTERS
+================================================================
+
+CODE:
+  boolean[] unique = new boolean[128];
+  for (char ch : str.toCharArray()) {
+      if (!unique[ch]) {
+          unique[ch] = true;
+          System.out.print(ch + " ");
+      }
+  }
+
+HOW IT WORKS:
+  Boolean array of 128 slots (ASCII). Initially all false.
+  For each character: if not seen before (false) → print it, mark as true.
+  If seen before (true) → skip.
+  Prints each character only ONCE, in order of first appearance.
+
+
+================================================================
+S11.) PRINT EVEN INDEXED CHARACTERS
+================================================================
+
+CODE:
+  for (int i = 0; i < str.length(); i++) {
+      if (i % 2 == 0) {
+          System.out.print(str.charAt(i));
+      }
+  }
+
+HOW IT WORKS:
+  Index 0, 2, 4, 6... are even. Print characters at those positions.
+  "Automation" → A(0) t(1) m(2) a(3) t(4) i(5) o(6) n(7)
+  Even indices: A, m, t, o → "Atmto"
+
+
+================================================================
+S15.) CHARACTER COUNT STRING (Run-Length Encoding)
+================================================================
+
+CODE:
+  int count = 1;
+  for (int i = 0; i < str.length(); i++) {
+      if (i + 1 < str.length() && str.charAt(i) == str.charAt(i + 1)) {
+          count++;
+      } else {
+          result.append(str.charAt(i)).append(count);
+          count = 1;
+      }
+  }
+
+HOW IT WORKS:
+  "aabbcccdd":
+  - 'a' == next 'a' → count=2
+  - 'a' != next 'b' → append "a2", reset count=1
+  - 'b' == next 'b' → count=2
+  - 'b' != next 'c' → append "b2", reset count=1
+  - 'c' == 'c' → count=2, 'c' == 'c' → count=3
+  - 'c' != 'd' → append "c3", reset
+  - 'd' == 'd' → count=2
+  - end → append "d2"
+  Output: "a2b2c3d2"
+
+
+================================================================
+S16.) SEPARATE UPPERCASE AND LOWERCASE
+================================================================
+
+CODE:
+  for (char ch : input.toCharArray()) {
+      if (Character.isLowerCase(ch)) lowerCase.append(ch);
+      else upperCase.append(ch);
+  }
+  // "aBACbcEDed" → lower: "abced", upper: "ABCED"
+
+
+================================================================
+S17.) SEPARATE ALPHABETS AND NUMBERS
+================================================================
+
+CODE:
+  for (char ch : input.toCharArray()) {
+      if (Character.isLetter(ch)) alphaPart.append(ch);
+      else if (Character.isDigit(ch)) numericPart.append(ch);
+  }
+  // "Subbu123raj" → Alpha: "Subburaj", Numeric: "123"
+
+
+================================================================
+S20.) LONGEST SUBSTRING WITHOUT REPEATING CHARACTERS
+================================================================
+
+CODE:
+  HashSet<Character> set = new HashSet<>();
+  int maxLength = 0, start = 0, end = 0;
+  while (end < s.length()) {
+      char currentChar = s.charAt(end);
+      if (!set.contains(currentChar)) {
+          set.add(currentChar);
+          maxLength = Math.max(maxLength, end - start + 1);
+          end++;
+      } else {
+          set.remove(s.charAt(start));
+          start++;
+      }
+  }
+
+HOW IT WORKS (SLIDING WINDOW):
+  Maintain a window [start, end] with no repeating characters.
+  - If current char is new: add to set, expand window (end++).
+  - If current char is duplicate: shrink window from left (start++), remove that char.
+  - Track maximum window size.
+  
+  "abcabcbb":
+    Window: a → ab → abc (max=3) → bc → bca... → max stays 3
+  
+  This is O(n) — each character is added/removed from set at most once.
+
+
+================================================================
+SECTION 3: ARRAY PROGRAMS
+================================================================
+
+
+================================================================
+A1.) FIND COMMON ELEMENTS BETWEEN TWO ARRAYS
+================================================================
+
+CODE:
+  Set<Integer> set1 = new HashSet<>();
+  for (int num : array1) set1.add(num);
+  for (int num : array2) {
+      if (set1.contains(num)) commonSet.add(num);
+  }
+
+HOW IT WORKS:
+  1. Put all elements of array1 into a HashSet (O(1) lookup).
+  2. Loop through array2: if element exists in set1 → it's common.
+  HashSet.contains() is O(1) → total algorithm is O(n+m).
+
+
+================================================================
+A3.) SORT ARRAY WITHOUT BUILT-IN METHOD (Selection Sort)
+================================================================
+
+CODE:
+  for (int i = 0; i < n - 1; i++) {
+      int minIndex = i;
+      for (int j = i + 1; j < n; j++) {
+          if (array[j] < array[minIndex]) minIndex = j;
+      }
+      // Swap array[i] and array[minIndex]
+      int temp = array[i];
+      array[i] = array[minIndex];
+      array[minIndex] = temp;
+  }
+
+HOW IT WORKS:
+  For each position: find the MINIMUM element in the remaining unsorted part.
+  Swap it into the current position.
+  [5, 2, 9, 1, 6]:
+    i=0: min=1 at index 3, swap → [1, 2, 9, 5, 6]
+    i=1: min=2 at index 1, no swap → [1, 2, 9, 5, 6]
+    i=2: min=5 at index 3, swap → [1, 2, 5, 9, 6]
+    i=3: min=6 at index 4, swap → [1, 2, 5, 6, 9] ✓
+
+
+================================================================
+A4.) REMOVE DUPLICATES FROM ARRAY
+================================================================
+
+CODE:
+  Set<Integer> set = new HashSet<>();
+  for (int num : array) set.add(num);
+  // Convert set back to array
+
+HOW IT WORKS:
+  HashSet automatically rejects duplicates.
+  [5, 2, 9, 1, 6, 2, 5] → Set{1, 2, 5, 6, 9} → [1, 2, 5, 6, 9]
+
+
+================================================================
+A6.) FIND MISSING NUMBER IN ARRAY
+================================================================
+
+CODE:
+  int n = array.length + 1;
+  int totalSum = n * (n + 1) / 2;
+  int arraySum = 0;
+  for (int num : array) arraySum += num;
+  return totalSum - arraySum;
+
+HOW IT WORKS:
+  Formula: sum of 1 to n = n*(n+1)/2
+  If one number is missing: expected sum - actual sum = missing number.
+  
+  array = [1, 2, 4, 5, 6], n = 6
+  Expected sum = 6*7/2 = 21
+  Actual sum = 1+2+4+5+6 = 18
+  Missing = 21 - 18 = 3 ✓
+
+INTERVIEW TIP: "This is O(n) time, O(1) space. The math formula
+avoids sorting or extra data structures."
+
+
+================================================================
+A9.) SUM ONLY INTEGERS FROM MIXED ARRAY
+================================================================
+
+CODE:
+  String[] array = {"5", "2", "9", "a", "1", "6", "#", "3"};
+  int sum = 0;
+  for (String element : array) {
+      try {
+          sum += Integer.parseInt(element);
+      } catch (NumberFormatException e) {
+          // Ignore non-integer elements
+      }
+  }
+  // Output: 26
+
+HOW IT WORKS:
+  Integer.parseInt() converts string to int.
+  If it's not a valid number ("a", "#") → throws NumberFormatException.
+  catch block silently ignores non-numbers.
+  Only valid integers get added to sum.
+
+
+================================================================
+A12.) FIND NON-REPEATED ELEMENTS
+================================================================
+
+CODE:
+  // Input: [1, 1, 2, 2, 3, 4, 5, 5, 6, 6]
+  Map<Integer, Integer> countMap = new HashMap<>();
+  for (int num : array) {
+      countMap.put(num, countMap.getOrDefault(num, 0) + 1);
+  }
+  // Filter entries where count == 1
+  // Output: [3, 4]
+
+HOW IT WORKS:
+  Count frequency of each element using HashMap.
+  Elements with count == 1 appear only once → non-repeated.
+  {1:2, 2:2, 3:1, 4:1, 5:2, 6:2} → count==1: [3, 4]
+
+
+================================================================
+HASHCODE AND EQUALS (BONUS)
+================================================================
+
+WHY IT'S ASKED:
+  - equals() determines if two objects are "logically equal."
+  - hashCode() returns a number used by HashMap/HashSet for storage.
+  - RULE: If two objects are equal (equals=true), they MUST have same hashCode.
+  - Used in: HashSet, HashMap, comparing test data objects.
+
+CODE:
+  @Override
+  public boolean equals(Object obj) {
+      if (this == obj) return true;        // Same reference
+      if (obj == null || getClass() != obj.getClass()) return false;
+      Student student = (Student) obj;
+      return id == student.id && Objects.equals(name, student.name);
+  }
+
+  @Override
+  public int hashCode() {
+      return Objects.hash(id, name);
+  }
+
+INTERVIEW TIP: "If you override equals, you MUST override hashCode.
+Otherwise HashMap/HashSet won't work correctly — two 'equal' objects
+could end up in different buckets."
+
+
+================================================================
+KEY PATTERNS TO REMEMBER
+================================================================
+
+1. DIGIT EXTRACTION: num % 10 (last digit), num / 10 (remove last digit)
+   Used in: Reverse, Palindrome, Armstrong, Digit count, Sum of digits
+
+2. HASHMAP COUNTING: map.put(key, map.getOrDefault(key, 0) + 1)
+   Used in: Duplicates, Word count, Character frequency
+
+3. TWO POINTERS: start/end moving toward center
+   Used in: Palindrome check, Array reverse, String comparison
+
+4. SLIDING WINDOW: expand right, shrink left
+   Used in: Longest substring, Subarray problems
+
+5. HASHSET FOR UNIQUENESS: set.add() rejects duplicates
+   Used in: Remove duplicates, Common elements, Contains check
+
+6. PREPEND FOR REVERSE: result = char + result
+   Used in: String reverse, Word reverse

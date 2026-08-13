@@ -1,0 +1,74 @@
+================================================================
+GRATUITY CALCULATION
+================================================================
+
+ELIGIBILITY RULE:
+  "You will be eligible for gratuity on completing 4 years and
+  190 days for services within the firm. Gratuity will be
+  calculated on Basic Component."
+
+----------------------------------------------------------------
+ELIGIBILITY CHECK
+----------------------------------------------------------------
+
+  Joining Date:       November 8, 2021
+  4 years complete:   November 8, 2025
+  4 years + 190 days: May 17, 2026
+  Last Working Day:   August 28, 2026
+
+  STATUS: ✅ ELIGIBLE (crossed threshold on May 17, 2026)
+
+
+----------------------------------------------------------------
+GRATUITY FORMULA
+----------------------------------------------------------------
+
+  Gratuity = (Last Basic Salary × 15 × Years of Service) / 26
+
+  Where:
+    Last Basic Salary = Monthly basic component (not CTC, not gross)
+    15                = 15 days salary per year of service (Gratuity Act)
+    26                = Working days in a month
+    Years of Service  = Rounded to nearest full year
+                        (if > 6 months → round UP)
+
+
+----------------------------------------------------------------
+CALCULATION
+----------------------------------------------------------------
+
+  Basic Pay:        ₹29,417 per month
+  Service Period:   November 8, 2021 → August 28, 2026
+                    = 4 years 9 months 20 days
+                    ≈ 4 years 10 months
+  Rounded:          5 years (since 10 months > 6 months → rounds UP)
+
+  Gratuity = (29,417 × 15 × 5) / 26
+           = (29,417 × 75) / 26
+           = 22,06,275 / 26
+           = ₹84,857
+
+  ESTIMATED GRATUITY: ₹84,857
+
+
+----------------------------------------------------------------
+TAX IMPLICATIONS
+----------------------------------------------------------------
+
+  - Gratuity is TAX-FREE up to ₹20,00,000 (as per current rules).
+  - Since ₹84,857 is well below the ₹20L limit, you receive
+    the full amount without any tax deduction.
+
+
+----------------------------------------------------------------
+NOTES
+----------------------------------------------------------------
+
+  - Gratuity is calculated on BASIC pay only, not total CTC.
+  - The rounding rule: if service exceeds 6 months beyond a
+    complete year, it rounds to the next full year.
+  - Gratuity is paid at the time of separation (resignation,
+    retirement, or termination).
+  - You must have completed 4 years 190 days (firm's policy)
+    to be eligible. Standard Gratuity Act requires 5 years,
+    but some firms have internal policies with shorter periods.
