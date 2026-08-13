@@ -1,0 +1,11 @@
+/**
+ * Compares two step keywords based on length. Can be used with Array.sort to
+ * sort keywords by length, descending.
+ *
+ * @param a - the first step keyword
+ * @param b - the second step keyword
+ */
+export function compareStepKeywords(a, b) {
+    return b.length - a.length;
+}
+//# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJmaWxlIjoiY29tcGFyZVN0ZXBLZXl3b3Jkcy5qcyIsInNvdXJjZVJvb3QiOiIiLCJzb3VyY2VzIjpbIi4uL3NyYy9jb21wYXJlU3RlcEtleXdvcmRzLnRzIl0sIm5hbWVzIjpbXSwibWFwcGluZ3MiOiJBQUFBOzs7Ozs7R0FNRztBQUNILE1BQU0sVUFBVSxtQkFBbUIsQ0FBQyxDQUFTLEVBQUUsQ0FBUztJQUN0RCxPQUFPLENBQUMsQ0FBQyxNQUFNLEdBQUcsQ0FBQyxDQUFDLE1BQU0sQ0FBQTtBQUM1QixDQUFDIiwic291cmNlc0NvbnRlbnQiOlsiLyoqXG4gKiBDb21wYXJlcyB0d28gc3RlcCBrZXl3b3JkcyBiYXNlZCBvbiBsZW5ndGguIENhbiBiZSB1c2VkIHdpdGggQXJyYXkuc29ydCB0b1xuICogc29ydCBrZXl3b3JkcyBieSBsZW5ndGgsIGRlc2NlbmRpbmcuXG4gKlxuICogQHBhcmFtIGEgLSB0aGUgZmlyc3Qgc3RlcCBrZXl3b3JkXG4gKiBAcGFyYW0gYiAtIHRoZSBzZWNvbmQgc3RlcCBrZXl3b3JkXG4gKi9cbmV4cG9ydCBmdW5jdGlvbiBjb21wYXJlU3RlcEtleXdvcmRzKGE6IHN0cmluZywgYjogc3RyaW5nKTogbnVtYmVyIHtcbiAgcmV0dXJuIGIubGVuZ3RoIC0gYS5sZW5ndGhcbn1cbiJdfQ==
