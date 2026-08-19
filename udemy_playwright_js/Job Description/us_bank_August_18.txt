@@ -1,0 +1,69 @@
+Automation Engineer
+Apply
+
+locations
+    Chennai, India
+
+time type
+    Full time
+
+posted on
+    Posted 3 Days Ago
+
+time left to apply
+    End Date: August 15, 2026 (8 hours left to apply)
+
+job requisition id
+    2026-0018251
+
+At U.S. Bancorp India, we’re on a journey to do our best. We believe it takes all of us to bring our shared ambition to life, and each person is unique in their potential. A career with U.S. Bancorp India gives you a wide, ever-growing range of opportunities to discover what makes you thrive at every stage of your career. Try new things, learn new skills and discover what you excel at—all from Day One.
+
+Job Description
+
+We are looking for a Senior Automation Test Engineer to design and deliver reliable automation for web applications and APIs. This role will focus on Playwright-based UI automation, REST API testing, reusable framework development, and continuous testing within CI/CD pipelines.
+
+Key Responsibilities
+
+    Build and maintain scalable Playwright automation frameworks for web applications.
+    Develop automated UI, API, regression, smoke, and integration tests.
+    Create reusable Page Object Models, fixtures, utilities, and reporting patterns.
+    Validate REST API functionality, data integrity, business rules, and response performance.
+    Integrate automated tests into CI/CD pipelines and support reliable release validation.
+    Review test results, investigate failures, document defects clearly, and partner with engineering teams to resolve issues.
+
+Required Technical Skills
+
+    3+ years of hands-on experience with Playwright automation.
+    Strong programming skills in TypeScript or JavaScript.
+    Experience with Page Object Models, cross-browser testing, parallel execution, fixtures, hooks, and test reporting.
+    Strong experience with REST API testing and API automation.
+    Working knowledge of OAuth, JWT, bearer tokens, JSON/XML validation, and contract testing concepts.
+    Experience with tools such as Postman, Bruno, Swagger/OpenAPI, Playwright API testing, and Newman.
+    Working knowledge of Git, SQL, and Node.js.
+
+Application and Backend Testing Experience
+
+    Experience validating API integrations, backend workflows, and data flows across distributed systems.
+    Understanding of microservices communication patterns and service-to-service integrations.
+    Ability to troubleshoot API and application issues in Go, PHP, or similar backend environments.
+
+Qualifications
+
+    Bachelor’s degree in Computer Science, Information Technology, Engineering, or a related field, or equivalent practical experience.
+    Experience working in Agile or Scrum delivery environments.
+    Exposure to microservices architecture and cloud-based platforms such as AWS.
+    Understanding of performance testing, security testing, and quality engineering best practices.
+
+Nice-to-Have Skills
+
+    REST Assured or similar API automation tools.
+    Contract testing with Pact or similar frameworks.
+    BrowserStack, Sauce Labs, or similar cross-browser testing platforms.
+    Familiarity with Go or PHP application architectures.
+    Experience testing banking, payments, healthcare, or other regulated applications.
+
+If there’s anything we can do to accommodate a disability during any portion of the application or hiring process, please refer to our disability accommodations for applicants. 
+
+Posting may be closed earlier due to high volume of applicants.
+
+This is an U.S. Bancorp India posting. U.S. Bancorp India is a part of the U.S. Bank family.

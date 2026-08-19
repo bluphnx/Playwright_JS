@@ -1,0 +1,231 @@
+August-18-2026
+capegemini -
+
+what is the difference between xpath and css selector
+what is promise 
+reverse the words in this string "My name is John"
+take the xpath of the 16 in calendar - booking.com without tools
+
+----
+
+Mr Global Private limited - Guindy
+0 - java selenium
+2 - Postman api 
+2.5 - Playwright
+3.5 - Playwright + rest Assured 
+4.9 - manual + Automation
+
+
+================================================================
+ANSWERS
+================================================================
+
+----------------------------------------------------------------
+Q: What is the difference between XPath and CSS Selector?
+----------------------------------------------------------------
+
+| Feature        | CSS Selector              | XPath                           |
+|----------------|---------------------------|---------------------------------|
+| Direction      | Top-down only (parent→child) | Can traverse UP (child→parent) |
+| Speed          | Faster (browser-native)   | Slightly slower                 |
+| Syntax         | #id, .class, [attr='val'] | //tag[@attr='val']              |
+| Text search    | Not supported natively    | //button[text()='Submit']       |
+| Readability    | Shorter, cleaner          | Longer, more complex            |
+| Parent access  | ❌ Cannot                 | ✅ .. or parent::               |
+
+When to use:
+  CSS → default choice, faster, simpler (90% of cases)
+  XPath → when you need to go UP the DOM or search by text content
+
+Example:
+  CSS:   input[name='email']
+  XPath: //input[@name='email']
+
+  CSS:   .form .btn-primary
+  XPath: //div[@class='form']//button[@class='btn-primary']
+
+  XPath only (parent traversal):
+  //span[text()='Submit']/parent::button
+
+
+----------------------------------------------------------------
+Q: What is a Promise?
+----------------------------------------------------------------
+
+A Promise is a JavaScript object representing a FUTURE VALUE —
+the eventual result of an asynchronous operation.
+
+Three states:
+  Pending   → operation not finished yet
+  Fulfilled → operation completed successfully, value available
+  Rejected  → operation failed, error available
+
+Code:
+  // Creating a Promise
+  const promise = new Promise((resolve, reject) => {
+      setTimeout(() => {
+          resolve("Data loaded");  // Success after 2 seconds
+      }, 2000);
+  });
+
+  // Using a Promise
+  promise.then(data => console.log(data));   // "Data loaded"
+  promise.catch(err => console.log(err));    // If rejected
+
+  // With async/await (cleaner):
+  const data = await promise;  // Pauses until fulfilled
+
+"A Promise says: I don't have the value RIGHT NOW, but I promise
+to give it to you when the async operation finishes."
+
+In Playwright context:
+  page.goto() returns a Promise → we await it.
+  locator.textContent() returns a Promise → we await it.
+  Without await, you get Promise { <pending> } instead of the actual value.
+
+
+----------------------------------------------------------------
+Q: Reverse the words in "My name is John"
+   Expected output: "yM eman si nhoJ"
+   (Each word reversed individually, word order stays same)
+----------------------------------------------------------------
+
+JAVASCRIPT (chained — one-liner):
+  function reverseEachWord(str) {
+      return str.split(' ').map(word =>
+          word.split('').reverse().join('')
+      ).join(' ');
+  }
+  console.log(reverseEachWord("My name is John"));
+  // Output: "yM eman si nhoJ"
+
+JAVASCRIPT (step-by-step — beginner-friendly):
+  function reverseEachWord(str) {
+      // Step 1: Split sentence into array of words
+      const words = str.split(' ');
+      // words = ["My", "name", "is", "John"]
+
+      // Step 2: Create empty array to store reversed words
+      const reversedWords = [];
+
+      // Step 3: Loop through each word
+      for (let i = 0; i < words.length; i++) {
+          const word = words[i];
+
+          // Step 4: Split word into characters
+          const characters = word.split('');
+          // "My" → ['M', 'y']
+
+          // Step 5: Reverse the characters array
+          const reversedChars = characters.reverse();
+          // ['M', 'y'] → ['y', 'M']
+
+          // Step 6: Join characters back into a string
+          const reversedWord = reversedChars.join('');
+          // ['y', 'M'] → "yM"
+
+          // Step 7: Add reversed word to results array
+          reversedWords.push(reversedWord);
+      }
+
+      // Step 8: Join all reversed words with space
+      const result = reversedWords.join(' ');
+      // ["yM", "eman", "si", "nhoJ"] → "yM eman si nhoJ"
+
+      return result;
+  }
+
+  console.log(reverseEachWord("My name is John"));
+  // Output: "yM eman si nhoJ"
+
+  DRY RUN:
+    Input: "My name is John"
+    Step 1: words = ["My", "name", "is", "John"]
+
+    Loop i=0: word = "My"
+      characters = ['M', 'y']
+      reversedChars = ['y', 'M']
+      reversedWord = "yM"
+      reversedWords = ["yM"]
+
+    Loop i=1: word = "name"
+      characters = ['n', 'a', 'm', 'e']
+      reversedChars = ['e', 'm', 'a', 'n']
+      reversedWord = "eman"
+      reversedWords = ["yM", "eman"]
+
+    Loop i=2: word = "is"
+      characters = ['i', 's']
+      reversedChars = ['s', 'i']
+      reversedWord = "si"
+      reversedWords = ["yM", "eman", "si"]
+
+    Loop i=3: word = "John"
+      characters = ['J', 'o', 'h', 'n']
+      reversedChars = ['n', 'h', 'o', 'J']
+      reversedWord = "nhoJ"
+      reversedWords = ["yM", "eman", "si", "nhoJ"]
+
+    Step 8: result = "yM eman si nhoJ" ✓
+
+How it works:
+  "My name is John"
+  .split(' ')        → ["My", "name", "is", "John"]
+  .map(word => ...)  → for each word:
+      "My".split('')      → ['M','y']
+      .reverse()          → ['y','M']
+      .join('')           → "yM"
+  Result: ["yM", "eman", "si", "nhoJ"]
+  .join(' ')         → "yM eman si nhoJ"
+
+JAVA:
+  public static String reverseEachWord(String str) {
+      String[] words = str.split(" ");
+      StringBuilder result = new StringBuilder();
+
+      for (int i = 0; i < words.length; i++) {
+          String word = words[i];
+          String reversed = "";
+          for (int j = 0; j < word.length(); j++) {
+              reversed = word.charAt(j) + reversed;  // prepend
+          }
+          result.append(reversed);
+          if (i < words.length - 1) result.append(" ");
+      }
+      return result.toString();
+  }
+  // Input: "My name is John" → Output: "yM eman si nhoJ"
+
+How Java version works:
+  1. Split sentence into words by space.
+  2. For each word: reverse it using the prepend trick (char + result).
+  3. Join reversed words back with spaces.
+
+NOTE — Two different "reverse" questions:
+  "Reverse words" → "John is name My" (word ORDER reversed)
+  "Reverse each word" → "yM eman si nhoJ" (characters within each word reversed)
+  This question asks for the SECOND type.
+
+
+----------------------------------------------------------------
+Q: Take the XPath of 16 in calendar - booking.com (without tools)
+----------------------------------------------------------------
+
+Approach:
+  Calendar dates are typically in a <table> or <div> grid structure.
+  The number "16" is usually in a <span> or <td> element.
+
+  Possible XPaths:
+    //span[text()='16']
+    //td[text()='16']
+    //div[contains(@class,'calendar')]//span[text()='16']
+    //table[@class='calendar']//td[.='16']
+
+  If multiple months visible (current + next):
+    (//span[text()='16'])[1]    → first occurrence (current month)
+    (//span[text()='16'])[2]    → second occurrence (next month)
+
+  Interview tip: "Without tools, I'd inspect the page structure.
+  Calendar dates are usually in table cells or span elements.
+  I'd use //span[text()='16'] and add parent context if multiple
+  months are visible on screen."
