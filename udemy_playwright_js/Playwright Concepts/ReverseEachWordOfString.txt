@@ -1,0 +1,131 @@
+package javaPrograms;
+
+public class ReverseEachWordOfString {
+
+	public static void main(String[] args) {
+		// TODO Auto-generated method stub
+		reverseEachWordOfString("Java is a good programming langauge");
+
+	}
+	
+	static void reverseEachWordOfString(String inputString)
+	{
+	String[] words = inputString.split(" ");
+	
+//	System.out.println(words[0]);
+//	System.out.println(words[1]);
+//	System.out.println(words[2]);
+//	System.out.println(words[3]);
+//	System.out.println(words[4]);
+//	System.out.println(words[5]);
+	
+	String reverseString = "";
+	
+	for (int i = 0; i < words.length; i++) {
+			
+			String word = words[i];
+			String nstr = "";
+			char ch;
+			
+			for (int j = 0; j < word.length(); j++) {
+					
+					ch = word.charAt(j);
+					System.out.println("ch: "+ch);
+					nstr = ch + nstr;
+					System.out.println("nstr: "+nstr);
+					}
+			
+			System.out.println("Inner loop complete");
+			reverseString = reverseString + nstr + " ";
+			System.out.println("reverseString: "+reverseString);
+			System.out.println("Outer loop complete");
+	}
+	System.out.println(inputString);
+	System.out.println(reverseString);
+	}
+
+}
+-----------------------------------------------------------------------------------------
+Output : 
+
+
+ch: J
+nstr: J
+ch: a
+nstr: aJ
+ch: v
+nstr: vaJ
+ch: a
+nstr: avaJ
+Inner loop complete
+reverseString: avaJ 
+Outer loop complete
+ch: i
+nstr: i
+ch: s
+nstr: si
+Inner loop complete
+reverseString: avaJ si 
+Outer loop complete
+ch: a
+nstr: a
+Inner loop complete
+reverseString: avaJ si a 
+Outer loop complete
+ch: g
+nstr: g
+ch: o
+nstr: og
+ch: o
+nstr: oog
+ch: d
+nstr: doog
+Inner loop complete
+reverseString: avaJ si a doog 
+Outer loop complete
+ch: p
+nstr: p
+ch: r
+nstr: rp
+ch: o
+nstr: orp
+ch: g
+nstr: gorp
+ch: r
+nstr: rgorp
+ch: a
+nstr: argorp
+ch: m
+nstr: margorp
+ch: m
+nstr: mmargorp
+ch: i
+nstr: immargorp
+ch: n
+nstr: nimmargorp
+ch: g
+nstr: gnimmargorp
+Inner loop complete
+reverseString: avaJ si a doog gnimmargorp 
+Outer loop complete
+ch: l
+nstr: l
+ch: a
+nstr: al
+ch: n
+nstr: nal
+ch: g
+nstr: gnal
+ch: a
+nstr: agnal
+ch: u
+nstr: uagnal
+ch: g
+nstr: guagnal
+ch: e
+nstr: eguagnal
+Inner loop complete
+reverseString: avaJ si a doog gnimmargorp eguagnal 
+Outer loop complete
+Java is a good programming langauge
+avaJ si a doog gnimmargorp eguagnal 
