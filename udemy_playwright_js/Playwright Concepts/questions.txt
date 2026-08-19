@@ -8,6 +8,10 @@ take the xpath of the 16 in calendar - booking.com without tools
 
 ----
 
+//h3[text()='Itsy Hotels Revmantra'] //button[@data-testid='wishlist-button']
+
+-----
+
 Mr Global Private limited - Guindy
 0 - java selenium
 2 - Postman api 

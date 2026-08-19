@@ -1,0 +1,584 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Locator Quick Reference — XPath & CSS Cheatsheet</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 20px;
+            background: #1a1a2e;
+            color: #eaeaea;
+            line-height: 1.6;
+        }
+        h1 {
+            text-align: center;
+            color: #00d4ff;
+            border-bottom: 2px solid #00d4ff;
+            padding-bottom: 10px;
+        }
+        h2 {
+            color: #00d4ff;
+            margin-top: 40px;
+            border-left: 4px solid #00d4ff;
+            padding-left: 10px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 15px 0;
+            font-size: 14px;
+        }
+        th {
+            background: #16213e;
+            color: #00d4ff;
+            padding: 10px 8px;
+            text-align: left;
+            border: 1px solid #333;
+            position: sticky;
+            top: 0;
+        }
+        td {
+            padding: 8px;
+            border: 1px solid #333;
+            vertical-align: top;
+        }
+        tr:nth-child(even) {
+            background: #0f3460;
+        }
+        tr:nth-child(odd) {
+            background: #16213e;
+        }
+        tr:hover {
+            background: #1a4080;
+        }
+        code {
+            background: #0a0a23;
+            color: #f5a623;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-family: 'Consolas', 'Courier New', monospace;
+            font-size: 13px;
+        }
+        .section-note {
+            background: #0f3460;
+            border-left: 4px solid #f5a623;
+            padding: 10px 15px;
+            margin: 15px 0;
+            border-radius: 4px;
+        }
+        .visual-box {
+            background: #0a0a23;
+            padding: 15px;
+            border-radius: 6px;
+            font-family: 'Consolas', monospace;
+            text-align: center;
+            margin: 15px 0;
+            font-size: 15px;
+        }
+        .tag-css { color: #4ecdc4; }
+        .tag-xpath { color: #ff6b6b; }
+        .tag-both { color: #f5a623; }
+    </style>
+</head>
+<body>
+
+<h1>🎯 Locator Quick Reference — XPath & CSS Cheatsheet</h1>
+
+<!-- CSS PATTERNS -->
+<h2>All 18 Locator Strategies — CSS & XPath with Examples</h2>
+<table>
+    <tr>
+        <th>#</th>
+        <th>Strategy</th>
+        <th>CSS Syntax</th>
+        <th>CSS Example</th>
+        <th>XPath Syntax</th>
+        <th>XPath Example</th>
+    </tr>
+    <tr>
+        <td>1</td>
+        <td>By ID</td>
+        <td><code>#idValue</code></td>
+        <td><code>#inputUsername</code></td>
+        <td><code>//*[@id='value']</code></td>
+        <td><code>//input[@id='inputUsername']</code></td>
+    </tr>
+    <tr>
+        <td>2</td>
+        <td>By Class</td>
+        <td><code>.className</code></td>
+        <td><code>.signInBtn</code></td>
+        <td><code>//*[@class='value']</code></td>
+        <td><code>//button[@class='signInBtn']</code></td>
+    </tr>
+    <tr>
+        <td>3</td>
+        <td>By Name</td>
+        <td><code>[name='value']</code></td>
+        <td><code>input[name='inputPassword']</code></td>
+        <td><code>//*[@name='value']</code></td>
+        <td><code>//input[@name='inputPassword']</code></td>
+    </tr>
+    <tr>
+        <td>4</td>
+        <td>By Attribute (exact)</td>
+        <td><code>tag[attr='value']</code></td>
+        <td><code>input[placeholder='Email']</code></td>
+        <td><code>//tag[@attr='value']</code></td>
+        <td><code>//input[@placeholder='Email']</code></td>
+    </tr>
+    <tr>
+        <td>5</td>
+        <td>By Partial (contains)</td>
+        <td><code>tag[attr*='partial']</code></td>
+        <td><code>input[type*='pass']</code></td>
+        <td><code>//tag[contains(@attr,'val')]</code></td>
+        <td><code>//input[contains(@type,'pass')]</code></td>
+    </tr>
+    <tr>
+        <td>6</td>
+        <td>By Starts with</td>
+        <td><code>tag[attr^='start']</code></td>
+        <td><code>input[name^='input']</code></td>
+        <td><code>//tag[starts-with(@attr,'val')]</code></td>
+        <td><code>//input[starts-with(@name,'input')]</code></td>
+    </tr>
+    <tr>
+        <td>7</td>
+        <td>By Ends with</td>
+        <td><code>tag[attr$='end']</code></td>
+        <td><code>input[name$='word']</code></td>
+        <td>❌ Not directly supported</td>
+        <td>Use contains() as workaround</td>
+    </tr>
+    <tr>
+        <td>8</td>
+        <td>By Text (exact)</td>
+        <td>❌ Not possible in CSS</td>
+        <td>—</td>
+        <td><code>//tag[text()='text']</code></td>
+        <td><code>//button[text()='Log Out']</code></td>
+    </tr>
+    <tr>
+        <td>9</td>
+        <td>By Partial Text</td>
+        <td>❌ Not possible in CSS</td>
+        <td>—</td>
+        <td><code>//tag[contains(text(),'partial')]</code></td>
+        <td><code>//p[contains(text(),'successfully')]</code></td>
+    </tr>
+    <tr>
+        <td>10</td>
+        <td>By Tag name</td>
+        <td><code>tagname</code></td>
+        <td><code>button</code></td>
+        <td><code>//tagname</code></td>
+        <td><code>//button</code></td>
+    </tr>
+    <tr>
+        <td>11</td>
+        <td>By Link text</td>
+        <td><code>a[href*='value']</code></td>
+        <td><code>a[href*='forgot']</code></td>
+        <td><code>//a[text()='link text']</code></td>
+        <td><code>//a[text()='Forgot your password?']</code></td>
+    </tr>
+    <tr>
+        <td>12</td>
+        <td>By Index</td>
+        <td><code>tag:nth-child(n)</code></td>
+        <td><code>input:nth-child(3)</code></td>
+        <td><code>(//tag[@attr='val'])[n]</code></td>
+        <td><code>(//input[@type='text'])[2]</code></td>
+    </tr>
+    <tr>
+        <td>13</td>
+        <td>Parent → Child (any level)</td>
+        <td><code>parent child</code></td>
+        <td><code>form input</code></td>
+        <td><code>//parent//child</code></td>
+        <td><code>//form//input</code></td>
+    </tr>
+    <tr>
+        <td>14</td>
+        <td>Parent → Direct child</td>
+        <td><code>parent > child</code></td>
+        <td><code>form > input</code></td>
+        <td><code>//parent/child</code></td>
+        <td><code>//form/input</code></td>
+    </tr>
+    <tr>
+        <td>15</td>
+        <td>Sibling (next)</td>
+        <td><code>tag + tag</code> (adjacent only)</td>
+        <td><code>h2 + input</code></td>
+        <td><code>//tag/following-sibling::tag[n]</code></td>
+        <td><code>//button[1]/following-sibling::button[1]</code></td>
+    </tr>
+    <tr>
+        <td>16</td>
+        <td>Sibling (previous)</td>
+        <td>❌ Not possible in CSS</td>
+        <td>—</td>
+        <td><code>//tag/preceding-sibling::tag[n]</code></td>
+        <td><code>//button[2]/preceding-sibling::button[1]</code></td>
+    </tr>
+    <tr>
+        <td>17</td>
+        <td>Child → Parent (go UP)</td>
+        <td>❌ Not possible in CSS</td>
+        <td>—</td>
+        <td><code>//tag/parent::tag</code></td>
+        <td><code>//button/parent::div</code></td>
+    </tr>
+    <tr>
+        <td>18</td>
+        <td>Any tag (wildcard)</td>
+        <td>❌ No CSS equivalent</td>
+        <td>—</td>
+        <td><code>//*</code></td>
+        <td><code>//*[text()='Login']</code></td>
+    </tr>
+</table>
+
+<div class="section-note">
+    <strong>Priority order when choosing:</strong> ID → Name → Class → Unique attribute → CSS/XPath (contains/starts-with) → Text → Parent/Child → Sibling → Index (last resort)
+</div>
+
+<!-- ADDITIONAL CSS PATTERNS -->
+<h2>CSS Selector Patterns — Detailed</h2>
+<table>
+    <tr>
+        <th>#</th>
+        <th>Pattern</th>
+        <th>CSS Syntax</th>
+        <th>Example</th>
+        <th>Elements Ctrl+F</th>
+        <th>Console Validation</th>
+    </tr>
+    <tr>
+        <td>1</td>
+        <td>By ID</td>
+        <td><code>#idValue</code></td>
+        <td><code>#inputUsername</code></td>
+        <td><code>#inputUsername</code></td>
+        <td><code>$$("#inputUsername")</code></td>
+    </tr>
+    <tr>
+        <td>2</td>
+        <td>By Class</td>
+        <td><code>.className</code></td>
+        <td><code>.signInBtn</code></td>
+        <td><code>.signInBtn</code></td>
+        <td><code>$$(".signInBtn")</code></td>
+    </tr>
+    <tr>
+        <td>3</td>
+        <td>Tag + ID</td>
+        <td><code>tag#id</code></td>
+        <td><code>input#inputUsername</code></td>
+        <td><code>input#inputUsername</code></td>
+        <td><code>$$("input#inputUsername")</code></td>
+    </tr>
+    <tr>
+        <td>4</td>
+        <td>Tag + Class</td>
+        <td><code>tag.class</code></td>
+        <td><code>button.signInBtn</code></td>
+        <td><code>button.signInBtn</code></td>
+        <td><code>$$("button.signInBtn")</code></td>
+    </tr>
+    <tr>
+        <td>5</td>
+        <td>Exact Attribute</td>
+        <td><code>tag[attr='value']</code></td>
+        <td><code>input[placeholder='Email']</code></td>
+        <td><code>input[placeholder='Email']</code></td>
+        <td><code>$$("input[placeholder='Email']")</code></td>
+    </tr>
+    <tr>
+        <td>6</td>
+        <td>Contains</td>
+        <td><code>tag[attr*='partial']</code></td>
+        <td><code>input[type*='pass']</code></td>
+        <td><code>input[type*='pass']</code></td>
+        <td><code>$$("input[type*='pass']")</code></td>
+    </tr>
+    <tr>
+        <td>7</td>
+        <td>Starts with</td>
+        <td><code>tag[attr^='start']</code></td>
+        <td><code>input[name^='input']</code></td>
+        <td><code>input[name^='input']</code></td>
+        <td><code>$$("input[name^='input']")</code></td>
+    </tr>
+    <tr>
+        <td>8</td>
+        <td>Ends with</td>
+        <td><code>tag[attr$='end']</code></td>
+        <td><code>input[name$='word']</code></td>
+        <td><code>input[name$='word']</code></td>
+        <td><code>$$("input[name$='word']")</code></td>
+    </tr>
+    <tr>
+        <td>9</td>
+        <td>Descendant</td>
+        <td><code>parent child</code></td>
+        <td><code>form p</code></td>
+        <td><code>form p</code></td>
+        <td><code>$$("form p")</code></td>
+    </tr>
+    <tr>
+        <td>10</td>
+        <td>Direct child</td>
+        <td><code>parent > child</code></td>
+        <td><code>form > input</code></td>
+        <td><code>form > input</code></td>
+        <td><code>$$("form > input")</code></td>
+    </tr>
+    <tr>
+        <td>11</td>
+        <td>Index</td>
+        <td><code>tag:nth-child(n)</code></td>
+        <td><code>input:nth-child(3)</code></td>
+        <td><code>input:nth-child(3)</code></td>
+        <td><code>$$("input:nth-child(3)")</code></td>
+    </tr>
+</table>
+
+<!-- XPATH PATTERNS -->
+<h2>XPath Patterns</h2>
+<table>
+    <tr>
+        <th>#</th>
+        <th>Pattern</th>
+        <th>XPath Syntax</th>
+        <th>Example</th>
+        <th>Elements Ctrl+F</th>
+        <th>Console Validation</th>
+    </tr>
+    <tr>
+        <td>1</td>
+        <td>Exact Attribute</td>
+        <td><code>//tag[@attr='value']</code></td>
+        <td><code>//input[@id='inputUsername']</code></td>
+        <td><code>//input[@id='inputUsername']</code></td>
+        <td><code>$x("//input[@id='inputUsername']")</code></td>
+    </tr>
+    <tr>
+        <td>2</td>
+        <td>Contains</td>
+        <td><code>//tag[contains(@attr,'val')]</code></td>
+        <td><code>//input[contains(@type,'pass')]</code></td>
+        <td><code>//input[contains(@type,'pass')]</code></td>
+        <td><code>$x("//input[contains(@type,'pass')]")</code></td>
+    </tr>
+    <tr>
+        <td>3</td>
+        <td>Starts with</td>
+        <td><code>//tag[starts-with(@attr,'val')]</code></td>
+        <td><code>//input[starts-with(@name,'input')]</code></td>
+        <td><code>//input[starts-with(@name,'input')]</code></td>
+        <td><code>$x("//input[starts-with(@name,'input')]")</code></td>
+    </tr>
+    <tr>
+        <td>4</td>
+        <td>By Text</td>
+        <td><code>//tag[text()='text']</code></td>
+        <td><code>//button[text()='Log Out']</code></td>
+        <td><code>//button[text()='Log Out']</code></td>
+        <td><code>$x("//button[text()='Log Out']")</code></td>
+    </tr>
+    <tr>
+        <td>5</td>
+        <td>Any tag (*)</td>
+        <td><code>//*[@attr='value']</code></td>
+        <td><code>//*[@id='inputUsername']</code></td>
+        <td><code>//*[@id='inputUsername']</code></td>
+        <td><code>$x("//*[@id='inputUsername']")</code></td>
+    </tr>
+    <tr>
+        <td>6</td>
+        <td>Any tag + text</td>
+        <td><code>//*[text()='text']</code></td>
+        <td><code>//*[text()='Login']</code></td>
+        <td><code>//*[text()='Login']</code></td>
+        <td><code>$x("//*[text()='Login']")</code></td>
+    </tr>
+    <tr>
+        <td>7</td>
+        <td>Index</td>
+        <td><code>(//tag[@attr='val'])[n]</code></td>
+        <td><code>(//input[@type='text'])[2]</code></td>
+        <td><code>(//input[@type='text'])[2]</code></td>
+        <td><code>$x("(//input[@type='text'])[2]")</code></td>
+    </tr>
+    <tr>
+        <td>8</td>
+        <td>Parent → Child</td>
+        <td><code>//parent/child</code></td>
+        <td><code>//form/input</code></td>
+        <td><code>//form/input</code></td>
+        <td><code>$x("//form/input")</code></td>
+    </tr>
+    <tr>
+        <td>9</td>
+        <td>Parent → Child + idx</td>
+        <td><code>//parent/child[n]</code></td>
+        <td><code>//form/input[3]</code></td>
+        <td><code>//form/input[3]</code></td>
+        <td><code>$x("//form/input[3]")</code></td>
+    </tr>
+    <tr>
+        <td>10</td>
+        <td>Following sibling</td>
+        <td><code>//tag/following-sibling::tag[n]</code></td>
+        <td><code>//button[1]/following-sibling::button[1]</code></td>
+        <td><code>//button[1]/following-sibling::button[1]</code></td>
+        <td><code>$x("//button[1]/following-sibling::button[1]")</code></td>
+    </tr>
+    <tr>
+        <td>11</td>
+        <td>Preceding sibling</td>
+        <td><code>//tag/preceding-sibling::tag[n]</code></td>
+        <td><code>//button[2]/preceding-sibling::button[1]</code></td>
+        <td><code>//button[2]/preceding-sibling::button[1]</code></td>
+        <td><code>$x("//button[2]/preceding-sibling::button[1]")</code></td>
+    </tr>
+    <tr>
+        <td>12</td>
+        <td>Child → Parent</td>
+        <td><code>//tag/parent::tag</code></td>
+        <td><code>//button/parent::div</code></td>
+        <td><code>//button/parent::div</code></td>
+        <td><code>$x("//button/parent::div")</code></td>
+    </tr>
+    <tr>
+        <td>13</td>
+        <td>Ancestor</td>
+        <td><code>//tag/ancestor::tag</code></td>
+        <td><code>//button/ancestor::header</code></td>
+        <td><code>//button/ancestor::header</code></td>
+        <td><code>$x("//button/ancestor::header")</code></td>
+    </tr>
+</table>
+
+<!-- TRAVERSAL VISUAL -->
+<h2>Traversal Directions — Visual</h2>
+<div class="visual-box">
+    <span class="tag-xpath">↑ /parent::tag</span> (go UP)<br><br>
+    <span class="tag-xpath">← /preceding-sibling::tag</span> &nbsp;──&nbsp; <strong>[ CURRENT ELEMENT ]</strong> &nbsp;──&nbsp; <span class="tag-xpath">/following-sibling::tag →</span><br><br>
+    <span class="tag-xpath">↓ /childTag</span> (go DOWN)
+</div>
+
+<!-- SELENIUM CODE -->
+<h2>Selenium Code — By Locator Type</h2>
+<table>
+    <tr>
+        <th>Locator</th>
+        <th>Selenium Code</th>
+        <th>When to Use</th>
+    </tr>
+    <tr><td>ID</td><td><code>By.id("inputUsername")</code></td><td>Element has unique id attribute</td></tr>
+    <tr><td>Name</td><td><code>By.name("inputPassword")</code></td><td>Element has name attribute</td></tr>
+    <tr><td>ClassName</td><td><code>By.className("signInBtn")</code></td><td>Element has unique class</td></tr>
+    <tr><td>TagName</td><td><code>By.tagName("p")</code></td><td>Only one tag of that type on page</td></tr>
+    <tr><td>LinkText</td><td><code>By.linkText("Forgot your password?")</code></td><td>&lt;a&gt; links — full text</td></tr>
+    <tr><td>PartialLink</td><td><code>By.partialLinkText("Forgot")</code></td><td>&lt;a&gt; links — partial text</td></tr>
+    <tr><td>CSS</td><td><code>By.cssSelector("input[placeholder='Email']")</code></td><td>Versatile, fast</td></tr>
+    <tr><td>XPath</td><td><code>By.xpath("//button[text()='Login']")</code></td><td>Most powerful, all directions</td></tr>
+</table>
+
+<!-- CSS vs XPATH -->
+<h2>CSS vs XPath — When to Use Which</h2>
+<table>
+    <tr>
+        <th>Scenario</th>
+        <th>CSS</th>
+        <th>XPath</th>
+    </tr>
+    <tr><td>Has id/class/attribute</td><td>✅ Preferred (faster)</td><td>✅ Works too</td></tr>
+    <tr><td>Find by TEXT</td><td>❌ Not possible</td><td>✅ text()='...'</td></tr>
+    <tr><td>Go to PARENT</td><td>❌ Not possible</td><td>✅ parent::tag</td></tr>
+    <tr><td>SIBLING traversal</td><td>❌ Limited</td><td>✅ following-sibling</td></tr>
+    <tr><td>Speed</td><td>✅ Faster</td><td>⚠️ Slightly slower</td></tr>
+    <tr><td>Partial match (contains)</td><td>✅ [attr*='val']</td><td>✅ contains(@attr,'val')</td></tr>
+</table>
+
+<!-- COMMON MISTAKES -->
+<h2>Common Mistakes</h2>
+<table>
+    <tr>
+        <th>Mistake</th>
+        <th>❌ Wrong</th>
+        <th>✅ Correct</th>
+    </tr>
+    <tr><td>Missing @ before attribute</td><td><code>//input[id='user']</code></td><td><code>//input[@id='user']</code></td></tr>
+    <tr><td>Square brackets for contains</td><td><code>//div[contains[class,'btn']]</code></td><td><code>//div[contains(@class,'btn')]</code></td></tr>
+    <tr><td>Missing quotes around value</td><td><code>//input[@id=user]</code></td><td><code>//input[@id='user']</code></td></tr>
+    <tr><td>Single slash for relative XPath</td><td><code>/div/input</code></td><td><code>//div/input</code></td></tr>
+    <tr><td>Slash for sibling</td><td><code>//button[1]/button</code></td><td><code>//button[1]/following-sibling::button</code></td></tr>
+    <tr><td>CSS going UP</td><td><code>child &lt; parent</code></td><td>Not possible — use XPath</td></tr>
+    <tr><td>Double dots in CSS</td><td><code>..className</code></td><td><code>.className</code></td></tr>
+    <tr><td>$$ for XPath</td><td><code>$$("//input")</code></td><td><code>$x("//input")</code></td></tr>
+    <tr><td>$x for CSS</td><td><code>$x("#id")</code></td><td><code>$$("#id")</code></td></tr>
+</table>
+
+<!-- MEMORY TRICKS -->
+<h2>Memory Tricks</h2>
+<div class="section-note">
+    <strong>CSS Symbols:</strong><br>
+    <code>#</code> = ID (hashtag = identity)<br>
+    <code>.</code> = Class (dot notation)<br>
+    <code>[]</code> = Attribute (brackets)<br>
+    <code>*=</code> = Contains (wildcard)<br>
+    <code>^=</code> = Starts with (caret = beginning)<br>
+    <code>$=</code> = Ends with (dollar = end)
+</div>
+<div class="section-note">
+    <strong>XPath Symbols:</strong><br>
+    <code>//</code> = Relative (start anywhere)<br>
+    <code>/</code> = Direct child (one level)<br>
+    <code>@</code> = Attribute prefix<br>
+    <code>::</code> = Axis separator (parent::, sibling::)<br>
+    <code>*</code> = Any tag<br>
+    <code>[]</code> = Filter/condition
+</div>
+
+<!-- VALIDATION SUMMARY -->
+<h2>How to Check Uniqueness (3 Methods)</h2>
+<table>
+    <tr>
+        <th>Method</th>
+        <th>Where</th>
+        <th>How</th>
+        <th>Unique Result</th>
+    </tr>
+    <tr>
+        <td><strong>Elements Ctrl+F</strong></td>
+        <td>DevTools → Elements tab</td>
+        <td>Ctrl+F → paste locator</td>
+        <td>"1 of 1"</td>
+    </tr>
+    <tr>
+        <td><strong>Console CSS</strong></td>
+        <td>DevTools → Console tab</td>
+        <td><code>$$("css").length</code></td>
+        <td>Returns <code>1</code></td>
+    </tr>
+    <tr>
+        <td><strong>Console XPath</strong></td>
+        <td>DevTools → Console tab</td>
+        <td><code>$x("xpath").length</code></td>
+        <td>Returns <code>1</code></td>
+    </tr>
+</table>
+
+<div class="section-note">
+    <strong>Rule:</strong> Always validate your locator BEFORE writing it in code. If it returns more than 1 match, refine it!
+</div>
+
+</body>
+</html>
