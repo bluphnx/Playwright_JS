@@ -10,7 +10,8 @@
     "cleanallure": "Remove-Item -Recurse -Force allure-results",
     "generateallure": "npx allure generate ./allure-results --clean",
     "openallure": "npx allure open ./allure-report",
-    "apiallure": "npx playwright test --grep @API --reporter=line,allure-playwright"
+    "apiallure": "npx playwright test --grep @API --reporter=line,allure-playwright",
+    "cucumberRegression": "npx cucumber-js --format html:cucumber-report.html"
   },
   "keywords": [],
   "author": "",
