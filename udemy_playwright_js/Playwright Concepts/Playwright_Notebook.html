@@ -1,0 +1,502 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Playwright Framework — Notebook Notes</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Caveat:wght@400;600&display=swap');
+        body {
+            font-family: 'Caveat', cursive;
+            font-size: 20px;
+            background: #fff;
+            color: #1a1a2e;
+            margin: 0;
+            padding: 20px;
+            line-height: 2.2;
+            background-image: repeating-linear-gradient(transparent, transparent 43px, #e0e0e0 43px, #e0e0e0 44px);
+            background-size: 100% 44px;
+        }
+        h1 { font-size: 36px; color: #d63384; border-bottom: 3px solid #d63384; margin-top: 40px; }
+        h2 { font-size: 28px; color: #0d6efd; margin-top: 30px; }
+        h3 { font-size: 24px; color: #198754; margin-top: 20px; }
+        pre {
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-left: 4px solid #0d6efd;
+            padding: 12px;
+            overflow-x: auto;
+            line-height: 1.6;
+            border-radius: 4px;
+        }
+        .note { color: #6c757d; font-style: italic; }
+        .highlight { background: #fff3cd; padding: 2px 6px; border-radius: 3px; }
+        .section { page-break-before: always; }
+        .toc { background: #f8f9fa; padding: 20px; border-radius: 8px; margin: 20px 0; }
+        .toc a { text-decoration: none; color: #0d6efd; }
+        @media print {
+            body { background-image: none; font-size: 16px; line-height: 1.8; }
+            pre { font-size: 11px; }
+            h1 { font-size: 28px; }
+            h2 { font-size: 22px; }
+        }
+    </style>
+</head>
+<body>
+
+<h1>📓 Playwright Automation Framework — Complete Notebook</h1>
+<p class="note">Print this file: Ctrl+P → Save as PDF → Flip on Long Edge for double-sided</p>
+
+<div class="toc">
+<h2>Table of Contents</h2>
+<p>
+1. <a href="#setup">Project Setup (package.json)</a><br>
+2. <a href="#config">Configuration (playwright.config.js)</a><br>
+3. <a href="#pageobjects">Page Objects (POM Pattern)</a><br>
+4. <a href="#pomanager">PO Manager (Central Hub)</a><br>
+5. <a href="#utils">Utils (Fixtures, API, Test Data)</a><br>
+6. <a href="#tests-basic">Tests — Basic (Fixtures, Navigation)</a><br>
+7. <a href="#tests-login">Tests — Login & Forms</a><br>
+8. <a href="#tests-e2e">Tests — E2E (Full Order Flow)</a><br>
+9. <a href="#tests-api">Tests — API Testing</a><br>
+10. <a href="#tests-bdd">Tests — BDD Cucumber</a><br>
+</p>
+</div>
+
+<!-- SECTION 1 -->
+<div class="section" id="setup">
+<h1>1. Project Setup — package.json</h1>
+<p>This file defines dependencies and scripts for the project.</p>
+<pre>
+{
+  "name": "udemy_playwright_js",
+  "version": "1.0.0",
+  "scripts": {
+    "webtest": "npx playwright test --grep @Web",
+    "apitest": "npx playwright test --grep @API",
+    "cucumberRegression": "npx cucumber-js --format html:cucumber-report.html"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.61.1",
+    "allure-playwright": "^3.10.2"
+  },
+  "dependencies": {
+    "@cucumber/cucumber": "^13.2.0"
+  }
+}
+</pre>
+<h3>Key Points:</h3>
+<p>• <span class="highlight">@playwright/test</span> — the testing framework (devDependency)<br>
+• <span class="highlight">@cucumber/cucumber</span> — for BDD feature files<br>
+• <span class="highlight">allure-playwright</span> — for rich reports<br>
+• Scripts let you run: <code>npm run webtest</code>, <code>npm run apitest</code></p>
+</div>
+
+<!-- SECTION 2 -->
+<div class="section" id="config">
+<h1>2. Configuration — playwright.config.js</h1>
+<p>Central control file — browsers, timeouts, reporters, screenshots.</p>
+<pre>
+import { defineConfig } from '@playwright/test';
+
+export default defineConfig({
+  testDir: './tests',          // Where test files live
+  retries: 2,                  // Retry failed tests 2 times
+  timeout: 35 * 1000,         // 35 seconds per test
+  reporter: 'html',           // Generate HTML report
+
+  expect: {
+    timeout: 45 * 1000        // Assertions wait up to 45 seconds
+  },
+
+  use: {
+    browserName: 'chromium',   // Default browser
+    headless: true,            // No visible browser (fast)
+    screenshot: 'only-on-failure', // Capture on failure
+    trace: 'on'                // Record trace for debugging
+  }
+});
+</pre>
+<h3>Key Points:</h3>
+<p>• <span class="highlight">testDir</span> — must point to a FOLDER, not a file<br>
+• <span class="highlight">retries: 2</span> — handles flaky tests automatically<br>
+• <span class="highlight">timeout</span> — if test exceeds this, it fails<br>
+• <span class="highlight">trace: 'on'</span> — records full execution for debugging<br>
+• <span class="highlight">screenshot: 'only-on-failure'</span> — saves space, captures when needed</p>
+</div>
+
+<!-- SECTION 3 -->
+<div class="section" id="pageobjects">
+<h1>3. Page Objects — POM Pattern</h1>
+<p>Each page in the app has its own class. Locators + actions in one file.</p>
+
+<h2>LoginPage.js</h2>
+<pre>
+class LoginPage {
+    constructor(page) {
+        this.page = page;
+        this.SignInBtn = page.locator("#login");
+        this.userName = page.locator("[formcontrolname='userEmail']");
+        this.Password = page.locator("#userPassword");
+    }
+
+    async goTo() {
+        await this.page.goto("https://rahulshettyacademy.com/client");
+    }
+
+    async ValidLogin(username, password) {
+        await this.userName.fill(username);
+        await this.Password.fill(password);
+        await this.SignInBtn.click();
+    }
+}
+module.exports = { LoginPage };
+</pre>
+<p class="note">→ Locators defined in constructor. Actions are methods. Tests just call loginPage.ValidLogin().</p>
+
+<h2>DashboardPage.js</h2>
+<pre>
+class DashboardPage {
+    constructor(page) {
+        this.page = page;
+        this.cardTitles = page.locator(".card-body b");
+        this.allAddToCart = page.locator("button.w-10");
+        this.AddedToCartSuccessMsg = page.locator("#toast-container");
+    }
+
+    async SearchAndAddToCart(Product) {
+        await this.cardTitles.last().waitFor();
+        const allTitles = await this.cardTitles.allTextContents();
+
+        for (let index = 0; index < allTitles.length; index++) {
+            if (allTitles[index] === Product) {
+                await this.allAddToCart.nth(index).click();
+                await this.AddedToCartSuccessMsg
+                    .locator("text=Product Added To Cart").waitFor();
+                break;
+            }
+        }
+    }
+}
+module.exports = { DashboardPage };
+</pre>
+<p class="note">→ Loops through products, finds match, clicks Add to Cart, waits for toast confirmation.</p>
+
+<h2>CartPage.js</h2>
+<pre>
+class CartPage {
+    constructor(page) { this.page = page; }
+
+    async NavigateToCart() {
+        await this.page.locator("[routerlink*='cart']").click();
+        await this.page.locator("div li").last().waitFor();
+    }
+
+    async PlaceOrder(email) {
+        await this.page.locator("text=Checkout").click();
+        await this.page.locator("[placeholder*='Country']")
+            .pressSequentially('Ind');
+
+        const dropdownlist = this.page.locator(".ta-results");
+        await dropdownlist.waitFor();
+        const count = await dropdownlist.locator("button").count();
+
+        for (let i = 0; i < count; ++i) {
+            let text = await dropdownlist.locator("button").nth(i).textContent();
+            if (text === ' India') {
+                await dropdownlist.locator("button").nth(i).click();
+                break;
+            }
+        }
+        await this.page.locator(".action__submit").click();
+    }
+}
+module.exports = { CartPage };
+</pre>
+
+<h2>OrderSummaryPage.js</h2>
+<pre>
+class OrderSummaryPage {
+    constructor(page) {
+        this.page = page;
+        this.myOrdersLink = page.locator("label[routerlink*='myorders']");
+    }
+
+    async verifyOrder() {
+        await this.page.locator("h1.hero-primary").waitFor();
+        const orderidstring = await this.page.locator("label.ng-star-inserted")
+            .textContent();
+        let orderid = orderidstring.replaceAll("|", "").trim();
+
+        await this.myOrdersLink.click();
+        await this.page.locator("tbody tr th").last().waitFor();
+        const orderCount = await this.page.locator("tbody tr th").count();
+
+        for (let index = 0; index < orderCount; index++) {
+            if (await this.page.locator("tbody tr th").nth(index)
+                .textContent() === orderid) {
+                await this.page.locator("tr .btn-primary").nth(index).click();
+                break;
+            }
+        }
+        await expect(this.page.locator("div.col-text")).toHaveText(orderid);
+    }
+}
+module.exports = { OrderSummaryPage };
+</pre>
+</div>
+
+<!-- SECTION 4 -->
+<div class="section" id="pomanager">
+<h1>4. PO Manager — Central Hub</h1>
+<p>Creates all page objects in one place. Tests import only POManager.</p>
+<pre>
+const { LoginPage } = require('./LoginPage');
+const { DashboardPage } = require('./DashboardPage');
+const { CartPage } = require('./CartPage');
+const { OrderSummaryPage } = require('./OrderSummaryPage');
+
+class POManager {
+    constructor(page) {
+        this.page = page;
+        this.loginPage = new LoginPage(this.page);
+        this.dashboardPage = new DashboardPage(this.page);
+        this.cartPage = new CartPage(this.page);
+        this.orderSummaryPage = new OrderSummaryPage(this.page);
+    }
+
+    getLoginPage() { return this.loginPage; }
+    getDashboardPage() { return this.dashboardPage; }
+    getCartPage() { return this.cartPage; }
+    getOrderSummaryPage() { return this.orderSummaryPage; }
+}
+module.exports = { POManager };
+</pre>
+<h3>Usage in test:</h3>
+<pre>
+const poManager = new POManager(page);
+const loginPage = poManager.getLoginPage();
+const dashboardPage = poManager.getDashboardPage();
+</pre>
+<p class="note">→ One import, access all pages. Change page object internals without touching tests.</p>
+</div>
+
+<!-- SECTION 5 -->
+<div class="section" id="utils">
+<h1>5. Utils — Fixtures & Helpers</h1>
+
+<h2>fixtures.js — Custom Authenticated Page</h2>
+<pre>
+const base = require('@playwright/test');
+
+exports.customtest = base.test.extend({
+    authenticatedPage: async ({ browser }, use) => {
+        const context = await browser.newContext();
+        const page = await context.newPage();
+        const email = "r123am@gmail.com";
+
+        await page.goto("https://rahulshettyacademy.com/client");
+        await page.locator("[formcontrolname='userEmail']").fill(email);
+        await page.locator("#userPassword").fill("Amazon@123");
+        await page.locator("#login").click();
+        await page.locator(".card-body b").last().waitFor();
+
+        await use(page);  // Test runs with authenticated page
+    }
+});
+</pre>
+<p class="note">→ Fixture = reusable precondition. Test requests { authenticatedPage } and gets a pre-logged-in page.</p>
+
+<h2>testdata.json — External Test Data</h2>
+<pre>
+[
+    { "username": "r123am@gmail.com", "password": "Amazon@123", "Product": "iphone 13 pro" },
+    { "username": "q123am@gmail.com", "password": "Amazon@123", "Product": "ADIDAS ORIGINAL" },
+    { "username": "r123am@gmail.com", "password": "Amazon@123", "Product": "ZARA COAT 3" }
+]
+</pre>
+<p class="note">→ Data-driven: loop through JSON, each entry becomes a separate test run.</p>
+</div>
+
+<!-- SECTION 6 -->
+<div class="section" id="tests-basic">
+<h1>6. Tests — Basic (Fixtures, Navigation)</h1>
+<pre>
+const { test, expect } = require('@playwright/test');
+
+// Page fixture — simplest test
+test('Navigate to Google', async ({ page }) => {
+    await page.goto("https://www.google.com");
+    await expect(page).toHaveTitle('Google');
+});
+
+// Browser fixture — manual context control
+test('Browser context test', async ({ browser }) => {
+    const context = await browser.newContext();
+    const page = await context.newPage();
+    await page.goto("https://www.google.com");
+    await expect(page).toHaveTitle('Google');
+    await context.close();
+});
+</pre>
+<p class="note">→ { page } = Playwright manages browser. { browser } = YOU manage context + cleanup.</p>
+</div>
+
+<!-- SECTION 7 -->
+<div class="section" id="tests-login">
+<h1>7. Tests — Login & Form Handling</h1>
+<pre>
+test('Sign in with wrong password', async ({ page }) => {
+    await page.goto("https://rahulshettyacademy.com/loginpagePractise/");
+
+    await page.locator('#username').fill("rahulshettyacademy");
+    await page.locator('[name="password"]').fill('Learning@'); // wrong
+    await page.locator('.btn-md').click();
+
+    // Assert error message
+    const errorMsg = page.locator('[style*="block"]');
+    await expect(errorMsg).toContainText('Incorrect');
+});
+</pre>
+<p class="note">→ fill() = type text. click() = click button. toContainText() = auto-waits for text.</p>
+</div>
+
+<!-- SECTION 8 -->
+<div class="section" id="tests-e2e">
+<h1>8. Tests — E2E (Full Order Flow with POM)</h1>
+<pre>
+const { test } = require('@playwright/test');
+const { POManager } = require('../pageobjects/POManager');
+
+test('E2E - place order', async ({ browser }) => {
+    const context = await browser.newContext();
+    const page = await context.newPage();
+    const poManager = new POManager(page);
+
+    const loginPage = poManager.getLoginPage();
+    const dashboardPage = poManager.getDashboardPage();
+    const cartPage = poManager.getCartPage();
+    const orderSummaryPage = poManager.getOrderSummaryPage();
+
+    await loginPage.goTo();
+    await loginPage.ValidLogin("r123am@gmail.com", "Amazon@123");
+    await dashboardPage.SearchAndAddToCart("ZARA COAT 3");
+    await cartPage.NavigateToCart();
+    await cartPage.PlaceOrder("r123am@gmail.com");
+    await orderSummaryPage.verifyOrder();
+
+    await context.close();
+});
+</pre>
+<p class="note">→ Clean test! No locators, just method calls. POM handles everything internally.</p>
+</div>
+
+<!-- SECTION 9 -->
+<div class="section" id="tests-api">
+<h1>9. Tests — API Testing</h1>
+<pre>
+const { test, expect, request } = require('@playwright/test');
+
+let token;
+
+test.beforeAll(async () => {
+    const apiContext = await request.newContext();
+    const loginResponse = await apiContext.post(
+        "https://rahulshettyacademy.com/api/ecom/auth/login",
+        { data: { userEmail: "r123am@gmail.com", userPassword: "Amazon@123" } }
+    );
+    expect(loginResponse.ok()).toBeTruthy();
+    const json = await loginResponse.json();
+    token = json.token;
+});
+
+test('API + UI combined', async ({ page }) => {
+    // Inject token into browser (skip UI login!)
+    await page.addInitScript(value => {
+        window.localStorage.setItem('token', value);
+    }, token);
+
+    await page.goto("https://rahulshettyacademy.com/client");
+    // Page loads already authenticated!
+});
+</pre>
+<p class="note">→ Login via API (200ms) instead of UI (3-5s). Inject token with addInitScript. 10x faster.</p>
+</div>
+
+<!-- SECTION 10 -->
+<div class="section" id="tests-bdd">
+<h1>10. Tests — BDD Cucumber</h1>
+
+<h2>Feature File (ecommerce.feature)</h2>
+<pre>
+Feature: Ecommerce Validation
+    @E2E
+    Scenario: Place order and verify
+        Given I login to the ecommerce application with "r123am@gmail.com" and "Amazon@123"
+        When I search for "ADIDAS ORIGINAL" and add it to cart
+        And I verify product is displayed in the cart
+        And I enter account details and place the order for the "r123am@gmail.com"
+        Then I should see the order in the order history page
+</pre>
+
+<h2>Step Definitions (steps.js)</h2>
+<pre>
+const { Given, When, Then, setDefaultTimeout } = require('@cucumber/cucumber');
+const { expect } = require('@playwright/test');
+setDefaultTimeout(30000);
+
+Given('I login to the ecommerce application with {string} and {string}',
+    async function(username, password) {
+    const loginPage = new LoginPage(this.page);
+    await loginPage.goTo();
+    await loginPage.ValidLogin(username, password);
+});
+
+When('I search for {string} and add it to cart',
+    async function(product) {
+    const dashboardPage = new DashboardPage(this.page);
+    await dashboardPage.SearchAndAddToCart(product);
+});
+</pre>
+
+<h2>Hooks (hooks.js)</h2>
+<pre>
+const { After, Before } = require('@cucumber/cucumber');
+const playwright = require('playwright');
+
+Before(async function() {
+    this.browser = await playwright.chromium.launch({ headless: true });
+    this.context = await this.browser.newContext();
+    this.page = await this.context.newPage();
+});
+
+After(async function() {
+    await this.page.close();
+    await this.context.close();
+    await this.browser.close();
+});
+</pre>
+<p class="note">→ Run with: npx cucumber-js --tags "@E2E"</p>
+</div>
+
+<!-- FINAL -->
+<div class="section">
+<h1>📝 Quick CLI Commands</h1>
+<pre>
+npx playwright test                          # Run all tests
+npx playwright test tests/client.spec.js     # Run one file
+npx playwright test --grep "@smoke"          # Run by tag
+npx playwright test --headed                 # See browser
+npx playwright test --project=firefox        # Specific browser
+npx playwright test --workers=4              # Parallel
+npx playwright test --retries=2              # Retry failures
+npx playwright test --debug                  # Debug mode
+npx playwright show-report                   # View HTML report
+npx playwright codegen https://example.com   # Record tests
+npx cucumber-js --tags "@E2E"                # Run Cucumber
+</pre>
+</div>
+
+</body>
+</html>

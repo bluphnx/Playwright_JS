@@ -199,12 +199,15 @@ test("extract username from document website and enter in Email field", async ({
     await page.goto(BaseUrl);
 
     // const [newPage, newPage2] = await Promise.all([
-    const [newPage] = await Promise.all([
+    const [newPage] = await Promise.all(
+        [
 
         context.waitForEvent('page'),
-        DocumentLink.click(),
+        // DocumentLink.click(),
+        page.locator("a[href*='documents-request']").click()
         // TechSmartHireLink.click()
-    ]);
+        ]
+    );
 
     const para = await newPage.locator(".red").textContent();
     // console.log(para); // full string

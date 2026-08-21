@@ -1,0 +1,492 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Project Concepts Map — All Playwright Concepts by File</title>
+    <style>
+        body { font-family: 'Segoe UI', sans-serif; margin: 20px; background: #f8f9fa; color: #212529; line-height: 1.7; }
+        h1 { color: #d63384; border-bottom: 3px solid #d63384; padding-bottom: 8px; }
+        h2 { color: #0d6efd; margin-top: 35px; border-left: 4px solid #0d6efd; padding-left: 10px; }
+        h3 { color: #198754; }
+        table { width: 100%; border-collapse: collapse; margin: 15px 0; font-size: 14px; }
+        th { background: #212529; color: #fff; padding: 10px; text-align: left; }
+        td { padding: 8px 10px; border: 1px solid #dee2e6; }
+        tr:nth-child(even) { background: #e9ecef; }
+        tr:hover { background: #dee2e6; }
+        code { background: #e9ecef; padding: 2px 6px; border-radius: 3px; font-size: 13px; }
+        pre { background: #212529; color: #f8f9fa; padding: 15px; border-radius: 6px; overflow-x: auto; font-size: 13px; line-height: 1.5; }
+        .tag { display: inline-block; background: #0d6efd; color: #fff; padding: 2px 8px; border-radius: 12px; font-size: 12px; margin: 2px; }
+        .tag-green { background: #198754; }
+        .tag-orange { background: #fd7e14; }
+        .tag-pink { background: #d63384; }
+        .toc { background: #fff; padding: 20px; border: 1px solid #dee2e6; border-radius: 8px; margin: 20px 0; }
+        .file-card { background: #fff; border: 1px solid #dee2e6; border-radius: 8px; padding: 15px; margin: 15px 0; }
+        @media print { body { background: #fff; } pre { font-size: 11px; } }
+    </style>
+</head>
+<body>
+
+<h1>🗂️ Project Concepts Map — Every Playwright Concept by File</h1>
+
+<!-- TABLE OF CONTENTS -->
+<div class="toc">
+<h2 style="margin-top:0">📋 Table of Contents</h2>
+<table>
+<tr><th>#</th><th>File</th><th>Key Concepts</th></tr>
+<tr><td>1</td><td>playwright.config.js</td><td>Timeouts, retries, reporters, browser config, screenshots, trace</td></tr>
+<tr><td>2</td><td>pageobjects/LoginPage.js</td><td>POM pattern, constructor, locators, async methods</td></tr>
+<tr><td>3</td><td>pageobjects/DashboardPage.js</td><td>waitFor, allTextContents, loop+click, toast validation</td></tr>
+<tr><td>4</td><td>pageobjects/CartPage.js</td><td>pressSequentially, custom dropdown, count(), nth()</td></tr>
+<tr><td>5</td><td>pageobjects/OrderSummaryPage.js</td><td>String parsing (replaceAll, trim), order verification loop</td></tr>
+<tr><td>6</td><td>pageobjects/POManager.js</td><td>Central hub pattern, encapsulation, getter methods</td></tr>
+<tr><td>7</td><td>utils/fixtures.js</td><td>Custom fixtures, authenticatedPage, use() lifecycle</td></tr>
+<tr><td>8</td><td>utils/test-base.js</td><td>test.extend(), fixture with static test data</td></tr>
+<tr><td>9</td><td>utils/APIutils.js</td><td>API utility class, getToken, createOrder, headers</td></tr>
+<tr><td>10</td><td>tests/loginpagePractise.spec.js</td><td>Locators (id, name, class, CSS), assertions, error handling</td></tr>
+<tr><td>11</td><td>tests/angularpractice.spec.js</td><td>getByRole, getByLabel, getByPlaceholder, filter, timeouts</td></tr>
+<tr><td>12</td><td>tests/automationpractice.spec.js</td><td>Dialogs, hover, screenshots, frameLocator, visual testing</td></tr>
+<tr><td>13</td><td>tests/childwindowswitch.spec.js</td><td>Multiple tabs, Promise.all, waitForEvent, waitForLoadState</td></tr>
+<tr><td>14</td><td>tests/client.spec.js</td><td>E2E flow with CSS selectors, toast handling, order verification</td></tr>
+<tr><td>15</td><td>tests/clientOptimized.spec.js</td><td>getBy* locators, filter({hasText}), role-based approach</td></tr>
+<tr><td>16</td><td>tests/param.spec.js</td><td>Data-driven (JSON for loop), tagging (@Web), POM</td></tr>
+<tr><td>17</td><td>tests/customtest.spec.js</td><td>Custom fixtures with test data injection</td></tr>
+<tr><td>18</td><td>tests/fixturedemo.spec.js</td><td>Multi-fixture (authenticatedPage + createOrder)</td></tr>
+<tr><td>19</td><td>tests/webapi.spec.js</td><td>API login, token injection (addInitScript), localStorage</td></tr>
+<tr><td>20</td><td>tests/webapi_part1.spec.js</td><td>APIutils class usage, combined API+UI testing</td></tr>
+<tr><td>21</td><td>tests/webapi_part2.spec.js</td><td>storageState, session reuse across contexts</td></tr>
+<tr><td>22</td><td>tests/webapi_network.spec.js</td><td>Network interception pattern, API-driven test</td></tr>
+<tr><td>23</td><td>tests/loginapicall.spec.js</td><td>Direct API call, response.json(), token extraction</td></tr>
+<tr><td>24</td><td>features/ecommerce.feature</td><td>BDD Gherkin, Scenario Outline, tags, data tables</td></tr>
+<tr><td>25</td><td>features/step_definitions/steps.js</td><td>Cucumber steps, setDefaultTimeout, World context (this)</td></tr>
+<tr><td>26</td><td>features/support/hooks.js</td><td>Before/After hooks, BeforeStep/AfterStep, screenshot on failure</td></tr>
+</table>
+</div>
+
+<!-- SECTION 1 -->
+<h2 id="s1">1. playwright.config.js — Configuration</h2>
+<div class="file-card">
+<span class="tag">Timeouts</span><span class="tag">Retries</span><span class="tag">Reporter</span><span class="tag">Screenshots</span><span class="tag">Trace</span>
+<pre>
+export default defineConfig({
+  testDir: './tests',
+  retries: 2,                        // Retry failed tests 2x
+  timeout: 35 * 1000,               // 35s per test
+  reporter: 'html',                  // HTML report
+  expect: { timeout: 45 * 1000 },   // Assertions: 45s
+  use: {
+    browserName: 'chromium',
+    headless: true,
+    screenshot: 'only-on-failure',
+    trace: 'on'
+  }
+});
+</pre>
+<h3>Concepts:</h3>
+<ul>
+<li><b>testDir</b> — must be a FOLDER path</li>
+<li><b>retries</b> — auto-rerun failed tests</li>
+<li><b>timeout</b> — max time per test (ceiling)</li>
+<li><b>expect.timeout</b> — assertion retry duration</li>
+<li><b>trace: 'on'</b> — records DOM snapshots for debugging</li>
+<li><b>screenshot: 'only-on-failure'</b> — saves on error</li>
+</ul>
+</div>
+
+<!-- SECTION 2 -->
+<h2 id="s2">2-6. Page Objects — POM Pattern</h2>
+<div class="file-card">
+<span class="tag tag-green">Page Object Model</span><span class="tag tag-green">Encapsulation</span><span class="tag tag-green">Reusability</span>
+<h3>LoginPage.js — Basic POM</h3>
+<pre>
+class LoginPage {
+    constructor(page) {
+        this.page = page;
+        this.userName = page.locator("[formcontrolname='userEmail']");
+        this.Password = page.locator("#userPassword");
+        this.SignInBtn = page.locator("#login");
+    }
+    async goTo() { await this.page.goto("https://..."); }
+    async ValidLogin(u, p) {
+        await this.userName.fill(u);
+        await this.Password.fill(p);
+        await this.SignInBtn.click();
+    }
+}
+</pre>
+<h3>DashboardPage.js — Search & Add to Cart</h3>
+<pre>
+// Key concepts: waitFor(), allTextContents(), loop, nth(), toast waitFor
+await this.cardTitles.last().waitFor();            // Wait for content to load
+const allTitles = await this.cardTitles.allTextContents(); // Get ALL texts as array
+await this.allAddToCart.nth(index).click();         // Click specific index
+await this.AddedToCartSuccessMsg.locator("text=...").waitFor(); // Wait for toast
+</pre>
+<h3>CartPage.js — Checkout Flow</h3>
+<pre>
+// Key concepts: pressSequentially, custom dropdown, count()
+await page.locator("[placeholder*='Country']").pressSequentially('Ind');
+const count = await dropdownlist.locator("button").count(); // Count elements
+for (let i = 0; i < count; ++i) { ... }                    // Loop & click match
+</pre>
+<h3>POManager.js — Central Hub</h3>
+<pre>
+// One import in test → access ALL page objects
+class POManager {
+    constructor(page) {
+        this.loginPage = new LoginPage(page);
+        this.dashboardPage = new DashboardPage(page);
+        this.cartPage = new CartPage(page);
+        this.orderSummaryPage = new OrderSummaryPage(page);
+    }
+    getLoginPage() { return this.loginPage; }
+    // ... getters for all pages
+}
+</pre>
+</div>
+
+<!-- SECTION 7-9 -->
+<h2 id="s7">7-9. Utils — Fixtures, API, Test Data</h2>
+<div class="file-card">
+<span class="tag tag-orange">Custom Fixtures</span><span class="tag tag-orange">API Utils</span><span class="tag tag-orange">test.extend()</span>
+
+<h3>fixtures.js — Authenticated Page Fixture</h3>
+<pre>
+exports.customtest = base.test.extend({
+    authenticatedPage: async ({ browser }, use) => {
+        const context = await browser.newContext();
+        const page = await context.newPage();
+        // Login via UI...
+        await use(page);  // Provide to test — already authenticated!
+    }
+});
+</pre>
+
+<h3>test-base.js — Static Test Data Fixture</h3>
+<pre>
+exports.customtest = base.test.extend({
+    TestDataForOrder: {
+        username: "q123am@gmail.com",
+        password: "Amazon@123",
+        Product: "iphone 13 pro"
+    }
+});
+// Usage: test('...', async ({ browser, TestDataForOrder }) => { ... })
+</pre>
+
+<h3>APIutils.js — Reusable API Helper Class</h3>
+<pre>
+class APIutils {
+    constructor(apicontext, loginPayLoad) { ... }
+    async getToken() {
+        const resp = await this.apicontext.post('/login', { data: this.loginPayLoad });
+        return (await resp.json()).token;
+    }
+    async createOrder(orderPayload) {
+        const token = await this.getToken();
+        const resp = await this.apicontext.post('/create-order', {
+            data: orderPayload,
+            headers: { 'Authorization': token }
+        });
+        return { token, orderid: (await resp.json()).orders[0] };
+    }
+}
+</pre>
+</div>
+
+<!-- SECTION 10-11 -->
+<h2 id="s10">10-11. Tests — Locators & Special Locators</h2>
+<div class="file-card">
+<span class="tag tag-pink">CSS Selectors</span><span class="tag tag-pink">getByRole</span><span class="tag tag-pink">getByLabel</span><span class="tag tag-pink">filter</span>
+
+<h3>loginpagePractise.spec.js — CSS Locator Strategies</h3>
+<pre>
+page.locator('#username')                     // By ID
+page.locator('[name="password"]')             // By attribute
+page.locator('.btn-md')                       // By class
+page.locator('[style*="block"]')              // Partial attribute match
+page.locator("a[href*='documents-request']")  // Contains in href
+</pre>
+
+<h3>angularpractice.spec.js — Built-in Locators</h3>
+<pre>
+page.getByLabel("Check me out if you Love IceCreams!").check();
+page.getByLabel("Employed").click();
+page.getByLabel("Gender").selectOption("Female");
+page.getByPlaceholder("Password").fill("abc123");
+page.getByRole("button", { name: 'Submit' }).click();
+page.getByText("Success!").isVisible();
+page.getByRole("link", { name: 'Shop' }).click();
+page.locator("app-card").filter({ hasText: 'Nokia Edge' }).getByRole("button").click();
+
+// Timeout override
+await expect(locator).toBeVisible({ timeout: 6000 });
+const slowExpect = expect.configure({ timeout: 9000 });
+</pre>
+</div>
+
+<!-- SECTION 12 -->
+<h2 id="s12">12. automationpractice.spec.js — Dialogs, Frames, Screenshots</h2>
+<div class="file-card">
+<span class="tag">Dialogs</span><span class="tag">Hover</span><span class="tag">Screenshots</span><span class="tag">frameLocator</span><span class="tag">Visual Testing</span>
+<pre>
+// Handle dialog (alert/confirm)
+page.on("dialog", dialog => dialog.accept());
+await page.locator("#confirmbtn").click();
+
+// Mouse hover
+await page.locator("#mousehover").hover();
+
+// Screenshots
+await page.screenshot({ path: 'full_page.png' });
+await page.locator("#dropdown").screenshot({ path: 'element.png' });
+
+// iFrame handling
+const frame = page.frameLocator("#courses-iframe");
+await frame.locator("li [href*='lifetime-access']:visible").click();
+const text = await frame.locator(".text h2").textContent();
+
+// Visual comparison testing
+expect(await page.screenshot()).toMatchSnapshot('google.png');
+</pre>
+</div>
+
+<!-- SECTION 13 -->
+<h2 id="s13">13. childwindowswitch.spec.js — Multiple Tabs</h2>
+<div class="file-card">
+<span class="tag">Promise.all</span><span class="tag">waitForEvent</span><span class="tag">New Tab</span><span class="tag">waitForLoadState</span>
+<pre>
+// Capture new tab opened by a click
+const [newPage] = await Promise.all([
+    context.waitForEvent('page'),              // Listen for new tab
+    page.locator("a[href*='documents']").click() // Click that opens it
+]);
+
+await newPage.waitForLoadState('networkidle'); // Wait for new tab to fully load
+await newPage.getByRole('link', { name: 'Home' }).click();
+</pre>
+</div>
+
+<!-- SECTION 14-16 -->
+<h2 id="s14">14-16. Tests — E2E & Data-Driven</h2>
+<div class="file-card">
+<span class="tag tag-green">E2E Flow</span><span class="tag tag-green">Data-Driven</span><span class="tag tag-green">Tags</span><span class="tag tag-green">JSON</span>
+
+<h3>param.spec.js — Data-Driven with JSON + Tags</h3>
+<pre>
+const testdata = JSON.parse(JSON.stringify(require('../utils/testdata.json')));
+
+for (const data of testdata) {
+    test(`@Web E2E - place order for ${data.Product}`, async ({ browser }) => {
+        // Each JSON entry becomes a separate test
+        await loginPage.ValidLogin(data.username, data.password);
+        await dashboardPage.SearchAndAddToCart(data.Product);
+    });
+}
+// Run by tag: npx playwright test --grep "@Web"
+</pre>
+</div>
+
+<!-- SECTION 17-18 -->
+<h2 id="s17">17-18. Tests — Custom Fixtures</h2>
+<div class="file-card">
+<span class="tag tag-orange">Custom Fixtures</span><span class="tag tag-orange">Dependency Injection</span>
+<pre>
+// customtest.spec.js — fixture provides test data
+customtest('E2E', async ({ browser, TestDataForOrder }) => {
+    await loginPage.ValidLogin(TestDataForOrder.username, TestDataForOrder.password);
+});
+
+// fixturedemo.spec.js — multiple fixtures (auth + API order)
+customtest("fixture demo", async ({ authenticatedPage, createOrder }) => {
+    await expect(authenticatedPage.getByText(createOrder.orderid)).toBeVisible();
+});
+</pre>
+</div>
+
+<!-- SECTION 19-23 -->
+<h2 id="s19">19-23. Tests — API Testing & Token Injection</h2>
+<div class="file-card">
+<span class="tag tag-pink">API Login</span><span class="tag tag-pink">addInitScript</span><span class="tag tag-pink">storageState</span><span class="tag tag-pink">Token Injection</span>
+
+<h3>webapi.spec.js — API Login + Token Injection</h3>
+<pre>
+test.beforeAll(async () => {
+    apicontext = await request.newContext();
+    const resp = await apicontext.post('/api/ecom/auth/login', { data: loginPayLoad });
+    token = (await resp.json()).token;
+});
+
+test('E2E', async ({ page }) => {
+    await page.addInitScript(value => {
+        window.localStorage.setItem('token', value);  // Inject before page loads!
+    }, token);
+    await page.goto("https://rahulshettyacademy.com/client");
+    // Page loads already authenticated — no UI login needed!
+});
+</pre>
+
+<h3>webapi_part2.spec.js — storageState (Session Reuse)</h3>
+<pre>
+test.beforeAll(async ({ browser }) => {
+    const context = await browser.newContext();
+    const page = await context.newPage();
+    // Login via UI...
+    await context.storageState({ path: 'state.json' });  // Save session!
+    webContext = await browser.newContext({ storageState: 'state.json' }); // Reuse!
+});
+
+test('E2E', async () => {
+    const page = await webContext.newPage();  // Already authenticated!
+});
+</pre>
+
+<h3>loginapicall.spec.js — Direct API + response.json()</h3>
+<pre>
+response = await apicontext.post('/login', { data: loginRequestPayload });
+expect(response.ok()).toBeTruthy();
+const token = (await response.json()).token;  // Extract from JSON body
+</pre>
+</div>
+
+<!-- SECTION 24-26 -->
+<h2 id="s24">24-26. BDD Cucumber</h2>
+<div class="file-card">
+<span class="tag">Feature Files</span><span class="tag">Step Definitions</span><span class="tag">Hooks</span><span class="tag">Tags</span>
+
+<h3>ecommerce.feature — Gherkin Syntax</h3>
+<pre>
+Feature: Ecommerce Validation
+    @DataValidation @Regression
+    Scenario Outline: Place order and verify
+        Given I login with "&lt;username&gt;" and "&lt;password&gt;"
+        When I search for "&lt;product&gt;" and add it to cart
+        Then I should see the order in order history
+
+    Examples:
+        | username         | password   | product         |
+        | r123am@gmail.com | Amazon@123 | ADIDAS ORIGINAL |
+</pre>
+
+<h3>steps.js — Step Definitions</h3>
+<pre>
+const { Given, When, Then, setDefaultTimeout } = require('@cucumber/cucumber');
+setDefaultTimeout(30000);  // Increase from 5s default!
+
+Given('I login with {string} and {string}', async function(user, pass) {
+    const loginPage = new LoginPage(this.page);  // 'this' = World context
+    await loginPage.goTo();
+    await loginPage.ValidLogin(user, pass);
+});
+</pre>
+
+<h3>hooks.js — Lifecycle Management</h3>
+<pre>
+Before(async function() {
+    this.browser = await playwright.chromium.launch({ headless: true });
+    this.context = await this.browser.newContext();
+    this.page = await this.context.newPage();
+});
+
+After(async function() {
+    await this.browser.close();  // MUST close or process hangs!
+});
+
+AfterStep(async function({ result }) {
+    if (result.status === Status.FAILED) {
+        await this.page.screenshot({ path: 'failure.png' });
+    }
+});
+</pre>
+</div>
+
+<!-- SUMMARY -->
+<h2>📊 Concepts Summary — All Unique Concepts in This Project</h2>
+<table>
+<tr><th>Category</th><th>Technical Concept Name</th><th>Where Used</th></tr>
+<tr><td rowspan="10">Locators</td><td>CSS ID Selector (<code>#id</code>)</td><td>loginpagePractise.spec.js</td></tr>
+<tr><td>CSS Class Selector (<code>.class</code>)</td><td>loginpagePractise.spec.js</td></tr>
+<tr><td>CSS Attribute Selector (<code>[attr='val']</code>)</td><td>loginpagePractise.spec.js, client.spec.js</td></tr>
+<tr><td>CSS Partial Attribute (<code>[attr*='val']</code>)</td><td>loginpagePractise.spec.js, webapi.spec.js</td></tr>
+<tr><td>getByRole (Accessibility Locator)</td><td>angularpractice.spec.js, clientOptimized.spec.js</td></tr>
+<tr><td>getByLabel (Form Field Locator)</td><td>angularpractice.spec.js</td></tr>
+<tr><td>getByPlaceholder (Input Locator)</td><td>angularpractice.spec.js, clientOptimized.spec.js</td></tr>
+<tr><td>getByText (Text Locator)</td><td>angularpractice.spec.js, clientOptimized.spec.js</td></tr>
+<tr><td>Chained Locator Pattern (<code>locator().locator()</code>)</td><td>clientOptimized.spec.js — <code>getByRole("listitem").getByRole('button')</code></td></tr>
+<tr><td>Filter Locator (<code>.filter({hasText})</code>)</td><td>angularpractice.spec.js, clientOptimized.spec.js</td></tr>
+<tr><td rowspan="3">Frames</td><td>frameLocator (iFrame Handling)</td><td>automationpractice.spec.js</td></tr>
+<tr><td>Frame → Locator Chaining</td><td>automationpractice.spec.js — <code>frameLocator().locator()</code></td></tr>
+<tr><td>:visible Pseudo-selector</td><td>automationpractice.spec.js — <code>li [href*='...']:visible</code></td></tr>
+<tr><td rowspan="7">Actions</td><td>fill() (Type into input)</td><td>All login tests</td></tr>
+<tr><td>click() (Click element)</td><td>All tests</td></tr>
+<tr><td>check() (Check checkbox)</td><td>angularpractice.spec.js</td></tr>
+<tr><td>selectOption() (Native dropdown)</td><td>angularpractice.spec.js</td></tr>
+<tr><td>hover() (Mouse hover)</td><td>automationpractice.spec.js</td></tr>
+<tr><td>pressSequentially() (Type char-by-char)</td><td>client.spec.js, CartPage.js</td></tr>
+<tr><td>pressSequentially with delay (<code>{delay:150}</code>)</td><td>clientOptimized.spec.js (commented)</td></tr>
+<tr><td rowspan="5">Assertions</td><td>Web-first: toContainText()</td><td>loginpagePractise.spec.js, DashboardPage.js</td></tr>
+<tr><td>Web-first: toBeVisible()</td><td>angularpractice.spec.js, clientOptimized.spec.js</td></tr>
+<tr><td>Web-first: toHaveText()</td><td>client.spec.js, OrderSummaryPage.js</td></tr>
+<tr><td>Generic: toBeTruthy()</td><td>client.spec.js, webapi.spec.js</td></tr>
+<tr><td>Visual: toMatchSnapshot()</td><td>automationpractice.spec.js</td></tr>
+<tr><td rowspan="3">Assertion Config</td><td>Step-level timeout (<code>{timeout:6000}</code>)</td><td>angularpractice.spec.js</td></tr>
+<tr><td>Test-level expect.configure()</td><td>angularpractice.spec.js — <code>slowExpect</code></td></tr>
+<tr><td>Soft Assertions (concept noted)</td><td>Discussed in interview prep files</td></tr>
+<tr><td rowspan="5">Waits & Sync</td><td>Auto-wait (built-in, no code)</td><td>All tests (implicit)</td></tr>
+<tr><td>waitFor() (Wait for element)</td><td>DashboardPage.js, client.spec.js</td></tr>
+<tr><td>waitFor({state:'hidden'})</td><td>Concept demonstrated (toast disappear)</td></tr>
+<tr><td>waitForLoadState('networkidle')</td><td>childwindowswitch.spec.js</td></tr>
+<tr><td>waitForTimeout() (Hard wait)</td><td>loginapicall.spec.js, childwindowswitch.spec.js</td></tr>
+<tr><td rowspan="4">Multi-Tab / Windows</td><td>Promise.all Pattern</td><td>childwindowswitch.spec.js, loginpagePractise.spec.js</td></tr>
+<tr><td>context.waitForEvent('page')</td><td>childwindowswitch.spec.js</td></tr>
+<tr><td>New Page Object Capture</td><td>childwindowswitch.spec.js — <code>const [newPage] = ...</code></td></tr>
+<tr><td>Array Destructuring for Events</td><td>childwindowswitch.spec.js</td></tr>
+<tr><td rowspan="2">Dialogs</td><td>page.on('dialog') Event Listener</td><td>automationpractice.spec.js</td></tr>
+<tr><td>dialog.accept() / dialog.dismiss()</td><td>automationpractice.spec.js</td></tr>
+<tr><td rowspan="3">Screenshots</td><td>Full Page Screenshot (<code>page.screenshot()</code>)</td><td>automationpractice.spec.js</td></tr>
+<tr><td>Element Screenshot (<code>locator.screenshot()</code>)</td><td>automationpractice.spec.js</td></tr>
+<tr><td>Visual Comparison (<code>toMatchSnapshot</code>)</td><td>automationpractice.spec.js</td></tr>
+<tr><td rowspan="5">API Testing</td><td>request.newContext() (API client)</td><td>webapi.spec.js, loginapicall.spec.js</td></tr>
+<tr><td>apicontext.post() (HTTP POST)</td><td>webapi.spec.js, APIutils.js</td></tr>
+<tr><td>response.json() (Parse response)</td><td>webapi.spec.js, loginapicall.spec.js</td></tr>
+<tr><td>response.ok() (Status validation)</td><td>webapi.spec.js, loginapicall.spec.js</td></tr>
+<tr><td>Authorization Header Injection</td><td>APIutils.js — <code>headers: {'Authorization': token}</code></td></tr>
+<tr><td rowspan="3">Authentication Patterns</td><td>Token Injection via addInitScript()</td><td>webapi.spec.js, webapi_part1.spec.js, loginapicall.spec.js</td></tr>
+<tr><td>localStorage.setItem() in browser</td><td>webapi.spec.js — inside addInitScript</td></tr>
+<tr><td>storageState (Session Persistence)</td><td>webapi_part2.spec.js — <code>context.storageState({path})</code></td></tr>
+<tr><td rowspan="5">Design Patterns</td><td>Page Object Model (POM)</td><td>LoginPage.js, DashboardPage.js, CartPage.js, OrderSummaryPage.js</td></tr>
+<tr><td>PO Manager (Facade Pattern)</td><td>POManager.js — single entry point for all pages</td></tr>
+<tr><td>Custom Fixtures (Dependency Injection)</td><td>fixtures.js — <code>authenticatedPage</code></td></tr>
+<tr><td>test.extend() (Fixture Definition)</td><td>test-base.js, fixtures.js</td></tr>
+<tr><td>API Utility Class (Service Layer)</td><td>APIutils.js — encapsulates API logic</td></tr>
+<tr><td rowspan="4">Data-Driven Testing</td><td>JSON Array + for...of Loop</td><td>param.spec.js — each JSON entry = separate test</td></tr>
+<tr><td>JSON Object (Single Dataset)</td><td>clientPO_JsonData.spec.js — <code>testdata.username</code></td></tr>
+<tr><td>Fixture-based Test Data</td><td>customtest.spec.js — <code>TestDataForOrder</code></td></tr>
+<tr><td>Template Literals for Dynamic Names</td><td>param.spec.js — <code>`E2E - ${data.Product}`</code></td></tr>
+<tr><td rowspan="4">BDD Cucumber</td><td>Feature File (Gherkin Syntax)</td><td>ecommerce.feature, loginPractice.feature</td></tr>
+<tr><td>Scenario Outline + Examples Table</td><td>ecommerce.feature — data-driven BDD</td></tr>
+<tr><td>Step Definitions with Parameters</td><td>steps.js — <code>{string}</code> extraction</td></tr>
+<tr><td>Before/After Hooks (Lifecycle)</td><td>hooks.js — browser setup/teardown</td></tr>
+<tr><td rowspan="2">Cucumber Advanced</td><td>BeforeStep/AfterStep (Per-step hooks)</td><td>hooks.js — screenshot on failure</td></tr>
+<tr><td>setDefaultTimeout (Override 5s default)</td><td>steps.js — <code>setDefaultTimeout(30000)</code></td></tr>
+<tr><td rowspan="3">Tags & Execution</td><td>Test Tagging (<code>@Web</code>, <code>@API</code>)</td><td>param.spec.js — <code>@Web</code> in test name</td></tr>
+<tr><td>Cucumber Tags (<code>@E2E</code>, <code>@Regression</code>)</td><td>All .feature files</td></tr>
+<tr><td>--grep / --tags filtering</td><td>package.json scripts, CLI commands</td></tr>
+<tr><td rowspan="5">Browser & Context</td><td>browser.newContext() (Isolation)</td><td>All browser-fixture tests</td></tr>
+<tr><td>context.newPage() (New tab)</td><td>All browser-fixture tests</td></tr>
+<tr><td>Context Session Sharing (pages in same context)</td><td>webapi_part2.spec.js</td></tr>
+<tr><td>context.close() + browser.close() (Cleanup)</td><td>clientOptimized.spec.js, angularpractice.spec.js</td></tr>
+<tr><td>{ page } fixture (Auto-managed)</td><td>automationpractice.spec.js (visual test)</td></tr>
+<tr><td rowspan="4">Config & CI</td><td>retries (Auto-retry failures)</td><td>playwright.config.js</td></tr>
+<tr><td>reporter: 'html' (Built-in reports)</td><td>playwright.config.js</td></tr>
+<tr><td>trace: 'on' (Execution recording)</td><td>playwright.config.js</td></tr>
+<tr><td>Allure Reporter Integration</td><td>package.json — <code>allure-playwright</code></td></tr>
+<tr><td rowspan="3">Debugging</td><td>page.pause() (Inspector mode)</td><td>clientOptimized.spec.js, webapi_network.spec.js</td></tr>
+<tr><td>console.log (Terminal output)</td><td>Multiple test files</td></tr>
+<tr><td>Trace Viewer (<code>npx playwright show-trace</code>)</td><td>Config: trace:'on'</td></tr>
+<tr><td rowspan="3">String Manipulation</td><td>split() (Break string into array)</td><td>automationpractice.spec.js, loginpagePractise.spec.js</td></tr>
+<tr><td>replaceAll() (Remove characters)</td><td>client.spec.js, OrderSummaryPage.js</td></tr>
+<tr><td>trim() (Remove whitespace)</td><td>client.spec.js, OrderSummaryPage.js</td></tr>
+</table>
+
+</body>
+</html>
