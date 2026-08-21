@@ -65,7 +65,7 @@ test("@API E2E - webapi - part 1", async ({ browser }) => {
   // https://rahulshettyacademy.com/api/ecom/order/get-orders-for-customer/6a5b699485b8849b49f529fa
 
   await page.route(
-    "https://rahulshettyacademy.com/api/ecom/order/get-orders-for-customer/6a5b699485b8849b49f529fa",
+    "https://rahulshettyacademy.com/api/ecom/order/get-orders-for-customer/*",
     async (route) => {
       //intercepting response
       // api will send a response ---> |{playwright will fake this response and send its message to browser }| ---> to browser
@@ -186,7 +186,11 @@ test("@API E2E - webapi - part 1", async ({ browser }) => {
 
   // without this statement , the test runs fast and previous message is fetched , so wait for networkidle
 
-  await page.waitForLoadState("networkidle");
+//   await page.waitForLoadState("networkidle");
+  // waitForLoadState("networkidle") is also works the same as waitForResponse
+  
+// we give * at end becoz it is regular expression that can be applicable any user account previously with customer id at the end will fetch for one unique account only , now it will fetch for any account
+   await page.waitForResponse("https://rahulshettyacademy.com/api/ecom/order/get-orders-for-customer/*")
 
   // no order message print in console
 
