@@ -1,0 +1,1823 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Playwright JS Project — Complete Source Book</title>
+<style>
+  :root{
+    --bg:#0d1117; --panel:#161b22; --line:#30363d; --txt:#c9d1d9;
+    --accent:#58a6ff; --accent2:#7ee787; --kw:#ff7b72; --str:#a5d6ff;
+    --com:#8b949e; --num:#79c0ff; --tag:#ffa657; --sidebar:#010409;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;font-family:-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;
+    background:var(--bg);color:var(--txt);line-height:1.6;font-size:15px}
+  a{color:var(--accent);text-decoration:none}
+  a:hover{text-decoration:underline}
+  .layout{display:flex}
+  /* Sidebar TOC */
+  nav.toc{position:sticky;top:0;align-self:flex-start;height:100vh;overflow-y:auto;
+    width:320px;min-width:320px;background:var(--sidebar);border-right:1px solid var(--line);padding:18px 14px}
+  nav.toc h2{font-size:14px;color:var(--accent2);text-transform:uppercase;letter-spacing:1px;margin:16px 0 6px}
+  nav.toc h2:first-child{margin-top:0}
+  nav.toc ol{list-style:none;margin:0;padding:0}
+  nav.toc ol li{margin:2px 0}
+  nav.toc a{display:block;padding:3px 8px;border-radius:6px;font-size:13px;color:var(--txt)}
+  nav.toc a:hover{background:#1f2630;text-decoration:none}
+  .toc .badge{font-family:monospace;color:var(--com);font-size:11px}
+  /* Main */
+  main{flex:1;padding:32px 46px;max-width:1200px;margin:0 auto}
+  header.hero{border-bottom:2px solid var(--line);padding-bottom:20px;margin-bottom:26px}
+  header.hero h1{margin:0 0 6px;font-size:30px;color:#fff}
+  header.hero p{margin:4px 0;color:var(--com)}
+  .pill{display:inline-block;background:#1f2630;border:1px solid var(--line);
+    color:var(--accent2);padding:2px 10px;border-radius:20px;font-size:12px;margin:2px 4px 2px 0}
+  section.grp{margin-top:40px}
+  section.grp>h2{font-size:22px;color:var(--tag);border-left:4px solid var(--tag);padding-left:12px;margin-bottom:4px}
+  section.grp>.grpdesc{color:var(--com);margin:0 0 14px 16px;font-size:14px}
+  article.file{background:var(--panel);border:1px solid var(--line);border-radius:10px;
+    margin:18px 0;overflow:hidden}
+  article.file>.head{display:flex;align-items:center;justify-content:space-between;
+    background:#1b222c;padding:10px 16px;border-bottom:1px solid var(--line)}
+  article.file>.head .fname{font-family:Consolas,monospace;color:#fff;font-weight:600}
+  article.file>.head .path{font-family:Consolas,monospace;color:var(--com);font-size:12px}
+  .note{margin:12px 16px;padding:10px 14px;background:#12233b;border-left:3px solid var(--accent);
+    border-radius:4px;font-size:13.5px}
+  .note b{color:var(--accent2)}
+  pre{margin:0;padding:16px 18px;overflow-x:auto;background:#0b0f14;font-size:13px;
+    font-family:Consolas,"Courier New",monospace;line-height:1.55;color:var(--txt)}
+  pre code{white-space:pre}
+  /* naive token colouring done inline via spans */
+  .k{color:var(--kw)} .s{color:var(--str)} .c{color:var(--com);font-style:italic}
+  .n{color:var(--num)} .f{color:#d2a8ff} .t{color:var(--tag)}
+  .back{position:fixed;bottom:20px;right:24px;background:var(--accent);color:#0d1117;
+    padding:10px 14px;border-radius:30px;font-weight:600;font-size:13px;box-shadow:0 4px 14px rgba(0,0,0,.5)}
+  .back:hover{text-decoration:none;opacity:.9}
+  table.meta{border-collapse:collapse;width:calc(100% - 32px);margin:12px 16px}
+  table.meta th,table.meta td{border:1px solid var(--line);padding:6px 10px;text-align:left;font-size:13px}
+  table.meta th{background:#1b222c;color:var(--accent2)}
+  @media print{
+    nav.toc{display:none}
+    .back{display:none}
+    body{background:#fff;color:#000;font-size:11pt}
+    pre{background:#f5f5f5;color:#000;border:1px solid #ccc}
+    article.file{border:1px solid #999;break-inside:avoid}
+    .k,.s,.c,.n,.f,.t{color:#000 !important}
+  }
+</style>
+</head>
+<body>
+<div class="layout">
+<nav class="toc">
+  <h2>Project Book</h2>
+  <ol>
+    <li><a href="#overview">Overview &amp; Structure</a></li>
+  </ol>
+  <h2>1. Config &amp; Root</h2>
+  <ol>
+    <li><a href="#f-packagejson">package.json</a></li>
+    <li><a href="#f-pwconfig">playwright.config.js</a></li>
+    <li><a href="#f-pwconfig1">playwright.config1.js</a></li>
+  </ol>
+  <h2>2. Page Objects</h2>
+  <ol>
+    <li><a href="#f-loginpage">LoginPage.js</a></li>
+    <li><a href="#f-dashboardpage">DashboardPage.js</a></li>
+    <li><a href="#f-cartpage">CartPage.js</a></li>
+    <li><a href="#f-ordersummary">OrderSummaryPage.js</a></li>
+    <li><a href="#f-pomanager">POManager.js</a></li>
+  </ol>
+  <h2>3. Utils &amp; Data</h2>
+  <ol>
+    <li><a href="#f-apiutils">APIutils.js</a></li>
+    <li><a href="#f-fixtures">fixtures.js</a></li>
+    <li><a href="#f-testbase">test-base.js</a></li>
+    <li><a href="#f-testdata">testdata.json</a></li>
+    <li><a href="#f-testdata1">testdata1.json</a></li>
+  </ol>
+  <h2>4. Tests — Basics</h2>
+  <ol>
+    <li><a href="#f-example">example.spec.js</a></li>
+    <li><a href="#f-loginpract">loginpagePractise.spec.js</a></li>
+    <li><a href="#f-angular">angularpractice.spec.js</a></li>
+    <li><a href="#f-autopract">automationpractice.spec.js</a></li>
+    <li><a href="#f-childwin">childwindowswitch.spec.js</a></li>
+  </ol>
+  <h2>5. Tests — E2E &amp; POM</h2>
+  <ol>
+    <li><a href="#f-client">client.spec.js</a></li>
+    <li><a href="#f-clientopt">clientOptimized.spec.js</a></li>
+    <li><a href="#f-clientpo">clientPO.spec.js</a></li>
+    <li><a href="#f-clientjson">clientPO_JsonData.spec.js</a></li>
+    <li><a href="#f-clientpom">clientPOManager.spec.js</a></li>
+    <li><a href="#f-param">param.spec.js</a></li>
+  </ol>
+  <h2>6. Tests — Fixtures</h2>
+  <ol>
+    <li><a href="#f-customtest">customtest.spec.js</a></li>
+    <li><a href="#f-fixturedemo">fixturedemo.spec.js</a></li>
+  </ol>
+  <h2>7. Tests — API</h2>
+  <ol>
+    <li><a href="#f-loginapi">loginapicall.spec.js</a></li>
+    <li><a href="#f-webapi">webapi.spec.js</a></li>
+    <li><a href="#f-webapi1">webapi_part1.spec.js</a></li>
+    <li><a href="#f-webapi2">webapi_part2.spec.js</a></li>
+    <li><a href="#f-webapinet">webapi_network.spec.js</a></li>
+    <li><a href="#f-webapiroute">webapi_network_route.spec.js</a></li>
+  </ol>
+  <h2>8. Cucumber BDD</h2>
+  <ol>
+    <li><a href="#f-ecommerce">ecommerce.feature</a></li>
+    <li><a href="#f-ecommerce1">ecommerce1.feature</a></li>
+    <li><a href="#f-loginfeat">loginPractice.feature</a></li>
+    <li><a href="#f-parallel">multipleScenariosParallel.feature</a></li>
+    <li><a href="#f-steps">step_definitions/steps.js</a></li>
+    <li><a href="#f-hooks">support/hooks.js</a></li>
+  </ol>
+  <h2>9. JS/TS Programs</h2>
+  <ol>
+    <li><a href="#f-classes">classes.js</a></li>
+    <li><a href="#f-inheritance">inheritance.js</a></li>
+    <li><a href="#f-objects">objects.js</a></li>
+    <li><a href="#f-demojs">demojs.js</a></li>
+    <li><a href="#f-demots">demots.ts</a></li>
+    <li><a href="#f-reverse">reversewords.js</a></li>
+    <li><a href="#f-reversebasic">reversewords-basic.js</a></li>
+  </ol>
+</nav>
+
+<main>
+<header class="hero">
+  <h1>Playwright JS Automation Project</h1>
+  <p>Complete Source Book — every config, page object, fixture, util, test, feature and JS program, arranged in professional project-structure order.</p>
+  <p><b>App under test:</b> https://rahulshettyacademy.com/client &amp; /loginpagePractise</p>
+  <div>
+    <span class="pill">Playwright</span><span class="pill">JavaScript</span>
+    <span class="pill">Page Object Model</span><span class="pill">Fixtures</span>
+    <span class="pill">API Testing</span><span class="pill">Cucumber BDD</span>
+    <span class="pill">Allure Reports</span><span class="pill">Data Driven</span>
+  </div>
+</header>
+
+<section class="grp" id="overview">
+  <h2>Project Structure (Professional Order)</h2>
+  <p class="grpdesc">This is how a mature Playwright framework is layered. Config at the root, reusable page objects and utilities in the middle, tests on top, BDD features alongside, and learning programs kept separate.</p>
+  <article class="file">
+  <pre><code>udemy_playwright_js/
+├── package.json               <span class="c"># scripts, deps (Playwright, Cucumber, Allure)</span>
+├── playwright.config.js       <span class="c"># default single-browser config</span>
+├── playwright.config1.js      <span class="c"># multi-project (chrome/safari/firefox) config</span>
+│
+├── pageobjects/               <span class="c"># Page Object Model layer</span>
+│   ├── LoginPage.js
+│   ├── DashboardPage.js
+│   ├── CartPage.js
+│   ├── OrderSummaryPage.js
+│   └── POManager.js           <span class="c"># factory that wires all pages together</span>
+│
+├── utils/                     <span class="c"># reusable helpers + test data</span>
+│   ├── APIutils.js            <span class="c"># API facade: getToken + createOrder</span>
+│   ├── fixtures.js            <span class="c"># custom fixtures (authenticatedPage, createOrder)</span>
+│   ├── test-base.js           <span class="c"># custom fixture (TestDataForOrder)</span>
+│   ├── testdata.json          <span class="c"># array of records (data-driven)</span>
+│   └── testdata1.json         <span class="c"># single record</span>
+│
+├── tests/                     <span class="c"># Playwright test specs</span>
+│   ├── example.spec.js                <span class="c"># scaffold</span>
+│   ├── loginpagePractise.spec.js      <span class="c"># forms, radios, dropdowns, tabs</span>
+│   ├── angularpractice.spec.js        <span class="c"># built-in locators + timeouts</span>
+│   ├── automationpractice.spec.js     <span class="c"># dialogs, frames, screenshots, visual</span>
+│   ├── childwindowswitch.spec.js      <span class="c"># new tab / window handling</span>
+│   ├── client.spec.js                 <span class="c"># full E2E with CSS selectors</span>
+│   ├── clientOptimized.spec.js        <span class="c"># same flow with getBy* locators</span>
+│   ├── clientPO.spec.js               <span class="c"># E2E using page objects</span>
+│   ├── clientPO_JsonData.spec.js      <span class="c"># page objects + JSON data</span>
+│   ├── clientPOManager.spec.js        <span class="c"># page objects via POManager</span>
+│   ├── param.spec.js                  <span class="c"># data-driven loop over records</span>
+│   ├── customtest.spec.js             <span class="c"># custom fixture (test data)</span>
+│   ├── fixturedemo.spec.js            <span class="c"># custom fixture (auth page + API order)</span>
+│   ├── loginapicall.spec.js           <span class="c"># API login + token injection</span>
+│   ├── webapi.spec.js                 <span class="c"># API order create + UI validate</span>
+│   ├── webapi_part1.spec.js           <span class="c"># same, refactored to APIutils</span>
+│   ├── webapi_part2.spec.js           <span class="c"># storageState session reuse</span>
+│   ├── webapi_network.spec.js         <span class="c"># APIutils-driven order flow</span>
+│   └── webapi_network_route.spec.js   <span class="c"># page.route network interception + response mocking</span>
+│
+├── features/                  <span class="c"># Cucumber BDD</span>
+│   ├── ecommerce.feature              <span class="c"># Scenario Outline (data table)</span>
+│   ├── ecommerce1.feature
+│   ├── loginPractice.feature
+│   ├── multipleScenariosParallel.feature
+│   ├── step_definitions/steps.js
+│   └── support/hooks.js               <span class="c"># Before/After/Steps hooks</span>
+│
+└── Playwright Concepts/       <span class="c"># learning JS/TS programs + notes</span>
+    ├── classes.js
+    ├── inheritance.js
+    ├── objects.js
+    ├── demojs.js
+    ├── demots.ts
+    ├── reversewords.js
+    └── reversewords-basic.js</code></pre>
+  </article>
+</section>
+
+<section class="grp" id="sec1">
+  <h2>1. Configuration &amp; Root Files</h2>
+  <p class="grpdesc">The entry points. package.json defines every runnable script; the two config files define how and where tests run.</p>
+
+  <article class="file" id="f-packagejson">
+    <div class="head"><span class="fname">package.json</span><span class="path">/package.json</span></div>
+    <div class="note"><b>Concept:</b> NPM scripts + tag-based test selection (<code>--grep @Web</code>, <code>--grep @API</code>), Allure report lifecycle, and a Cucumber HTML report script. Type is CommonJS.</div>
+    <pre><code>{
+  <span class="s">"name"</span>: <span class="s">"udemy_playwright_js"</span>,
+  <span class="s">"version"</span>: <span class="s">"1.0.0"</span>,
+  <span class="s">"description"</span>: <span class="s">""</span>,
+  <span class="s">"main"</span>: <span class="s">"index.js"</span>,
+  <span class="s">"scripts"</span>: {
+    <span class="s">"webtest"</span>: <span class="s">"npx playwright test --grep @Web"</span>,
+    <span class="s">"apitest"</span>: <span class="s">"npx playwright test --grep @API"</span>,
+    <span class="s">"safariweb"</span>: <span class="s">"npx playwright test --grep @Web --config playwright.config1.js --project=safari"</span>,
+    <span class="s">"cleanallure"</span>: <span class="s">"Remove-Item -Recurse -Force allure-results"</span>,
+    <span class="s">"generateallure"</span>: <span class="s">"npx allure generate ./allure-results --clean"</span>,
+    <span class="s">"openallure"</span>: <span class="s">"npx allure open ./allure-report"</span>,
+    <span class="s">"apiallure"</span>: <span class="s">"npx playwright test --grep @API --reporter=line,allure-playwright"</span>,
+    <span class="s">"cucumberRegression"</span>: <span class="s">"npx cucumber-js --format html:cucumber-report.html"</span>
+  },
+  <span class="s">"keywords"</span>: [],
+  <span class="s">"author"</span>: <span class="s">""</span>,
+  <span class="s">"license"</span>: <span class="s">"ISC"</span>,
+  <span class="s">"type"</span>: <span class="s">"commonjs"</span>,
+  <span class="s">"devDependencies"</span>: {
+    <span class="s">"@playwright/test"</span>: <span class="s">"^1.61.1"</span>,
+    <span class="s">"@types/node"</span>: <span class="s">"^26.1.1"</span>,
+    <span class="s">"allure-playwright"</span>: <span class="s">"^3.10.2"</span>
+  },
+  <span class="s">"dependencies"</span>: {
+    <span class="s">"@cucumber/cucumber"</span>: <span class="s">"^13.2.0"</span>
+  }
+}</code></pre>
+  </article>
+
+  <article class="file" id="f-pwconfig">
+    <div class="head"><span class="fname">playwright.config.js</span><span class="path">/playwright.config.js</span></div>
+    <div class="note"><b>Concept:</b> Global config — <code>testDir</code>, <code>retries</code>, test &amp; expect timeouts, HTML reporter, headless chromium, screenshot-on-failure and full trace.</div>
+    <pre><code><span class="c">// @ts-check</span>
+<span class="k">import</span> { defineConfig, devices } <span class="k">from</span> <span class="s">'@playwright/test'</span>;
+
+<span class="k">export default</span> <span class="f">defineConfig</span>({
+  testDir: <span class="s">'./tests'</span>,
+  retries: <span class="n">2</span>,
+  timeout: <span class="n">35</span> * <span class="n">1000</span>,
+  reporter: <span class="s">'html'</span>,
+  expect: {
+    timeout: <span class="n">45</span> * <span class="n">1000</span>
+  },
+  use: {
+    browserName: <span class="s">'chromium'</span>,
+    headless: <span class="k">true</span>,
+    screenshot: <span class="s">'only-on-failure'</span>,
+    trace: <span class="s">'on'</span>
+  }
+});</code></pre>
+  </article>
+
+  <article class="file" id="f-pwconfig1">
+    <div class="head"><span class="fname">playwright.config1.js</span><span class="path">/playwright.config1.js</span></div>
+    <div class="note"><b>Concept:</b> Multi-project cross-browser config. Runs the suite across <b>chrome, safari (webkit), firefox</b> with <code>workers:3</code> parallelism, custom viewport and video-on-failure. Selected via <code>--config playwright.config1.js --project=safari</code>.</div>
+    <pre><code><span class="c">// @ts-check</span>
+<span class="k">import</span> { defineConfig, devices } <span class="k">from</span> <span class="s">'@playwright/test'</span>;
+
+<span class="k">export default</span> <span class="f">defineConfig</span>({
+  testDir: <span class="s">'./tests'</span>,
+  retries: <span class="n">1</span>,
+  workers: <span class="n">3</span>,
+  timeout: <span class="n">35</span> * <span class="n">1000</span>,
+  reporter: <span class="s">'html'</span>,
+  expect: {
+    timeout: <span class="n">45</span> * <span class="n">1000</span>
+  },
+  projects: [
+    {
+      name: <span class="s">'chrome'</span>,
+      use: {
+        browserName: <span class="s">'chromium'</span>,
+        headless: <span class="k">false</span>,
+        screenshot: <span class="s">'only-on-failure'</span>,
+        trace: <span class="s">'on'</span>,
+        viewport: { width: <span class="n">720</span>, height: <span class="n">800</span> },
+        video: <span class="s">'retain-on-failure'</span>
+      }
+    },
+    {
+      name: <span class="s">'safari'</span>,
+      use: {
+        browserName: <span class="s">'webkit'</span>,
+        headless: <span class="k">false</span>,
+        screenshot: <span class="s">'only-on-failure'</span>,
+        trace: <span class="s">'on'</span>
+      }
+    },
+    {
+      name: <span class="s">'firefox'</span>,
+      use: {
+        browserName: <span class="s">'firefox'</span>,
+        headless: <span class="k">false</span>,
+        screenshot: <span class="s">'only-on-failure'</span>,
+        trace: <span class="s">'on'</span>
+      }
+    }
+  ]
+});</code></pre>
+  </article>
+</section>
+
+<section class="grp" id="sec2">
+  <h2>2. Page Objects (POM Layer)</h2>
+  <p class="grpdesc">Each class wraps one page/screen: locators live in the constructor, actions are methods. POManager is a factory that exposes all pages through getters.</p>
+
+  <article class="file" id="f-loginpage">
+    <div class="head"><span class="fname">LoginPage.js</span><span class="path">/pageobjects/LoginPage.js</span></div>
+    <div class="note"><b>Concept:</b> Page Object Model — locators in constructor, <code>goTo()</code> and <code>ValidLogin()</code> actions exported via <code>module.exports</code>.</div>
+    <pre><code><span class="k">class</span> <span class="t">LoginPage</span> {
+
+    <span class="f">constructor</span>(page) {
+        <span class="k">this</span>.page = page;
+        <span class="k">this</span>.SignInBtn = page.<span class="f">locator</span>(<span class="s">"#login"</span>);
+        <span class="k">this</span>.userName = page.<span class="f">locator</span>(<span class="s">"[formcontrolname='userEmail']"</span>);
+        <span class="k">this</span>.Password = page.<span class="f">locator</span>(<span class="s">"#userPassword"</span>);
+    }
+
+    <span class="k">async</span> <span class="f">goTo</span>() {
+        <span class="k">await</span> <span class="k">this</span>.page.<span class="f">goto</span>(<span class="s">"https://rahulshettyacademy.com/client"</span>);
+    }
+
+    <span class="k">async</span> <span class="f">ValidLogin</span>(username, password) {
+        <span class="k">await</span> <span class="k">this</span>.userName.<span class="f">fill</span>(username);
+        <span class="k">await</span> <span class="k">this</span>.Password.<span class="f">fill</span>(password);
+        <span class="k">await</span> <span class="k">this</span>.SignInBtn.<span class="f">click</span>();
+    }
+}
+
+module.exports = { LoginPage };</code></pre>
+  </article>
+
+  <article class="file" id="f-dashboardpage">
+    <div class="head"><span class="fname">DashboardPage.js</span><span class="path">/pageobjects/DashboardPage.js</span></div>
+    <div class="note"><b>Concept:</b> Looping over product cards with <code>allTextContents()</code>, matching a product, clicking the right <code>.nth(index)</code> Add-to-Cart, then a web-first assertion <code>toContainText</code> that auto-waits.</div>
+    <pre><code><span class="k">const</span> { expect } = <span class="f">require</span>(<span class="s">'@playwright/test'</span>);
+
+<span class="k">class</span> <span class="t">DashboardPage</span> {
+
+    <span class="f">constructor</span>(page) {
+        <span class="k">this</span>.page = page;
+        <span class="k">this</span>.cardTitles = page.<span class="f">locator</span>(<span class="s">".card-body b"</span>);
+        <span class="k">this</span>.cardPrices = page.<span class="f">locator</span>(<span class="s">"div.card-body .text-muted"</span>);
+        <span class="k">this</span>.allAddToCart = page.<span class="f">locator</span>(<span class="s">"button.w-10"</span>);
+        <span class="k">this</span>.AddedToCartSuccessMsg = page.<span class="f">locator</span>(<span class="s">"#toast-container"</span>);
+    }
+
+    <span class="k">async</span> <span class="f">SearchAndAddToCart</span>(Product) {
+        <span class="k">await</span> <span class="k">this</span>.cardTitles.<span class="f">last</span>().<span class="f">waitFor</span>();
+        <span class="k">const</span> allTitles = <span class="k">await</span> <span class="k">this</span>.cardTitles.<span class="f">allTextContents</span>();
+        <span class="k">const</span> allPrices = <span class="k">await</span> <span class="k">this</span>.cardPrices.<span class="f">allTextContents</span>();
+
+        <span class="k">for</span> (<span class="k">let</span> index = <span class="n">0</span>; index &lt; allTitles.length; index++) {
+            console.<span class="f">log</span>(<span class="s">`${index + 1}) Product : ${allTitles[index]} =&gt; Price : ${allPrices[index]}`</span>);
+
+            <span class="k">if</span> (<span class="s">`${allTitles[index]}`</span> == Product) {
+                <span class="k">await</span> <span class="k">this</span>.allAddToCart.<span class="f">nth</span>(index).<span class="f">click</span>();
+                <span class="k">await</span> <span class="k">this</span>.AddedToCartSuccessMsg.<span class="f">locator</span>(<span class="s">"text=Product Added To Cart"</span>).<span class="f">waitFor</span>();
+                console.<span class="f">log</span>(<span class="k">await</span> <span class="k">this</span>.AddedToCartSuccessMsg.<span class="f">textContent</span>());
+                <span class="c">// Option: Use toContainText — auto-waits for the text to appear</span>
+                <span class="k">await</span> <span class="f">expect</span>(<span class="k">this</span>.AddedToCartSuccessMsg).<span class="f">toContainText</span>(<span class="s">'Product Added To Cart'</span>);
+                <span class="k">break</span>;
+            }
+        }
+    }
+}
+
+module.exports = { DashboardPage };</code></pre>
+  </article>
+
+  <article class="file" id="f-cartpage">
+    <div class="head"><span class="fname">CartPage.js</span><span class="path">/pageobjects/CartPage.js</span></div>
+    <div class="note"><b>Concept:</b> <code>pressSequentially</code> to trigger an autocomplete dropdown, iterating options with <code>count()</code>/<code>nth()</code>, and placing the order.</div>
+    <pre><code><span class="k">const</span> { expect } = <span class="f">require</span>(<span class="s">'@playwright/test'</span>);
+
+<span class="k">class</span> <span class="t">CartPage</span> {
+
+    <span class="f">constructor</span>(page) {
+        <span class="k">this</span>.page = page;
+    }
+
+    <span class="k">async</span> <span class="f">NavigateToCart</span>() {
+        <span class="k">await</span> <span class="k">this</span>.page.<span class="f">locator</span>(<span class="s">"[routerlink*='cart']"</span>).<span class="f">click</span>();
+        <span class="k">await</span> <span class="k">this</span>.page.<span class="f">locator</span>(<span class="s">"div li"</span>).<span class="f">last</span>().<span class="f">waitFor</span>();
+    }
+
+    <span class="k">async</span> <span class="f">PlaceOrder</span>(email) {
+        <span class="k">await</span> <span class="k">this</span>.page.<span class="f">locator</span>(<span class="s">"text=Checkout"</span>).<span class="f">click</span>();
+        <span class="k">await</span> <span class="k">this</span>.page.<span class="f">locator</span>(<span class="s">"[placeholder*='Country']"</span>).<span class="f">pressSequentially</span>(<span class="s">'Ind'</span>);
+
+        <span class="k">const</span> dropdownlist = <span class="k">this</span>.page.<span class="f">locator</span>(<span class="s">".ta-results"</span>);
+        <span class="k">await</span> dropdownlist.<span class="f">waitFor</span>();
+        <span class="k">const</span> optionscount = <span class="k">await</span> dropdownlist.<span class="f">locator</span>(<span class="s">"button"</span>).<span class="f">count</span>();
+
+        <span class="k">for</span> (<span class="k">let</span> i = <span class="n">0</span>; i &lt; optionscount; ++i) {
+            <span class="k">let</span> text = <span class="k">await</span> dropdownlist.<span class="f">locator</span>(<span class="s">"button"</span>).<span class="f">nth</span>(i).<span class="f">textContent</span>();
+            <span class="k">if</span> (text === <span class="s">' India'</span>) {
+                <span class="k">await</span> dropdownlist.<span class="f">locator</span>(<span class="s">"button"</span>).<span class="f">nth</span>(i).<span class="f">click</span>();
+                <span class="k">break</span>;
+            }
+        }
+
+        <span class="f">expect</span>(<span class="k">await</span> <span class="k">this</span>.page.<span class="f">locator</span>(<span class="s">".user__name [type='text']"</span>).<span class="f">first</span>()).<span class="f">toHaveText</span>(email);
+        <span class="k">await</span> <span class="k">this</span>.page.<span class="f">locator</span>(<span class="s">".action__submit"</span>).<span class="f">click</span>();
+    }
+}
+
+module.exports = { CartPage };</code></pre>
+  </article>
+
+  <article class="file" id="f-ordersummary">
+    <div class="head"><span class="fname">OrderSummaryPage.js</span><span class="path">/pageobjects/OrderSummaryPage.js</span></div>
+    <div class="note"><b>Concept:</b> String cleanup with <code>replaceAll().trim()</code>, matching the placed order in the orders history table, opening it and asserting the summary.</div>
+    <pre><code><span class="k">const</span> { expect } = <span class="f">require</span>(<span class="s">'@playwright/test'</span>);
+
+<span class="k">class</span> <span class="t">OrderSummaryPage</span> {
+
+    <span class="f">constructor</span>(page) {
+        <span class="k">this</span>.page = page;
+        <span class="k">this</span>.myOrdersLink = page.<span class="f">locator</span>(<span class="s">"label[routerlink*='myorders']"</span>);
+    }
+
+    <span class="k">async</span> <span class="f">verifyOrder</span>() {
+        <span class="k">await</span> <span class="k">this</span>.page.<span class="f">locator</span>(<span class="s">"h1.hero-primary"</span>).<span class="f">waitFor</span>();
+        <span class="f">expect</span>(<span class="k">await</span> <span class="k">this</span>.page.<span class="f">locator</span>(<span class="s">"h1.hero-primary"</span>)).<span class="f">toHaveText</span>(<span class="s">'Thankyou for the order.'</span>);
+        <span class="k">const</span> orderidstring = <span class="k">await</span> <span class="k">this</span>.page.<span class="f">locator</span>(<span class="s">"label.ng-star-inserted"</span>).<span class="f">textContent</span>();
+        console.<span class="f">log</span>(orderidstring);
+
+        <span class="k">let</span> orderid = orderidstring.<span class="f">replaceAll</span>(<span class="s">"|"</span>, <span class="s">""</span>).<span class="f">trim</span>();
+        console.<span class="f">log</span>(orderid);
+
+        <span class="k">await</span> <span class="k">this</span>.myOrdersLink.<span class="f">click</span>();
+        <span class="k">await</span> <span class="k">this</span>.page.<span class="f">locator</span>(<span class="s">"tbody tr th"</span>).<span class="f">last</span>().<span class="f">waitFor</span>();
+        <span class="k">const</span> orderCount = <span class="k">await</span> <span class="k">this</span>.page.<span class="f">locator</span>(<span class="s">"tbody tr th"</span>).<span class="f">count</span>();
+
+        <span class="k">for</span> (<span class="k">let</span> index = <span class="n">0</span>; index &lt; orderCount; index++) {
+            <span class="k">if</span> (<span class="k">await</span> <span class="k">this</span>.page.<span class="f">locator</span>(<span class="s">"tbody tr th"</span>).<span class="f">nth</span>(index).<span class="f">textContent</span>() === orderid) {
+                console.<span class="f">log</span>(<span class="k">await</span> <span class="k">this</span>.page.<span class="f">locator</span>(<span class="s">"tbody tr th"</span>).<span class="f">nth</span>(index).<span class="f">textContent</span>());
+                <span class="k">await</span> <span class="k">this</span>.page.<span class="f">locator</span>(<span class="s">"tr .btn-primary"</span>).<span class="f">nth</span>(index).<span class="f">click</span>();
+                <span class="k">break</span>;
+            }
+        }
+        console.<span class="f">log</span>(<span class="k">await</span> <span class="k">this</span>.page.<span class="f">locator</span>(<span class="s">".email-title"</span>).<span class="f">textContent</span>());
+        <span class="k">await</span> <span class="f">expect</span>(<span class="k">this</span>.page.<span class="f">locator</span>(<span class="s">".email-title"</span>)).<span class="f">toHaveText</span>(<span class="s">" order summary "</span>);
+        console.<span class="f">log</span>(<span class="k">await</span> <span class="k">this</span>.page.<span class="f">locator</span>(<span class="s">"div.col-text"</span>).<span class="f">textContent</span>());
+        <span class="k">await</span> <span class="f">expect</span>(<span class="k">this</span>.page.<span class="f">locator</span>(<span class="s">"div.col-text"</span>)).<span class="f">toHaveText</span>(orderid);
+    }
+}
+
+module.exports = { OrderSummaryPage };</code></pre>
+  </article>
+
+  <article class="file" id="f-pomanager">
+    <div class="head"><span class="fname">POManager.js</span><span class="path">/pageobjects/POManager.js</span></div>
+    <div class="note"><b>Concept:</b> Factory / Facade pattern — instantiates all page objects once and exposes them via getters, so a test constructs one manager instead of five classes.</div>
+    <pre><code><span class="k">const</span> { LoginPage } = <span class="f">require</span>(<span class="s">'./LoginPage'</span>)
+<span class="k">const</span> { DashboardPage } = <span class="f">require</span>(<span class="s">'./DashboardPage'</span>)
+<span class="k">const</span> { CartPage } = <span class="f">require</span>(<span class="s">'./CartPage'</span>)
+<span class="k">const</span> { OrderSummaryPage } = <span class="f">require</span>(<span class="s">'./OrderSummaryPage'</span>)
+
+<span class="k">class</span> <span class="t">POManager</span> {
+
+    <span class="f">constructor</span>(page) {
+        <span class="k">this</span>.page = page;
+        <span class="k">this</span>.loginPage = <span class="k">new</span> <span class="t">LoginPage</span>(<span class="k">this</span>.page);
+        <span class="k">this</span>.dashboardPage = <span class="k">new</span> <span class="t">DashboardPage</span>(<span class="k">this</span>.page);
+        <span class="k">this</span>.cartPage = <span class="k">new</span> <span class="t">CartPage</span>(<span class="k">this</span>.page);
+        <span class="k">this</span>.orderSummaryPage = <span class="k">new</span> <span class="t">OrderSummaryPage</span>(<span class="k">this</span>.page);
+    }
+
+    <span class="f">getLoginPage</span>() { <span class="k">return</span> <span class="k">this</span>.loginPage; }
+    <span class="f">getDashboardPage</span>() { <span class="k">return</span> <span class="k">this</span>.dashboardPage; }
+    <span class="f">getCartPage</span>() { <span class="k">return</span> <span class="k">this</span>.cartPage; }
+    <span class="f">getOrderSummaryPage</span>() { <span class="k">return</span> <span class="k">this</span>.orderSummaryPage; }
+}
+module.exports = { POManager };</code></pre>
+  </article>
+</section>
+
+<section class="grp" id="sec3">
+  <h2>3. Utilities &amp; Test Data</h2>
+  <p class="grpdesc">Reusable helpers that hide low-level detail from the tests: an API facade, two custom-fixture definitions, and JSON data sources.</p>
+
+  <article class="file" id="f-apiutils">
+    <div class="head"><span class="fname">APIutils.js</span><span class="path">/utils/APIutils.js</span></div>
+    <div class="note"><b>Concept:</b> API Facade — <code>getToken()</code> logs in and returns the JWT; <code>createOrder()</code> reuses that token in the Authorization header and returns <code>{ token, orderid }</code>. Tests call one method instead of chaining raw requests.</div>
+    <pre><code><span class="k">class</span> <span class="t">APIutils</span> {
+
+    <span class="f">constructor</span>(apicontext, loginPayLoad) {
+        <span class="k">this</span>.apicontext = apicontext;
+        <span class="k">this</span>.loginPayLoad = loginPayLoad;
+    }
+
+    <span class="k">async</span> <span class="f">getToken</span>() {
+        <span class="c">// login api</span>
+        <span class="k">const</span> loginRespone = <span class="k">await</span> <span class="k">this</span>.apicontext.<span class="f">post</span>(<span class="s">"https://rahulshettyacademy.com/api/ecom/auth/login"</span>,
+            { data: <span class="k">this</span>.loginPayLoad });
+
+        <span class="k">const</span> loginResponeJson = <span class="k">await</span> loginRespone.<span class="f">json</span>();
+        <span class="k">const</span> token = loginResponeJson.token;
+        console.<span class="f">log</span>(token);
+        <span class="k">return</span> token;
+    }
+
+    <span class="k">async</span> <span class="f">createOrder</span>(orderPayload) {
+        <span class="c">// order api</span>
+        <span class="k">let</span> response = {};
+        response.token = <span class="k">await</span> <span class="k">this</span>.<span class="f">getToken</span>();
+
+        <span class="k">const</span> orderRespone = <span class="k">await</span> <span class="k">this</span>.apicontext.<span class="f">post</span>(<span class="s">"https://rahulshettyacademy.com/api/ecom/order/create-order"</span>,
+            {
+                data: orderPayload,
+                headers: {
+                    <span class="s">'Authorization'</span>: response.token,
+                    <span class="s">'Content-Type'</span>: <span class="s">'application/json; charset=utf-8'</span>
+                }
+            });
+
+        console.<span class="f">log</span>(<span class="s">"Body:"</span>, <span class="k">await</span> orderRespone.<span class="f">text</span>());
+
+        <span class="k">const</span> orderResponeJson = <span class="k">await</span> orderRespone.<span class="f">json</span>();
+        <span class="k">const</span> ordersID = orderResponeJson.orders[<span class="n">0</span>];
+        console.<span class="f">log</span>(<span class="s">'orderResponeJson.orders[0]: '</span> + ordersID);
+        <span class="k">const</span> productOrderId = orderResponeJson.productOrderId[<span class="n">0</span>];
+        console.<span class="f">log</span>(<span class="s">'orderResponeJson.productOrderId[0]: '</span> + productOrderId);
+        <span class="k">const</span> orderResponeMessage = orderResponeJson.message;
+        console.<span class="f">log</span>(<span class="s">'orderResponeJson.message: '</span> + orderResponeMessage);
+
+        response.orderid = ordersID;
+        <span class="k">return</span> response;
+    }
+}
+
+module.exports = { APIutils };</code></pre>
+  </article>
+
+  <article class="file" id="f-fixtures">
+    <div class="head"><span class="fname">fixtures.js</span><span class="path">/utils/fixtures.js</span></div>
+    <div class="note"><b>Concept:</b> Custom fixtures via <code>base.test.extend()</code>. <code>authenticatedPage</code> logs in through the UI and yields a ready page (with teardown after <code>use</code>); <code>createOrder</code> creates an order via API; a plain <code>testData</code> object is also provided.</div>
+    <pre><code><span class="k">const</span> base = <span class="f">require</span>(<span class="s">'@playwright/test'</span>);
+<span class="k">const</span> { APIutils } = <span class="f">require</span>(<span class="s">'./APIutils.js'</span>);
+<span class="k">const</span> { request } = <span class="f">require</span>(<span class="s">'playwright/test'</span>);
+
+<span class="k">const</span> loginPayLoad = { userEmail: <span class="s">"r123am@gmail.com"</span>, userPassword: <span class="s">"Amazon@123"</span> };
+<span class="k">const</span> orderPayload = { orders: [{ country: <span class="s">"Vietnam"</span>, productOrderedId: <span class="s">"6960ea76c941646b7a8b3dd5"</span> }] } <span class="c">// iphone 13 pro</span>
+
+exports.customtest = base.test.<span class="f">extend</span>({
+
+    authenticatedPage: <span class="k">async</span> ({ browser }, use) =&gt; {
+        <span class="k">const</span> context = <span class="k">await</span> browser.<span class="f">newContext</span>();
+        <span class="k">const</span> page = <span class="k">await</span> context.<span class="f">newPage</span>();
+
+        <span class="k">const</span> email = <span class="s">"r123am@gmail.com"</span>;
+        <span class="k">const</span> OpenUrl = page.<span class="f">goto</span>(<span class="s">"https://rahulshettyacademy.com/client"</span>);
+        <span class="k">const</span> userName = page.<span class="f">locator</span>(<span class="s">"[formcontrolname='userEmail']"</span>);
+        <span class="k">const</span> Password = page.<span class="f">locator</span>(<span class="s">"#userPassword"</span>);
+        <span class="k">const</span> SignIn = page.<span class="f">locator</span>(<span class="s">"#login"</span>);
+        <span class="k">const</span> cardTitles = page.<span class="f">locator</span>(<span class="s">".card-body b"</span>);
+
+        <span class="k">await</span> OpenUrl;
+        <span class="k">await</span> userName.<span class="f">fill</span>(email);
+        <span class="k">await</span> Password.<span class="f">fill</span>(<span class="s">"Amazon@123"</span>);
+        <span class="k">await</span> SignIn.<span class="f">click</span>();
+        <span class="k">await</span> cardTitles.<span class="f">last</span>().<span class="f">waitFor</span>();
+        <span class="k">await</span> <span class="f">use</span>(page);
+        <span class="c">// tear down</span>
+        <span class="k">await</span> context.<span class="f">close</span>();
+    },
+
+    createOrder: <span class="k">async</span> ({ }, use) =&gt; {
+        <span class="k">const</span> apicontext = <span class="k">await</span> request.<span class="f">newContext</span>();
+        <span class="k">const</span> apiutils = <span class="k">new</span> <span class="t">APIutils</span>(apicontext, loginPayLoad);
+        <span class="k">let</span> response = <span class="k">await</span> apiutils.<span class="f">createOrder</span>(orderPayload);
+        <span class="k">await</span> <span class="f">use</span>(response);
+        <span class="c">// tear down - is written after 'use' statement</span>
+        <span class="k">await</span> apicontext.<span class="f">dispose</span>();
+    },
+
+    testData: {
+        ProductName: <span class="s">'ADIDAS ORIGINAL'</span>
+    }
+});</code></pre>
+  </article>
+
+  <article class="file" id="f-testbase">
+    <div class="head"><span class="fname">test-base.js</span><span class="path">/utils/test-base.js</span></div>
+    <div class="note"><b>Concept:</b> A lightweight custom fixture that only injects a static <code>TestDataForOrder</code> object (no page setup). Shows fixtures can supply plain data too.</div>
+    <pre><code><span class="k">const</span> base = <span class="f">require</span>(<span class="s">'@playwright/test'</span>);
+
+exports.customtest = base.test.<span class="f">extend</span>({
+    TestDataForOrder: {
+        username: <span class="s">"q123am@gmail.com"</span>,
+        password: <span class="s">"Amazon@123"</span>,
+        Product: <span class="s">"iphone 13 pro"</span>
+    }
+});</code></pre>
+  </article>
+
+  <article class="file" id="f-testdata">
+    <div class="head"><span class="fname">testdata.json</span><span class="path">/utils/testdata.json</span></div>
+    <div class="note"><b>Concept:</b> Array of records → used to drive multiple test iterations (data-driven testing).</div>
+    <pre><code>[
+    { <span class="s">"username"</span>: <span class="s">"r123am@gmail.com"</span>, <span class="s">"password"</span>: <span class="s">"Amazon@123"</span>, <span class="s">"Product"</span>: <span class="s">"iphone 13 pro"</span> },
+    { <span class="s">"username"</span>: <span class="s">"q123am@gmail.com"</span>, <span class="s">"password"</span>: <span class="s">"Amazon@123"</span>, <span class="s">"Product"</span>: <span class="s">"ADIDAS ORIGINAL"</span> },
+    { <span class="s">"username"</span>: <span class="s">"r123am@gmail.com"</span>, <span class="s">"password"</span>: <span class="s">"Amazon@123"</span>, <span class="s">"Product"</span>: <span class="s">"ZARA COAT 3"</span> }
+]</code></pre>
+  </article>
+
+  <article class="file" id="f-testdata1">
+    <div class="head"><span class="fname">testdata1.json</span><span class="path">/utils/testdata1.json</span></div>
+    <div class="note"><b>Concept:</b> Single record → used when one test needs one set of data.</div>
+    <pre><code>{
+    <span class="s">"username"</span>: <span class="s">"r123am@gmail.com"</span>,
+    <span class="s">"password"</span>: <span class="s">"Amazon@123"</span>,
+    <span class="s">"Product"</span>: <span class="s">"iphone 13 pro"</span>
+}</code></pre>
+  </article>
+</section>
+
+<section class="grp" id="sec4">
+  <h2>4. Tests — Basics &amp; Fundamentals</h2>
+  <p class="grpdesc">Foundational specs: scaffold, form interactions, built-in locators, timeouts, dialogs/frames/screenshots, and multi-window handling.</p>
+
+  <article class="file" id="f-example">
+    <div class="head"><span class="fname">example.spec.js</span><span class="path">/tests/example.spec.js</span></div>
+    <div class="note"><b>Concept:</b> Default Playwright scaffold. <code>test.skip</code>, <code>toHaveTitle</code> with regex, <code>getByRole</code>. Uses the built-in <code>page</code> fixture directly.</div>
+    <pre><code><span class="c">// @ts-check</span>
+<span class="k">import</span> { test, expect } <span class="k">from</span> <span class="s">'@playwright/test'</span>;
+
+test.<span class="f">skip</span>(<span class="s">'has title'</span>, <span class="k">async</span> ({ page }) =&gt; {
+  <span class="k">await</span> page.<span class="f">goto</span>(<span class="s">'https://playwright.dev/'</span>);
+  <span class="k">await</span> <span class="f">expect</span>(page).<span class="f">toHaveTitle</span>(<span class="s">/Playwright/</span>);
+});
+
+test.<span class="f">skip</span>(<span class="s">'get started link'</span>, <span class="k">async</span> ({ page }) =&gt; {
+  <span class="k">await</span> page.<span class="f">goto</span>(<span class="s">'https://playwright.dev/'</span>);
+  <span class="k">await</span> page.<span class="f">getByRole</span>(<span class="s">'link'</span>, { name: <span class="s">'Get started'</span> }).<span class="f">click</span>();
+  <span class="k">await</span> <span class="f">expect</span>(page.<span class="f">getByRole</span>(<span class="s">'heading'</span>, { name: <span class="s">'Installation'</span> })).<span class="f">toBeVisible</span>();
+});</code></pre>
+  </article>
+
+  <article class="file" id="f-loginpract">
+    <div class="head"><span class="fname">loginpagePractise.spec.js</span><span class="path">/tests/loginpagePractise.spec.js</span></div>
+    <div class="note"><b>Concept:</b> Rich fixtures demo (<code>browser</code> vs <code>page</code>), negative login + error toast, radio buttons/<code>isChecked</code>, dropdown <code>selectOption</code>, checkbox check/uncheck, <code>toHaveAttribute</code>, listing products, and extracting a username from a new tab then filling it with <code>inputValue</code>.</div>
+    <pre><code><span class="k">const</span> { test, expect } = <span class="f">require</span>(<span class="s">'@playwright/test'</span>);
+
+test.<span class="f">skip</span>(<span class="s">'browser fixture'</span>, <span class="k">async</span> ({ browser }) =&gt; {
+    <span class="k">const</span> context = <span class="k">await</span> browser.<span class="f">newContext</span>();
+    <span class="k">const</span> page = <span class="k">await</span> context.<span class="f">newPage</span>();
+    <span class="k">await</span> page.<span class="f">goto</span>(<span class="s">"https://www.google.com"</span>);
+});
+
+test.<span class="f">skip</span>(<span class="s">'page fixture'</span>, <span class="k">async</span> ({ page }) =&gt; {
+    <span class="k">await</span> page.<span class="f">goto</span>(<span class="s">"https://www.amazon.com"</span>)
+    console.<span class="f">log</span>(<span class="k">await</span> page.<span class="f">title</span>());
+    <span class="k">await</span> <span class="f">expect</span>(page).<span class="f">toHaveTitle</span>(<span class="s">'Amazon.com. Spend less. Smile more.'</span>);
+});
+
+test.<span class="f">skip</span>(<span class="s">'page context test'</span>, <span class="k">async</span> ({ page }) =&gt; {
+    <span class="k">await</span> page.<span class="f">goto</span>(<span class="s">"https://www.google.com"</span>);
+    <span class="k">const</span> title = <span class="k">await</span> page.<span class="f">title</span>();
+    <span class="k">await</span> <span class="f">expect</span>(page).<span class="f">toHaveTitle</span>(<span class="s">'Google'</span>);
+});
+
+test.<span class="f">skip</span>(<span class="s">'browser context test'</span>, <span class="k">async</span> ({ browser }) =&gt; {
+    <span class="k">const</span> context = <span class="k">await</span> browser.<span class="f">newContext</span>();
+    <span class="k">const</span> page = <span class="k">await</span> context.<span class="f">newPage</span>();
+    <span class="k">await</span> page.<span class="f">goto</span>(<span class="s">"https://www.google.com"</span>);
+    <span class="k">const</span> title = <span class="k">await</span> page.<span class="f">title</span>();
+    <span class="k">await</span> <span class="f">expect</span>(page).<span class="f">toHaveTitle</span>(<span class="s">'oogle'</span>);
+});
+
+test(<span class="s">'Sign in with wrong password and test error toast message'</span>, <span class="k">async</span> ({ page }) =&gt; {
+    <span class="k">const</span> userName = page.<span class="f">locator</span>(<span class="s">'#username'</span>);
+    <span class="k">const</span> Password = page.<span class="f">locator</span>(<span class="s">'[name="password"]'</span>);
+    <span class="k">const</span> SubmitBtn = page.<span class="f">locator</span>(<span class="s">'.btn-md'</span>);
+    <span class="k">const</span> url = <span class="s">"https://rahulshettyacademy.com/loginpagePractise/"</span>;
+
+    <span class="k">await</span> page.<span class="f">goto</span>(url);
+    <span class="k">const</span> title = <span class="k">await</span> page.<span class="f">title</span>();
+    <span class="k">await</span> userName.<span class="f">fill</span>(<span class="s">"rahulshettyacademy"</span>);
+    <span class="k">await</span> Password.<span class="f">fill</span>(<span class="s">'Learning@'</span>); <span class="c">// wrong password</span>
+    <span class="k">await</span> SubmitBtn.<span class="f">click</span>();
+
+    <span class="k">const</span> errorMsgLocator = page.<span class="f">locator</span>(<span class="s">'[style*="block"]'</span>);
+    <span class="k">await</span> <span class="f">expect</span>(errorMsgLocator).<span class="f">toContainText</span>(<span class="s">'Incorrect'</span>);
+
+    <span class="k">const</span> signInErrorMsg = <span class="k">await</span> errorMsgLocator.<span class="f">textContent</span>();
+    console.<span class="f">log</span>(signInErrorMsg);
+    <span class="f">expect</span>(signInErrorMsg).<span class="f">toContain</span>(<span class="s">'Incorrect'</span>);
+
+    <span class="k">await</span> userName.<span class="f">fill</span>(<span class="s">""</span>);
+    <span class="k">await</span> Password.<span class="f">fill</span>(<span class="s">""</span>);
+    <span class="k">await</span> SubmitBtn.<span class="f">click</span>();
+    <span class="k">await</span> <span class="f">expect</span>(errorMsgLocator).<span class="f">toContainText</span>(<span class="s">'Empty'</span>);
+});
+
+test(<span class="s">"login and list all products in website"</span>, <span class="k">async</span> ({ browser }) =&gt; {
+    <span class="k">const</span> context = <span class="k">await</span> browser.<span class="f">newContext</span>();
+    <span class="k">const</span> page = <span class="k">await</span> context.<span class="f">newPage</span>();
+
+    <span class="k">const</span> BaseUrl = <span class="s">"https://rahulshettyacademy.com/loginpagePractise/"</span>
+    <span class="k">const</span> userName = page.<span class="f">locator</span>(<span class="s">"input[name='username']"</span>);
+    <span class="k">const</span> Password = page.<span class="f">locator</span>(<span class="s">"#password"</span>);
+    <span class="k">const</span> userRadio = page.<span class="f">locator</span>(<span class="s">"span.checkmark"</span>).<span class="f">last</span>();
+    <span class="k">const</span> AdminRadio = page.<span class="f">locator</span>(<span class="s">"span.checkmark"</span>).<span class="f">first</span>();
+    <span class="k">const</span> PopUpOkay = page.<span class="f">locator</span>(<span class="s">"#okayBtn"</span>);
+    <span class="k">const</span> dropdown = page.<span class="f">locator</span>(<span class="s">"select.form-control"</span>);
+    <span class="k">const</span> TnC = page.<span class="f">locator</span>(<span class="s">"[name*='term']"</span>);
+    <span class="k">const</span> SignIn = page.<span class="f">locator</span>(<span class="s">"#signInBtn"</span>);
+    <span class="k">const</span> allPrices = page.<span class="f">locator</span>(<span class="s">".card-body h5"</span>);
+    <span class="k">const</span> allTitles = page.<span class="f">locator</span>(<span class="s">".card-body a"</span>);
+    <span class="k">const</span> DocumentLink = page.<span class="f">locator</span>(<span class="s">"a[href*='documents-request']"</span>);
+    <span class="k">const</span> TechSmartHireLink = page.<span class="f">locator</span>(<span class="s">"a[href*='techsmarthire']"</span>);
+
+    <span class="k">await</span> page.<span class="f">goto</span>(BaseUrl);
+    <span class="k">await</span> userName.<span class="f">fill</span>(<span class="s">"rahulshettyacademy"</span>);
+    <span class="k">await</span> Password.<span class="f">fill</span>(<span class="s">"Learning@830$3mK2"</span>);
+    <span class="k">await</span> userRadio.<span class="f">click</span>();
+    console.<span class="f">log</span>(<span class="s">`userRadio : `</span> + <span class="k">await</span> userRadio.<span class="f">isChecked</span>());
+    <span class="k">await</span> <span class="f">expect</span>(userRadio).<span class="f">toBeChecked</span>();
+    <span class="k">await</span> PopUpOkay.<span class="f">click</span>();
+    <span class="k">await</span> dropdown.<span class="f">selectOption</span>(<span class="s">"consult"</span>);
+    <span class="k">await</span> TnC.<span class="f">click</span>();
+    console.<span class="f">log</span>(<span class="s">`TnC : `</span> + <span class="k">await</span> TnC.<span class="f">isChecked</span>());
+    <span class="k">await</span> <span class="f">expect</span>(TnC).<span class="f">toBeChecked</span>();
+
+    <span class="k">await</span> TnC.<span class="f">uncheck</span>();
+    console.<span class="f">log</span>(<span class="s">`TnC : `</span> + <span class="k">await</span> TnC.<span class="f">isChecked</span>());
+    <span class="k">await</span> <span class="f">expect</span>(<span class="k">await</span> TnC.<span class="f">isChecked</span>()).<span class="f">toBeFalsy</span>();
+
+    <span class="k">await</span> <span class="f">expect</span>(TechSmartHireLink).<span class="f">toHaveAttribute</span>(<span class="s">'class'</span>, <span class="s">'blinkingText'</span>);
+    <span class="k">await</span> <span class="f">expect</span>(DocumentLink).<span class="f">toHaveAttribute</span>(<span class="s">'class'</span>, <span class="s">'blinkingText'</span>);
+
+    <span class="k">await</span> SignIn.<span class="f">click</span>();
+    <span class="k">await</span> allPrices.<span class="f">first</span>().<span class="f">textContent</span>();
+    <span class="k">const</span> allprices = <span class="k">await</span> allPrices.<span class="f">allTextContents</span>();
+    <span class="k">const</span> alltitles = <span class="k">await</span> allTitles.<span class="f">allTextContents</span>();
+
+    <span class="k">for</span> (<span class="k">let</span> index = <span class="n">0</span>; index &lt; alltitles.length; index++) {
+        console.<span class="f">log</span>(<span class="s">`${index + 1}) Product : ${alltitles[index]} =&gt; Price : ${allprices[index]}`</span>)
+    }
+});
+
+test(<span class="s">"extract username from document website and enter in Email field"</span>, <span class="k">async</span> ({ browser }) =&gt; {
+    <span class="k">const</span> context = <span class="k">await</span> browser.<span class="f">newContext</span>();
+    <span class="k">const</span> page = <span class="k">await</span> context.<span class="f">newPage</span>();
+
+    <span class="k">const</span> BaseUrl = <span class="s">"https://rahulshettyacademy.com/loginpagePractise/"</span>
+    <span class="k">const</span> userName = page.<span class="f">locator</span>(<span class="s">"input[name='username']"</span>);
+
+    <span class="k">await</span> page.<span class="f">goto</span>(BaseUrl);
+
+    <span class="k">const</span> [newPage] = <span class="k">await</span> Promise.<span class="f">all</span>([
+        context.<span class="f">waitForEvent</span>(<span class="s">'page'</span>),
+        page.<span class="f">locator</span>(<span class="s">"a[href*='documents-request']"</span>).<span class="f">click</span>()
+    ]);
+
+    <span class="k">const</span> para = <span class="k">await</span> newPage.<span class="f">locator</span>(<span class="s">".red"</span>).<span class="f">textContent</span>();
+    <span class="k">const</span> array1 = para.<span class="f">split</span>(<span class="s">"@"</span>);
+    <span class="k">const</span> array2 = array1[<span class="n">1</span>].<span class="f">split</span>(<span class="s">"."</span>);
+
+    <span class="k">await</span> userName.<span class="f">fill</span>(array2[<span class="n">0</span>]);
+    console.<span class="f">log</span>(<span class="k">await</span> userName.<span class="f">inputValue</span>());
+});</code></pre>
+  </article>
+
+  <article class="file" id="f-angular">
+    <div class="head"><span class="fname">angularpractice.spec.js</span><span class="path">/tests/angularpractice.spec.js</span></div>
+    <div class="note"><b>Concept:</b> Playwright built-in locators (<code>getByLabel</code>, <code>getByPlaceholder</code>, <code>getByRole</code>, <code>getByText</code>), <code>.filter({ hasText })</code>, and the three timeout levels (assertion / action / test) with <code>expect.configure()</code>. Detailed timeout recap notes are embedded in the source.</div>
+    <pre><code><span class="k">const</span> { test, expect } = <span class="f">require</span>(<span class="s">'@playwright/test'</span>);
+
+test(<span class="s">"Playwright Built-in Locators"</span>, <span class="k">async</span> ({ browser }) =&gt; {
+    <span class="k">const</span> context = <span class="k">await</span> browser.<span class="f">newContext</span>();
+    <span class="k">const</span> page = <span class="k">await</span> context.<span class="f">newPage</span>()
+
+    <span class="k">const</span> OpenUrl = page.<span class="f">goto</span>(<span class="s">"https://rahulshettyacademy.com/angularpractice"</span>);
+    <span class="k">await</span> OpenUrl;
+    <span class="k">await</span> page.<span class="f">getByLabel</span>(<span class="s">"Check me out if you Love IceCreams!"</span>).<span class="f">check</span>();
+    <span class="k">await</span> page.<span class="f">getByLabel</span>(<span class="s">"Employed"</span>).<span class="f">click</span>();
+    <span class="k">await</span> page.<span class="f">getByLabel</span>(<span class="s">"Gender"</span>).<span class="f">selectOption</span>(<span class="s">"Female"</span>);
+    <span class="k">await</span> page.<span class="f">getByPlaceholder</span>(<span class="s">"Password"</span>).<span class="f">fill</span>(<span class="s">"abc123"</span>);
+    <span class="k">await</span> page.<span class="f">getByRole</span>(<span class="s">"button"</span>, { name: <span class="s">'Submit'</span> }).<span class="f">click</span>();
+    <span class="k">await</span> page.<span class="f">getByText</span>(<span class="s">"Success!"</span>).<span class="f">isVisible</span>();
+    <span class="c">// default 5s for expect at step level; override with {timeout:6000}</span>
+    <span class="k">await</span> <span class="f">expect</span>(page.<span class="f">getByText</span>(<span class="s">"Success!"</span>)).<span class="f">toBeVisible</span>({ timeout: <span class="n">6000</span> });
+    <span class="k">await</span> page.<span class="f">getByRole</span>(<span class="s">"link"</span>, { name: <span class="s">'Shop'</span> }).<span class="f">click</span>();
+    <span class="k">await</span> page.<span class="f">locator</span>(<span class="s">"app-card"</span>).<span class="f">filter</span>({ hasText: <span class="s">'Nokia Edge'</span> }).<span class="f">getByRole</span>(<span class="s">"button"</span>).<span class="f">click</span>();
+});
+
+test(<span class="s">"Playwright Test level Timeout Example"</span>, <span class="k">async</span> ({ browser }) =&gt; {
+    <span class="k">const</span> context = <span class="k">await</span> browser.<span class="f">newContext</span>();
+    <span class="k">const</span> page = <span class="k">await</span> context.<span class="f">newPage</span>()
+
+    <span class="k">const</span> OpenUrl = page.<span class="f">goto</span>(<span class="s">"https://rahulshettyacademy.com/angularpractice"</span>);
+    <span class="k">const</span> slowExpect = expect.<span class="f">configure</span>({ timeout: <span class="n">9000</span> });
+
+    <span class="k">await</span> OpenUrl;
+    <span class="k">await</span> page.<span class="f">getByLabel</span>(<span class="s">"Check me out if you Love IceCreams!"</span>).<span class="f">check</span>();
+    <span class="k">await</span> page.<span class="f">getByLabel</span>(<span class="s">"Employed"</span>).<span class="f">click</span>();
+    <span class="k">await</span> page.<span class="f">getByLabel</span>(<span class="s">"Gender"</span>).<span class="f">selectOption</span>(<span class="s">"Female"</span>);
+    <span class="k">await</span> page.<span class="f">getByPlaceholder</span>(<span class="s">"Password"</span>).<span class="f">fill</span>(<span class="s">"abc123"</span>);
+    <span class="k">await</span> page.<span class="f">getByRole</span>(<span class="s">"button"</span>, { name: <span class="s">'Submit'</span> }).<span class="f">click</span>();
+    <span class="k">await</span> page.<span class="f">getByText</span>(<span class="s">"Success!"</span>).<span class="f">isVisible</span>();
+    <span class="k">await</span> <span class="f">slowExpect</span>(page.<span class="f">getByText</span>(<span class="s">"Success!"</span>)).<span class="f">toBeVisible</span>();
+    <span class="k">await</span> page.<span class="f">getByRole</span>(<span class="s">"link"</span>, { name: <span class="s">'Shop'</span> }).<span class="f">click</span>();
+    <span class="k">await</span> page.<span class="f">locator</span>(<span class="s">"app-card"</span>).<span class="f">filter</span>({ hasText: <span class="s">'Nokia Edge'</span> }).<span class="f">getByRole</span>(<span class="s">"button"</span>).<span class="f">click</span>();
+});</code></pre>
+    <table class="meta">
+      <tr><th>Timeout Type</th><th>Applies To</th><th>Default</th><th>Override</th></tr>
+      <tr><td>Assertion (expect)</td><td>"Is it there?"</td><td>5s</td><td><code>expect(...).toBeVisible({timeout})</code> / <code>expect.configure()</code> / config <code>expect.timeout</code></td></tr>
+      <tr><td>Action (click, fill…)</td><td>"Do it now"</td><td>0 (borrows test clock)</td><td><code>.click({timeout})</code> / <code>page.setDefaultTimeout()</code> / config <code>use.actionTimeout</code></td></tr>
+      <tr><td>Test (whole function)</td><td>"How long can it run?"</td><td>30s</td><td><code>test.setTimeout()</code> / <code>test.slow()</code> / config <code>timeout</code></td></tr>
+    </table>
+  </article>
+
+  <article class="file" id="f-autopract">
+    <div class="head"><span class="fname">automationpractice.spec.js</span><span class="path">/tests/automationpractice.spec.js</span></div>
+    <div class="note"><b>Concept:</b> JS dialog handling (<code>page.on("dialog")</code>), hover, element &amp; page screenshots, iframe handling with <code>frameLocator</code>, string <code>split</code>, and visual testing with <code>toMatchSnapshot</code>. Navigation (<code>goBack/goForward</code>) shown commented.</div>
+    <pre><code><span class="k">const</span> { test, expect } = <span class="f">require</span>(<span class="s">'@playwright/test'</span>);
+
+test(<span class="s">"automation practice"</span>, <span class="k">async</span> ({ browser }) =&gt; {
+    <span class="k">const</span> context = <span class="k">await</span> browser.<span class="f">newContext</span>();
+    <span class="k">const</span> page = <span class="k">await</span> context.<span class="f">newPage</span>();
+
+    <span class="k">let</span> OpenUrl = page.<span class="f">goto</span>(<span class="s">"https://rahulshettyacademy.com/AutomationPractice/"</span>);
+    <span class="k">await</span> OpenUrl;
+    page.<span class="f">on</span>(<span class="s">"dialog"</span>, dialog =&gt; dialog.<span class="f">accept</span>());
+    <span class="k">await</span> page.<span class="f">locator</span>(<span class="s">"#confirmbtn"</span>).<span class="f">click</span>();
+    <span class="k">await</span> page.<span class="f">locator</span>(<span class="s">"#mousehover"</span>).<span class="f">hover</span>();
+    <span class="k">await</span> page.<span class="f">screenshot</span>({ path: <span class="s">'screen_1.png'</span> })
+    <span class="k">await</span> page.<span class="f">locator</span>(<span class="s">"#dropdown-class-example"</span>).<span class="f">click</span>();
+    <span class="k">await</span> page.<span class="f">screenshot</span>({ path: <span class="s">'screen_2.png'</span> })
+    <span class="k">await</span> page.<span class="f">locator</span>(<span class="s">"#dropdown-class-example"</span>).<span class="f">screenshot</span>({ path: <span class="s">'screen__locator_3.png'</span> })
+    <span class="k">const</span> framePage = page.<span class="f">frameLocator</span>(<span class="s">"#courses-iframe"</span>);
+    <span class="k">await</span> framePage.<span class="f">locator</span>(<span class="s">"li [href*='lifetime-access']:visible"</span>).<span class="f">click</span>();
+    <span class="k">const</span> text = <span class="k">await</span> framePage.<span class="f">locator</span>(<span class="s">".text h2"</span>).<span class="f">textContent</span>();
+    console.<span class="f">log</span>(text.<span class="f">split</span>(<span class="s">" "</span>)[<span class="n">1</span>]);
+});
+
+test(<span class="s">"visual test"</span>, <span class="k">async</span> ({ page }) =&gt; {
+    <span class="k">await</span> page.<span class="f">goto</span>(<span class="s">"https://www.google.com"</span>);
+    <span class="f">expect</span>(<span class="k">await</span> page.<span class="f">screenshot</span>()).<span class="f">toMatchSnapshot</span>(<span class="s">'google.png'</span>)
+});</code></pre>
+  </article>
+
+  <article class="file" id="f-childwin">
+    <div class="head"><span class="fname">childwindowswitch.spec.js</span><span class="path">/tests/childwindowswitch.spec.js</span></div>
+    <div class="note"><b>Concept:</b> Multi-window / new tab handling — capture the popup with <code>Promise.all([ context.waitForEvent('page'), trigger ])</code>, wait for <code>networkidle</code>, then act on <code>newPage</code>. (Note: clicking Home can be blocked by a <code>.preloader</code> intercepting pointer events — wait for it to disappear first.)</div>
+    <pre><code><span class="k">const</span> { test, expect } = <span class="f">require</span>(<span class="s">'playwright/test'</span>)
+
+test(<span class="s">"Title - child window switch"</span>, <span class="k">async</span> ({ browser }) =&gt; {
+    <span class="k">const</span> context = <span class="k">await</span> browser.<span class="f">newContext</span>();
+    <span class="k">const</span> page = <span class="k">await</span> context.<span class="f">newPage</span>();
+
+    <span class="k">await</span> page.<span class="f">goto</span>(<span class="s">"https://rahulshettyacademy.com/loginpagePractise/"</span>);
+
+    <span class="k">const</span> [newPage] = <span class="k">await</span> Promise.<span class="f">all</span>([
+        context.<span class="f">waitForEvent</span>(<span class="s">'page'</span>),
+        <span class="k">await</span> page.<span class="f">locator</span>(<span class="s">"a[href*='documents-request']"</span>).<span class="f">click</span>(),
+    ]);
+    <span class="k">await</span> newPage.<span class="f">waitForLoadState</span>(<span class="s">'networkidle'</span>);
+    <span class="k">await</span> newPage.<span class="f">getByRole</span>(<span class="s">'link'</span>, { name: <span class="s">'Home'</span> }).<span class="f">click</span>();
+    <span class="k">await</span> page.<span class="f">waitForTimeout</span>(<span class="n">3000</span>);
+})</code></pre>
+  </article>
+</section>
+
+<section class="grp" id="sec5">
+  <h2>5. Tests — End-to-End &amp; Page Object Model</h2>
+  <p class="grpdesc">The same "place an order" flow written five ways — from a raw single-file script, to getBy* locators, to page objects, JSON data, POManager, and a data-driven loop. This progression is the heart of the course.</p>
+
+  <article class="file" id="f-client">
+    <div class="head"><span class="fname">client.spec.js</span><span class="path">/tests/client.spec.js</span></div>
+    <div class="note"><b>Concept:</b> Full E2E in one file using <b>CSS selectors</b> — login, list products, add-to-cart, checkout with autocomplete country dropdown, place order, then find and open the order in history. The "before POM" baseline.</div>
+    <pre><code><span class="k">const</span> { test, expect } = <span class="f">require</span>(<span class="s">'playwright/test'</span>);
+
+test(<span class="s">"E2E - using CSS Selectors - place order in Client website"</span>, <span class="k">async</span> ({ browser }) =&gt; {
+    <span class="k">const</span> context = <span class="k">await</span> browser.<span class="f">newContext</span>();
+    <span class="k">const</span> page = <span class="k">await</span> context.<span class="f">newPage</span>();
+
+    <span class="k">const</span> OpenUrl = page.<span class="f">goto</span>(<span class="s">"https://rahulshettyacademy.com/client"</span>);
+    <span class="k">const</span> userName = page.<span class="f">locator</span>(<span class="s">"[formcontrolname='userEmail']"</span>); <span class="c">// [role='value']</span>
+    <span class="k">const</span> Password = page.<span class="f">locator</span>(<span class="s">"#userPassword"</span>); <span class="c">// #id</span>
+    <span class="k">const</span> SignIn = page.<span class="f">locator</span>(<span class="s">"#login"</span>);
+    <span class="k">const</span> cardTitles = page.<span class="f">locator</span>(<span class="s">".card-body b"</span>); <span class="c">// .class</span>
+    <span class="k">const</span> cardPrices = page.<span class="f">locator</span>(<span class="s">"div.card-body .text-muted"</span>); <span class="c">// parent-&gt;tag.class .class</span>
+    <span class="k">const</span> allAddToCart = page.<span class="f">locator</span>(<span class="s">"button.w-10"</span>);
+    <span class="k">const</span> AddedToCartSuccessMsg = page.<span class="f">locator</span>(<span class="s">"#toast-container"</span>);
+    <span class="k">const</span> email = <span class="s">"r123am@gmail.com"</span>;
+    <span class="k">const</span> myOrdersLink = page.<span class="f">locator</span>(<span class="s">"label[routerlink*='myorders']"</span>);
+
+    <span class="k">await</span> OpenUrl;
+    <span class="k">await</span> userName.<span class="f">fill</span>(email);
+    <span class="k">await</span> Password.<span class="f">fill</span>(<span class="s">"Amazon@123"</span>);
+    <span class="k">await</span> SignIn.<span class="f">click</span>();
+    <span class="k">await</span> cardTitles.<span class="f">last</span>().<span class="f">waitFor</span>();
+    <span class="k">const</span> allTitles = <span class="k">await</span> cardTitles.<span class="f">allTextContents</span>();
+    <span class="k">const</span> allPrices = <span class="k">await</span> cardPrices.<span class="f">allTextContents</span>();
+    <span class="k">const</span> Product = <span class="s">"ZARA COAT 3"</span>;
+
+    <span class="k">for</span> (<span class="k">let</span> index = <span class="n">0</span>; index &lt; allTitles.length; index++) {
+        console.<span class="f">log</span>(<span class="s">`${index + 1}) Product : ${allTitles[index]} =&gt; Price : ${allPrices[index]}`</span>);
+        <span class="k">if</span> (<span class="s">`${allTitles[index]}`</span> == Product) {
+            <span class="k">await</span> allAddToCart.<span class="f">nth</span>(index).<span class="f">click</span>();
+            <span class="k">await</span> page.<span class="f">locator</span>(<span class="s">"#toast-container"</span>).<span class="f">locator</span>(<span class="s">"text=Product Added To Cart"</span>).<span class="f">waitFor</span>();
+            <span class="k">await</span> <span class="f">expect</span>(AddedToCartSuccessMsg).<span class="f">toContainText</span>(<span class="s">'Product Added To Cart'</span>);
+            <span class="k">break</span>;
+        }
+    }
+    <span class="k">await</span> page.<span class="f">locator</span>(<span class="s">"[routerlink*='cart']"</span>).<span class="f">click</span>();
+    <span class="k">await</span> page.<span class="f">locator</span>(<span class="s">"div li"</span>).<span class="f">last</span>().<span class="f">waitFor</span>({ timeout: <span class="n">2000</span> });
+    <span class="k">const</span> bool = <span class="k">await</span> page.<span class="f">locator</span>(<span class="s">"h3:has-text('Zara Coat 3')"</span>).<span class="f">isVisible</span>();
+    <span class="k">await</span> <span class="f">expect</span>(bool).<span class="f">toBeTruthy</span>();
+    <span class="k">await</span> page.<span class="f">locator</span>(<span class="s">"text=Checkout"</span>).<span class="f">click</span>();
+    <span class="k">await</span> page.<span class="f">locator</span>(<span class="s">"[placeholder*='Country']"</span>).<span class="f">pressSequentially</span>(<span class="s">'Ind'</span>);
+    <span class="c">// pressSequentially can take { delay: 150 } between keystrokes on slow servers</span>
+    <span class="k">const</span> dropdownlist = page.<span class="f">locator</span>(<span class="s">".ta-results"</span>);
+    <span class="k">await</span> dropdownlist.<span class="f">waitFor</span>();
+    <span class="k">const</span> optionscount = <span class="k">await</span> dropdownlist.<span class="f">locator</span>(<span class="s">"button"</span>).<span class="f">count</span>();
+    <span class="k">for</span> (<span class="k">let</span> i = <span class="n">0</span>; i &lt; optionscount; ++i) {
+        <span class="k">let</span> text = <span class="k">await</span> dropdownlist.<span class="f">locator</span>(<span class="s">"button"</span>).<span class="f">nth</span>(i).<span class="f">textContent</span>();
+        <span class="k">if</span> (text === <span class="s">' India'</span>) { <span class="k">await</span> dropdownlist.<span class="f">locator</span>(<span class="s">"button"</span>).<span class="f">nth</span>(i).<span class="f">click</span>(); <span class="k">break</span>; }
+    }
+    <span class="f">expect</span>(<span class="k">await</span> page.<span class="f">locator</span>(<span class="s">".user__name [type='text']"</span>).<span class="f">first</span>()).<span class="f">toHaveText</span>(email);
+    <span class="k">await</span> page.<span class="f">locator</span>(<span class="s">".action__submit"</span>).<span class="f">click</span>();
+    <span class="k">await</span> page.<span class="f">locator</span>(<span class="s">"h1.hero-primary"</span>).<span class="f">waitFor</span>();
+    <span class="f">expect</span>(<span class="k">await</span> page.<span class="f">locator</span>(<span class="s">"h1.hero-primary"</span>)).<span class="f">toHaveText</span>(<span class="s">'Thankyou for the order.'</span>);
+    <span class="k">const</span> orderidstring = <span class="k">await</span> page.<span class="f">locator</span>(<span class="s">"label.ng-star-inserted"</span>).<span class="f">textContent</span>();
+    <span class="k">let</span> orderid = orderidstring.<span class="f">replaceAll</span>(<span class="s">"|"</span>, <span class="s">""</span>).<span class="f">trim</span>();
+
+    <span class="k">await</span> myOrdersLink.<span class="f">click</span>();
+    <span class="k">await</span> page.<span class="f">locator</span>(<span class="s">"tbody tr th"</span>).<span class="f">last</span>().<span class="f">waitFor</span>();
+    <span class="k">const</span> orderCount = <span class="k">await</span> page.<span class="f">locator</span>(<span class="s">"tbody tr th"</span>).<span class="f">count</span>();
+    <span class="k">for</span> (<span class="k">let</span> index = <span class="n">0</span>; index &lt; orderCount; index++) {
+        <span class="k">if</span> (<span class="k">await</span> page.<span class="f">locator</span>(<span class="s">"tbody tr th"</span>).<span class="f">nth</span>(index).<span class="f">textContent</span>() === orderid) {
+            <span class="k">await</span> page.<span class="f">locator</span>(<span class="s">"tr .btn-primary"</span>).<span class="f">nth</span>(index).<span class="f">click</span>();
+            <span class="k">break</span>;
+        }
+    }
+    <span class="k">await</span> <span class="f">expect</span>(page.<span class="f">locator</span>(<span class="s">".email-title"</span>)).<span class="f">toHaveText</span>(<span class="s">" order summary "</span>);
+    <span class="k">await</span> <span class="f">expect</span>(page.<span class="f">locator</span>(<span class="s">"div.col-text"</span>)).<span class="f">toHaveText</span>(orderid);
+
+    <span class="k">await</span> context.<span class="f">close</span>();
+    <span class="k">await</span> browser.<span class="f">close</span>();
+});</code></pre>
+  </article>
+
+  <article class="file" id="f-clientopt">
+    <div class="head"><span class="fname">clientOptimized.spec.js</span><span class="path">/tests/clientOptimized.spec.js</span></div>
+    <div class="note"><b>Concept:</b> Same flow rewritten with <b>user-facing locators</b> — <code>getByPlaceholder</code>, <code>getByRole</code>, <code>.filter({ hasText })</code>, <code>getByText</code>. More resilient and readable than CSS selectors.</div>
+    <pre><code><span class="k">const</span> { test, expect } = <span class="f">require</span>(<span class="s">'playwright/test'</span>);
+
+test(<span class="s">"E2E - using GetBy - place order in Client website"</span>, <span class="k">async</span> ({ browser }) =&gt; {
+    <span class="k">const</span> context = <span class="k">await</span> browser.<span class="f">newContext</span>();
+    <span class="k">const</span> page = <span class="k">await</span> context.<span class="f">newPage</span>();
+
+    <span class="k">const</span> OpenUrl = page.<span class="f">goto</span>(<span class="s">"https://rahulshettyacademy.com/client"</span>);
+    <span class="k">const</span> userName = page.<span class="f">getByPlaceholder</span>(<span class="s">"email@example.com"</span>);
+    <span class="k">const</span> Password = page.<span class="f">getByPlaceholder</span>(<span class="s">"enter your passsword"</span>);
+    <span class="k">const</span> SignInBtn = page.<span class="f">getByRole</span>(<span class="s">'button'</span>, { name: <span class="s">'Login'</span> });
+    <span class="k">const</span> CartBtn = page.<span class="f">getByRole</span>(<span class="s">"listitem"</span>).<span class="f">getByRole</span>(<span class="s">'button'</span>, { name: <span class="s">'Cart'</span> });
+    <span class="k">const</span> AddedToCartSuccessMsg = page.<span class="f">locator</span>(<span class="s">"#toast-container"</span>);
+    <span class="k">const</span> email = <span class="s">"r123am@gmail.com"</span>;
+    <span class="k">const</span> myOrdersLink = page.<span class="f">locator</span>(<span class="s">"label[routerlink*='myorders']"</span>);
+
+    <span class="k">await</span> OpenUrl;
+    <span class="k">await</span> userName.<span class="f">fill</span>(email);
+    <span class="k">await</span> Password.<span class="f">fill</span>(<span class="s">"Amazon@123"</span>);
+    <span class="k">await</span> SignInBtn.<span class="f">click</span>();
+    <span class="k">await</span> page.<span class="f">locator</span>(<span class="s">".card-body"</span>).<span class="f">filter</span>({ hasText: <span class="s">'ADIDAS ORIGINAL'</span> }).<span class="f">getByRole</span>(<span class="s">"button"</span>, { name: <span class="s">'Add To Cart'</span> }).<span class="f">click</span>();
+    <span class="k">await</span> page.<span class="f">locator</span>(<span class="s">"#toast-container"</span>).<span class="f">locator</span>(<span class="s">"text=Product Added To Cart"</span>).<span class="f">waitFor</span>();
+    <span class="k">await</span> <span class="f">expect</span>(AddedToCartSuccessMsg).<span class="f">toContainText</span>(<span class="s">'Product Added To Cart'</span>);
+    <span class="k">await</span> CartBtn.<span class="f">click</span>();
+    <span class="k">await</span> page.<span class="f">locator</span>(<span class="s">"div li"</span>).<span class="f">last</span>().<span class="f">waitFor</span>();
+    <span class="k">await</span> <span class="f">expect</span>(page.<span class="f">getByRole</span>(<span class="s">'heading'</span>, { name: <span class="s">'ADIDAS ORIGINAL'</span> })).<span class="f">toBeVisible</span>();
+    <span class="k">await</span> page.<span class="f">getByRole</span>(<span class="s">"button"</span>, { name: <span class="s">'Checkout'</span> }).<span class="f">click</span>();
+    <span class="k">await</span> page.<span class="f">getByPlaceholder</span>(<span class="s">"Select Country"</span>).<span class="f">pressSequentially</span>(<span class="s">'Ind'</span>);
+    <span class="k">await</span> page.<span class="f">getByRole</span>(<span class="s">"button"</span>, { name: <span class="s">'India'</span> }).<span class="f">nth</span>(<span class="n">1</span>).<span class="f">click</span>();
+    <span class="f">expect</span>(<span class="k">await</span> page.<span class="f">locator</span>(<span class="s">".user__name [type='text']"</span>).<span class="f">first</span>()).<span class="f">toHaveText</span>(email);
+    <span class="k">await</span> page.<span class="f">getByText</span>(<span class="s">"PLACE ORDER"</span>).<span class="f">click</span>();
+    <span class="k">await</span> page.<span class="f">locator</span>(<span class="s">"h1.hero-primary"</span>).<span class="f">waitFor</span>();
+    <span class="k">await</span> <span class="f">expect</span>(page.<span class="f">getByText</span>(<span class="s">'Thankyou for the order.'</span>)).<span class="f">toBeVisible</span>();
+    <span class="k">const</span> orderidstring = <span class="k">await</span> page.<span class="f">locator</span>(<span class="s">"label.ng-star-inserted"</span>).<span class="f">textContent</span>();
+    <span class="k">let</span> orderid = orderidstring.<span class="f">replaceAll</span>(<span class="s">"|"</span>, <span class="s">""</span>).<span class="f">trim</span>();
+
+    <span class="k">await</span> myOrdersLink.<span class="f">click</span>();
+    <span class="k">await</span> page.<span class="f">locator</span>(<span class="s">"tbody tr th"</span>).<span class="f">last</span>().<span class="f">waitFor</span>();
+    <span class="k">const</span> orderCount = <span class="k">await</span> page.<span class="f">locator</span>(<span class="s">"tbody tr th"</span>).<span class="f">count</span>();
+    <span class="k">for</span> (<span class="k">let</span> index = <span class="n">0</span>; index &lt; orderCount; index++) {
+        <span class="k">if</span> (<span class="k">await</span> page.<span class="f">locator</span>(<span class="s">"tbody tr th"</span>).<span class="f">nth</span>(index).<span class="f">textContent</span>() === orderid) {
+            <span class="k">await</span> page.<span class="f">locator</span>(<span class="s">"tr .btn-primary"</span>).<span class="f">nth</span>(index).<span class="f">click</span>();
+            <span class="k">break</span>;
+        }
+    }
+    <span class="k">await</span> <span class="f">expect</span>(page.<span class="f">locator</span>(<span class="s">".email-title"</span>)).<span class="f">toHaveText</span>(<span class="s">" order summary "</span>);
+    <span class="k">await</span> <span class="f">expect</span>(page.<span class="f">locator</span>(<span class="s">"div.col-text"</span>)).<span class="f">toHaveText</span>(orderid);
+
+    <span class="k">await</span> context.<span class="f">close</span>();
+    <span class="k">await</span> browser.<span class="f">close</span>();
+});</code></pre>
+  </article>
+
+  <article class="file" id="f-clientpo">
+    <div class="head"><span class="fname">clientPO.spec.js</span><span class="path">/tests/clientPO.spec.js</span></div>
+    <div class="note"><b>Concept:</b> Same flow refactored into <b>Page Objects</b> — the test reads like plain English. <code>JSON.parse(JSON.stringify(require(...)))</code> deep-clones the data file.</div>
+    <pre><code><span class="k">const</span> { test, expect } = <span class="f">require</span>(<span class="s">'playwright/test'</span>);
+<span class="k">const</span> { LoginPage } = <span class="f">require</span>(<span class="s">'../pageobjects/LoginPage'</span>);
+<span class="k">const</span> { DashboardPage } = <span class="f">require</span>(<span class="s">'../pageobjects/DashboardPage'</span>);
+<span class="k">const</span> { CartPage } = <span class="f">require</span>(<span class="s">'../pageobjects/CartPage'</span>);
+<span class="k">const</span> { OrderSummaryPage } = <span class="f">require</span>(<span class="s">'../pageobjects/OrderSummaryPage'</span>);
+
+<span class="c">// json -&gt; string (stringify) -&gt; object (parse)</span>
+<span class="k">const</span> testdata = JSON.<span class="f">parse</span>(JSON.<span class="f">stringify</span>(<span class="f">require</span>(<span class="s">'../utils/testdata.json'</span>)));
+
+<span class="k">const</span> username = <span class="s">"r123am@gmail.com"</span>;
+<span class="k">const</span> password = <span class="s">"Amazon@123"</span>;
+<span class="k">const</span> Product = <span class="s">"ZARA COAT 3"</span>;
+
+test(<span class="s">`E2E - place order for Product`</span>, <span class="k">async</span> ({ browser }) =&gt; {
+    <span class="k">const</span> context = <span class="k">await</span> browser.<span class="f">newContext</span>();
+    <span class="k">const</span> page = <span class="k">await</span> context.<span class="f">newPage</span>();
+
+    <span class="k">const</span> loginPage = <span class="k">new</span> <span class="t">LoginPage</span>(page);
+    <span class="k">const</span> dashboardPage = <span class="k">new</span> <span class="t">DashboardPage</span>(page);
+    <span class="k">const</span> cartPage = <span class="k">new</span> <span class="t">CartPage</span>(page);
+    <span class="k">const</span> orderSummaryPage = <span class="k">new</span> <span class="t">OrderSummaryPage</span>(page);
+
+    <span class="k">await</span> loginPage.<span class="f">goTo</span>();
+    <span class="k">await</span> loginPage.<span class="f">ValidLogin</span>(username, password);
+    <span class="k">await</span> dashboardPage.<span class="f">SearchAndAddToCart</span>(Product);
+    <span class="k">await</span> cartPage.<span class="f">NavigateToCart</span>();
+    <span class="k">await</span> cartPage.<span class="f">PlaceOrder</span>(username);
+    <span class="k">await</span> orderSummaryPage.<span class="f">verifyOrder</span>();
+});</code></pre>
+  </article>
+
+  <article class="file" id="f-clientjson">
+    <div class="head"><span class="fname">clientPO_JsonData.spec.js</span><span class="path">/tests/clientPO_JsonData.spec.js</span></div>
+    <div class="note"><b>Concept:</b> Page Objects + <b>external JSON data</b> (single record from testdata1.json). Credentials/product now come from data instead of hard-coded constants.</div>
+    <pre><code><span class="k">const</span> { test, expect } = <span class="f">require</span>(<span class="s">'playwright/test'</span>);
+<span class="k">const</span> { LoginPage } = <span class="f">require</span>(<span class="s">'../pageobjects/LoginPage'</span>);
+<span class="k">const</span> { DashboardPage } = <span class="f">require</span>(<span class="s">'../pageobjects/DashboardPage'</span>);
+<span class="k">const</span> { CartPage } = <span class="f">require</span>(<span class="s">'../pageobjects/CartPage'</span>);
+<span class="k">const</span> { OrderSummaryPage } = <span class="f">require</span>(<span class="s">'../pageobjects/OrderSummaryPage'</span>);
+
+<span class="k">const</span> testdata = JSON.<span class="f">parse</span>(JSON.<span class="f">stringify</span>(<span class="f">require</span>(<span class="s">'../utils/testdata1.json'</span>)));
+
+test(<span class="s">`E2E - place order for `</span>, <span class="k">async</span> ({ browser }) =&gt; {
+    <span class="k">const</span> context = <span class="k">await</span> browser.<span class="f">newContext</span>();
+    <span class="k">const</span> page = <span class="k">await</span> context.<span class="f">newPage</span>();
+
+    <span class="k">const</span> loginPage = <span class="k">new</span> <span class="t">LoginPage</span>(page);
+    <span class="k">const</span> dashboardPage = <span class="k">new</span> <span class="t">DashboardPage</span>(page);
+    <span class="k">const</span> cartPage = <span class="k">new</span> <span class="t">CartPage</span>(page);
+    <span class="k">const</span> orderSummaryPage = <span class="k">new</span> <span class="t">OrderSummaryPage</span>(page);
+
+    <span class="k">await</span> loginPage.<span class="f">goTo</span>();
+    <span class="k">await</span> loginPage.<span class="f">ValidLogin</span>(testdata.username, testdata.password);
+    <span class="k">await</span> dashboardPage.<span class="f">SearchAndAddToCart</span>(testdata.Product);
+    <span class="k">await</span> cartPage.<span class="f">NavigateToCart</span>();
+    <span class="k">await</span> cartPage.<span class="f">PlaceOrder</span>(testdata.username);
+    <span class="k">await</span> orderSummaryPage.<span class="f">verifyOrder</span>();
+});</code></pre>
+  </article>
+
+  <article class="file" id="f-clientpom">
+    <div class="head"><span class="fname">clientPOManager.spec.js</span><span class="path">/tests/clientPOManager.spec.js</span></div>
+    <div class="note"><b>Concept:</b> Page Objects accessed through the <b>POManager factory</b> — one <code>new POManager(page)</code> replaces four <code>new</code> statements; pages obtained via getters.</div>
+    <pre><code><span class="k">const</span> { test, expect } = <span class="f">require</span>(<span class="s">'playwright/test'</span>);
+<span class="k">const</span> { POManager } = <span class="f">require</span>(<span class="s">'../pageobjects/POManager'</span>);
+
+<span class="k">const</span> testdata = JSON.<span class="f">parse</span>(JSON.<span class="f">stringify</span>(<span class="f">require</span>(<span class="s">'../utils/testdata.json'</span>)));
+
+<span class="k">const</span> username = <span class="s">"r123am@gmail.com"</span>;
+<span class="k">const</span> password = <span class="s">"Amazon@123"</span>;
+<span class="k">const</span> Product = <span class="s">"ZARA COAT 3"</span>;
+
+test(<span class="s">`E2E - place order for Product`</span>, <span class="k">async</span> ({ browser }) =&gt; {
+    <span class="k">const</span> context = <span class="k">await</span> browser.<span class="f">newContext</span>();
+    <span class="k">const</span> page = <span class="k">await</span> context.<span class="f">newPage</span>();
+    <span class="k">const</span> poManager = <span class="k">new</span> <span class="t">POManager</span>(page);
+
+    <span class="k">const</span> loginPage = poManager.<span class="f">getLoginPage</span>();
+    <span class="k">const</span> dashboardPage = poManager.<span class="f">getDashboardPage</span>();
+    <span class="k">const</span> cartPage = poManager.<span class="f">getCartPage</span>();
+    <span class="k">const</span> orderSummaryPage = poManager.<span class="f">getOrderSummaryPage</span>();
+
+    <span class="k">await</span> loginPage.<span class="f">goTo</span>();
+    <span class="k">await</span> loginPage.<span class="f">ValidLogin</span>(username, password);
+    <span class="k">await</span> dashboardPage.<span class="f">SearchAndAddToCart</span>(Product);
+    <span class="k">await</span> cartPage.<span class="f">NavigateToCart</span>();
+    <span class="k">await</span> cartPage.<span class="f">PlaceOrder</span>(username);
+    <span class="k">await</span> orderSummaryPage.<span class="f">verifyOrder</span>();
+});</code></pre>
+  </article>
+
+  <article class="file" id="f-param">
+    <div class="head"><span class="fname">param.spec.js</span><span class="path">/tests/param.spec.js</span></div>
+    <div class="note"><b>Concept:</b> <b>Data-driven testing</b> — a <code>for...of</code> loop over the JSON array generates one test per record, each tagged <code>@Web</code>. Commented lines show serial/parallel describe config. Bottom comment lists the Allure workflow.</div>
+    <pre><code><span class="k">const</span> { test, expect } = <span class="f">require</span>(<span class="s">'playwright/test'</span>);
+<span class="k">const</span> { LoginPage } = <span class="f">require</span>(<span class="s">'../pageobjects/LoginPage'</span>);
+<span class="k">const</span> { DashboardPage } = <span class="f">require</span>(<span class="s">'../pageobjects/DashboardPage'</span>);
+<span class="k">const</span> { CartPage } = <span class="f">require</span>(<span class="s">'../pageobjects/CartPage'</span>);
+<span class="k">const</span> { OrderSummaryPage } = <span class="f">require</span>(<span class="s">'../pageobjects/OrderSummaryPage'</span>);
+
+<span class="k">const</span> testdata = JSON.<span class="f">parse</span>(JSON.<span class="f">stringify</span>(<span class="f">require</span>(<span class="s">'../utils/testdata.json'</span>)));
+
+<span class="c">// test.describe.configure({mode:"parallel"});</span>
+<span class="c">// test.describe.configure({mode:"serial"});</span>
+<span class="k">for</span> (<span class="k">const</span> data <span class="k">of</span> testdata) {
+    test(<span class="s">`@Web E2E - place order for ${data.Product}`</span>, <span class="k">async</span> ({ browser }) =&gt; {
+        <span class="k">const</span> context = <span class="k">await</span> browser.<span class="f">newContext</span>();
+        <span class="k">const</span> page = <span class="k">await</span> context.<span class="f">newPage</span>();
+
+        <span class="k">const</span> loginPage = <span class="k">new</span> <span class="t">LoginPage</span>(page);
+        <span class="k">const</span> dashboardPage = <span class="k">new</span> <span class="t">DashboardPage</span>(page);
+        <span class="k">const</span> cartPage = <span class="k">new</span> <span class="t">CartPage</span>(page);
+        <span class="k">const</span> orderSummaryPage = <span class="k">new</span> <span class="t">OrderSummaryPage</span>(page);
+
+        <span class="k">await</span> loginPage.<span class="f">goTo</span>();
+        <span class="k">await</span> loginPage.<span class="f">ValidLogin</span>(data.username, data.password);
+        <span class="k">await</span> dashboardPage.<span class="f">SearchAndAddToCart</span>(data.Product);
+        <span class="k">await</span> cartPage.<span class="f">NavigateToCart</span>();
+        <span class="k">await</span> cartPage.<span class="f">PlaceOrder</span>(data.username);
+        <span class="k">await</span> orderSummaryPage.<span class="f">verifyOrder</span>();
+    });
+}
+
+<span class="c">/*
+Remove-Item -Recurse -Force allure-results
+npx playwright test tests/automationpractice.spec.js
+npx allure generate ./allure-results --clean
+npx allure open ./allure-report
+npx playwright test tests/clientPO_JsonData.spec.js --reporter=line,allure-playwright
+java -jar jenkins.war -httpPort=9090
+*/</span></code></pre>
+  </article>
+</section>
+
+<section class="grp" id="sec6">
+  <h2>6. Tests — Custom Fixtures</h2>
+  <p class="grpdesc">These specs consume the custom fixtures defined in utils, so setup (login / API order / test data) is injected automatically.</p>
+
+  <article class="file" id="f-customtest">
+    <div class="head"><span class="fname">customtest.spec.js</span><span class="path">/tests/customtest.spec.js</span></div>
+    <div class="note"><b>Concept:</b> Uses <code>customtest</code> from <code>test-base.js</code> — the <code>TestDataForOrder</code> fixture is destructured directly into the test, replacing hard-coded data. Full POM E2E flow.</div>
+    <pre><code><span class="k">const</span> { LoginPage } = <span class="f">require</span>(<span class="s">'../pageobjects/LoginPage'</span>);
+<span class="k">const</span> { DashboardPage } = <span class="f">require</span>(<span class="s">'../pageobjects/DashboardPage'</span>);
+<span class="k">const</span> { CartPage } = <span class="f">require</span>(<span class="s">'../pageobjects/CartPage'</span>);
+<span class="k">const</span> { OrderSummaryPage } = <span class="f">require</span>(<span class="s">'../pageobjects/OrderSummaryPage'</span>);
+<span class="k">const</span> { customtest } = <span class="f">require</span>(<span class="s">'../utils/test-base'</span>);
+
+<span class="f">customtest</span>(<span class="s">`E2E - place order for `</span>, <span class="k">async</span> ({ browser, TestDataForOrder }) =&gt; {
+    <span class="k">const</span> context = <span class="k">await</span> browser.<span class="f">newContext</span>();
+    <span class="k">const</span> page = <span class="k">await</span> context.<span class="f">newPage</span>();
+
+    <span class="k">const</span> loginPage = <span class="k">new</span> <span class="t">LoginPage</span>(page);
+    <span class="k">const</span> dashboardPage = <span class="k">new</span> <span class="t">DashboardPage</span>(page);
+    <span class="k">const</span> cartPage = <span class="k">new</span> <span class="t">CartPage</span>(page);
+    <span class="k">const</span> orderSummaryPage = <span class="k">new</span> <span class="t">OrderSummaryPage</span>(page);
+
+    <span class="k">await</span> loginPage.<span class="f">goTo</span>();
+    <span class="k">await</span> loginPage.<span class="f">ValidLogin</span>(TestDataForOrder.username, TestDataForOrder.password);
+    <span class="k">await</span> dashboardPage.<span class="f">SearchAndAddToCart</span>(TestDataForOrder.Product);
+    <span class="k">await</span> cartPage.<span class="f">NavigateToCart</span>();
+    <span class="k">await</span> cartPage.<span class="f">PlaceOrder</span>(TestDataForOrder.username);
+    <span class="k">await</span> orderSummaryPage.<span class="f">verifyOrder</span>();
+});</code></pre>
+  </article>
+
+  <article class="file" id="f-fixturedemo">
+    <div class="head"><span class="fname">fixturedemo.spec.js</span><span class="path">/tests/fixturedemo.spec.js</span></div>
+    <div class="note"><b>Concept:</b> Uses <code>customtest</code> from <code>fixtures.js</code> — receives an already-logged-in <code>authenticatedPage</code> AND an API-created <code>createOrder</code> result, then verifies that order appears in the UI. Combines UI + API setup via fixtures.</div>
+    <pre><code><span class="k">const</span> { test, expect, request } = <span class="f">require</span>(<span class="s">'@playwright/test'</span>);
+<span class="k">const</span> { customtest } = <span class="f">require</span>(<span class="s">'../utils/fixtures'</span>);
+
+<span class="f">customtest</span>(<span class="s">"fixture demo"</span>, <span class="k">async</span> ({ authenticatedPage, createOrder }) =&gt; {
+    <span class="k">const</span> myOrdersTab = authenticatedPage.<span class="f">locator</span>(<span class="s">"button[routerlink*='myorders']"</span>);
+    authenticatedPage.<span class="f">goto</span>(<span class="s">"https://rahulshettyacademy.com/client"</span>);
+
+    <span class="k">await</span> myOrdersTab.<span class="f">click</span>(); <span class="c">// tap orders tab in navbar</span>
+    <span class="k">await</span> authenticatedPage.<span class="f">locator</span>(<span class="s">"tbody tr th"</span>).<span class="f">last</span>().<span class="f">waitFor</span>();
+    <span class="k">await</span> <span class="f">expect</span>(authenticatedPage.<span class="f">getByText</span>(createOrder.orderid)).<span class="f">toBeVisible</span>();
+});</code></pre>
+  </article>
+</section>
+
+<section class="grp" id="sec7">
+  <h2>7. Tests — API &amp; Hybrid (API + UI)</h2>
+  <p class="grpdesc">API-first patterns: hit the login/order REST endpoints with <code>request</code> context, then inject the JWT into <code>localStorage</code> so the UI opens already-authenticated. Also session reuse via storageState.</p>
+
+  <article class="file" id="f-loginapi">
+    <div class="head"><span class="fname">loginapicall.spec.js</span><span class="path">/tests/loginapicall.spec.js</span></div>
+    <div class="note"><b>Concept:</b> API login in <code>beforeAll</code> + <b>token injection</b> via <code>page.addInitScript</code>. <b>Key fix:</b> the API returns a <code>Response</code> object — you must <code>await response.json()</code> to read <code>.token</code> (you cannot do <code>response.token</code> directly on the raw response).</div>
+    <pre><code><span class="k">const</span> { test, expect, request } = <span class="f">require</span>(<span class="s">'@playwright/test'</span>);
+
+<span class="k">const</span> loginRequestPayload = { userEmail: <span class="s">"r123am@gmail.com"</span>, userPassword: <span class="s">"Amazon@123"</span> };
+<span class="k">let</span> response;
+
+test.<span class="f">beforeAll</span>(<span class="k">async</span> () =&gt; {
+    <span class="k">const</span> apicontext = <span class="k">await</span> request.<span class="f">newContext</span>();
+    response = <span class="k">await</span> apicontext.<span class="f">post</span>(<span class="s">"https://rahulshettyacademy.com/api/ecom/auth/login"</span>, {
+        data: loginRequestPayload,
+    })
+    <span class="f">expect</span>(response.<span class="f">ok</span>()).<span class="f">toBeTruthy</span>();
+})
+
+test(<span class="s">"api post"</span>, <span class="k">async</span> ({ page }) =&gt; {
+    <span class="k">const</span> myOrdersTab = page.<span class="f">locator</span>(<span class="s">"button[routerlink*='myorders']"</span>);
+
+    <span class="k">await</span> page.<span class="f">addInitScript</span>(value =&gt; {
+        window.localStorage.<span class="f">setItem</span>(<span class="s">'token'</span>, value)
+    }, (<span class="k">await</span> response.<span class="f">json</span>()).token);   <span class="c">// must await .json()</span>
+
+    console.<span class="f">log</span>(<span class="k">await</span> response.<span class="f">json</span>());
+
+    <span class="k">await</span> page.<span class="f">goto</span>(<span class="s">"https://rahulshettyacademy.com/client"</span>);
+    <span class="k">await</span> myOrdersTab.<span class="f">click</span>();
+    <span class="k">await</span> page.<span class="f">waitForTimeout</span>(<span class="n">2000</span>);
+})</code></pre>
+  </article>
+
+  <article class="file" id="f-webapi">
+    <div class="head"><span class="fname">webapi.spec.js</span><span class="path">/tests/webapi.spec.js</span></div>
+    <div class="note"><b>Concept:</b> Full API-driven flow inline — login API → grab token → create-order API with Authorization header → assert <code>status()===201</code> → parse order id → inject token → open UI → validate the order in history. Shows raw API calls before extracting them to APIutils.</div>
+    <pre><code><span class="k">const</span> { test, expect, request } = <span class="f">require</span>(<span class="s">'playwright/test'</span>);
+
+<span class="k">let</span> apicontext;
+<span class="k">let</span> token;
+<span class="k">const</span> loginPayLoad = { userEmail: <span class="s">"r123am@gmail.com"</span>, userPassword: <span class="s">"Amazon@123"</span> };
+<span class="k">const</span> orderPayload = { orders: [{ country: <span class="s">"Vietnam"</span>, productOrderedId: <span class="s">"6960ea76c941646b7a8b3dd5"</span> }] }
+<span class="k">let</span> ordersID;
+
+test.<span class="f">beforeAll</span>(<span class="k">async</span> () =&gt; {
+    apicontext = <span class="k">await</span> request.<span class="f">newContext</span>();
+    <span class="k">const</span> loginRespone = <span class="k">await</span> apicontext.<span class="f">post</span>(<span class="s">"https://rahulshettyacademy.com/api/ecom/auth/login"</span>, { data: loginPayLoad });
+    <span class="f">expect</span>(loginRespone.<span class="f">ok</span>()).<span class="f">toBeTruthy</span>();
+    <span class="k">const</span> loginResponeJson = <span class="k">await</span> loginRespone.<span class="f">json</span>();
+    token = loginResponeJson.token;
+
+    <span class="k">const</span> orderRespone = <span class="k">await</span> apicontext.<span class="f">post</span>(<span class="s">"https://rahulshettyacademy.com/api/ecom/order/create-order"</span>, {
+        data: orderPayload,
+        headers: { <span class="s">'Authorization'</span>: token, <span class="s">'Content-Type'</span>: <span class="s">'application/json; charset=utf-8'</span> }
+    });
+    <span class="f">expect</span>(orderRespone.<span class="f">status</span>()).<span class="f">toBe</span>(<span class="n">201</span>);  <span class="c">// exact status code</span>
+    <span class="k">const</span> orderResponeJson = <span class="k">await</span> orderRespone.<span class="f">json</span>();
+    ordersID = orderResponeJson.orders[<span class="n">0</span>];
+});
+
+test(<span class="s">"E2E - webapi - place order in Client website"</span>, <span class="k">async</span> ({ browser }) =&gt; {
+    <span class="k">const</span> context = <span class="k">await</span> browser.<span class="f">newContext</span>();
+    <span class="k">const</span> page = <span class="k">await</span> context.<span class="f">newPage</span>();
+
+    <span class="k">await</span> page.<span class="f">addInitScript</span>(value =&gt; {
+        window.localStorage.<span class="f">setItem</span>(<span class="s">'token'</span>, value)
+    }, token);
+
+    <span class="k">await</span> page.<span class="f">goto</span>(<span class="s">"https://rahulshettyacademy.com/client"</span>);
+    <span class="k">const</span> myOrdersTab = page.<span class="f">locator</span>(<span class="s">"button[routerlink*='myorders']"</span>);
+    <span class="k">await</span> myOrdersTab.<span class="f">click</span>();
+    <span class="k">await</span> page.<span class="f">locator</span>(<span class="s">"tbody tr th"</span>).<span class="f">last</span>().<span class="f">waitFor</span>();
+    <span class="k">const</span> orderCount = <span class="k">await</span> page.<span class="f">locator</span>(<span class="s">"tbody tr th"</span>).<span class="f">count</span>();
+    <span class="k">for</span> (<span class="k">let</span> index = <span class="n">0</span>; index &lt; orderCount; index++) {
+        <span class="k">if</span> (<span class="k">await</span> page.<span class="f">locator</span>(<span class="s">"tbody tr th"</span>).<span class="f">nth</span>(index).<span class="f">textContent</span>() === ordersID) {
+            <span class="k">await</span> page.<span class="f">locator</span>(<span class="s">"tr .btn-primary"</span>).<span class="f">nth</span>(index).<span class="f">click</span>();
+            <span class="k">break</span>;
+        }
+    }
+    <span class="k">await</span> <span class="f">expect</span>(page.<span class="f">locator</span>(<span class="s">".email-title"</span>)).<span class="f">toHaveText</span>(<span class="s">" order summary "</span>);
+    <span class="k">await</span> <span class="f">expect</span>(page.<span class="f">locator</span>(<span class="s">"div.col-text"</span>)).<span class="f">toHaveText</span>(ordersID);
+
+    <span class="k">await</span> context.<span class="f">close</span>();
+    <span class="k">await</span> browser.<span class="f">close</span>();
+});</code></pre>
+  </article>
+
+  <article class="file" id="f-webapi1">
+    <div class="head"><span class="fname">webapi_part1.spec.js</span><span class="path">/tests/webapi_part1.spec.js</span></div>
+    <div class="note"><b>Concept:</b> Same flow, now refactored to use the <b>APIutils facade</b> — <code>new APIutils(apicontext, loginPayLoad).createOrder(orderPayload)</code> returns <code>{ token, orderid }</code>. Tagged <code>@API</code>. Here <code>response.token</code> works because APIutils already parsed the JSON.</div>
+    <pre><code><span class="k">const</span> { test, expect, request } = <span class="f">require</span>(<span class="s">'playwright/test'</span>);
+<span class="k">const</span> { APIutils } = <span class="f">require</span>(<span class="s">'../utils/APIutils'</span>);
+
+<span class="k">let</span> apicontext;
+<span class="k">const</span> loginPayLoad = { userEmail: <span class="s">"r123am@gmail.com"</span>, userPassword: <span class="s">"Amazon@123"</span> };
+<span class="k">const</span> orderPayload = { orders: [{ country: <span class="s">"Vietnam"</span>, productOrderedId: <span class="s">"6960ea76c941646b7a8b3dd5"</span> }] }
+<span class="k">let</span> response;
+
+test.<span class="f">beforeAll</span>(<span class="k">async</span> () =&gt; {
+    apicontext = <span class="k">await</span> request.<span class="f">newContext</span>();
+    <span class="k">const</span> apiutils = <span class="k">new</span> <span class="t">APIutils</span>(apicontext, loginPayLoad);
+    response = <span class="k">await</span> apiutils.<span class="f">createOrder</span>(orderPayload);
+});
+
+test(<span class="s">"@API E2E - webapi - part 1"</span>, <span class="k">async</span> ({ browser }) =&gt; {
+    <span class="k">const</span> context = <span class="k">await</span> browser.<span class="f">newContext</span>();
+    <span class="k">const</span> page = <span class="k">await</span> context.<span class="f">newPage</span>();
+
+    <span class="k">await</span> page.<span class="f">addInitScript</span>(value =&gt; {
+        window.localStorage.<span class="f">setItem</span>(<span class="s">'token'</span>, value)
+    }, response.token);
+
+    <span class="k">await</span> page.<span class="f">goto</span>(<span class="s">"https://rahulshettyacademy.com/client"</span>);
+    <span class="k">const</span> myOrdersTab = page.<span class="f">locator</span>(<span class="s">"button[routerlink*='myorders']"</span>);
+    <span class="k">await</span> myOrdersTab.<span class="f">click</span>();
+    <span class="k">await</span> page.<span class="f">locator</span>(<span class="s">"tbody tr th"</span>).<span class="f">last</span>().<span class="f">waitFor</span>();
+    <span class="k">const</span> orderCount = <span class="k">await</span> page.<span class="f">locator</span>(<span class="s">"tbody tr th"</span>).<span class="f">count</span>();
+    <span class="k">for</span> (<span class="k">let</span> index = <span class="n">0</span>; index &lt; orderCount; index++) {
+        <span class="k">if</span> (<span class="k">await</span> page.<span class="f">locator</span>(<span class="s">"tbody tr th"</span>).<span class="f">nth</span>(index).<span class="f">textContent</span>() === response.orderid) {
+            <span class="k">await</span> page.<span class="f">locator</span>(<span class="s">"tr .btn-primary"</span>).<span class="f">nth</span>(index).<span class="f">click</span>();
+            <span class="k">break</span>;
+        }
+    }
+    <span class="k">await</span> <span class="f">expect</span>(page.<span class="f">locator</span>(<span class="s">".email-title"</span>)).<span class="f">toHaveText</span>(<span class="s">" order summary "</span>);
+    <span class="k">await</span> <span class="f">expect</span>(page.<span class="f">locator</span>(<span class="s">"div.col-text"</span>)).<span class="f">toHaveText</span>(response.orderid);
+
+    <span class="k">await</span> context.<span class="f">close</span>();
+    <span class="k">await</span> browser.<span class="f">close</span>();
+});</code></pre>
+  </article>
+
+  <article class="file" id="f-webapi2">
+    <div class="head"><span class="fname">webapi_part2.spec.js</span><span class="path">/tests/webapi_part2.spec.js</span></div>
+    <div class="note"><b>Concept:</b> <b>Session reuse via storageState</b> — log in once in <code>beforeAll</code>, save cookies/localStorage with <code>context.storageState({ path: 'state.json' })</code>, then create new contexts pre-authenticated with <code>{ storageState: 'state.json' }</code>. Multiple tests share the saved session. Also demonstrates sharing variables across tests.</div>
+    <pre><code><span class="k">const</span> path = <span class="f">require</span>(<span class="s">'node:path'</span>);
+<span class="k">const</span> { test, expect } = <span class="f">require</span>(<span class="s">'playwright/test'</span>);
+
+<span class="k">let</span> webContext;
+<span class="k">let</span> OpenUrl, userName, Password, SignIn, cardTitles, cardPrices, allAddToCart;
+<span class="k">let</span> AddedToCartSuccessMsg, email, allPrices, allTitles;
+
+test.<span class="f">beforeAll</span>(<span class="k">async</span> ({ browser }) =&gt; {
+    <span class="k">const</span> context = <span class="k">await</span> browser.<span class="f">newContext</span>();
+    <span class="k">const</span> page = <span class="k">await</span> context.<span class="f">newPage</span>();
+    email = <span class="s">"r123am@gmail.com"</span>;
+    OpenUrl = page.<span class="f">goto</span>(<span class="s">"https://rahulshettyacademy.com/client"</span>);
+    userName = page.<span class="f">locator</span>(<span class="s">"[formcontrolname='userEmail']"</span>);
+    Password = page.<span class="f">locator</span>(<span class="s">"#userPassword"</span>);
+    SignIn = page.<span class="f">locator</span>(<span class="s">"#login"</span>);
+    cardTitles = page.<span class="f">locator</span>(<span class="s">".card-body b"</span>);
+
+    <span class="k">await</span> OpenUrl;
+    <span class="k">await</span> userName.<span class="f">fill</span>(email);
+    <span class="k">await</span> Password.<span class="f">fill</span>(<span class="s">"Amazon@123"</span>);
+    <span class="k">await</span> SignIn.<span class="f">click</span>();
+    <span class="k">await</span> cardTitles.<span class="f">last</span>().<span class="f">waitFor</span>();
+
+    <span class="k">await</span> context.<span class="f">storageState</span>({ path: <span class="s">'state.json'</span> });
+    webContext = <span class="k">await</span> browser.<span class="f">newContext</span>({ storageState: <span class="s">'state.json'</span> });
+})
+
+test(<span class="s">"E2E - webapi part 2 - storage state"</span>, <span class="k">async</span> () =&gt; {
+    <span class="k">const</span> page = <span class="k">await</span> webContext.<span class="f">newPage</span>();
+    cardPrices = page.<span class="f">locator</span>(<span class="s">"div.card-body .text-muted"</span>);
+    allAddToCart = page.<span class="f">locator</span>(<span class="s">"button.w-10"</span>);
+    AddedToCartSuccessMsg = page.<span class="f">locator</span>(<span class="s">"#toast-container"</span>);
+    <span class="k">await</span> page.<span class="f">goto</span>(<span class="s">"https://rahulshettyacademy.com/client"</span>);
+
+    <span class="k">const</span> myOrdersLink = page.<span class="f">locator</span>(<span class="s">"label[routerlink*='myorders']"</span>);
+    allTitles = <span class="k">await</span> cardTitles.<span class="f">allTextContents</span>();
+    allPrices = <span class="k">await</span> cardPrices.<span class="f">allTextContents</span>();
+    <span class="k">const</span> Product = <span class="s">"ZARA COAT 3"</span>;
+
+    <span class="k">for</span> (<span class="k">let</span> index = <span class="n">0</span>; index &lt; allTitles.length; index++) {
+        <span class="k">if</span> (<span class="s">`${allTitles[index]}`</span> == Product) {
+            <span class="k">await</span> allAddToCart.<span class="f">nth</span>(index).<span class="f">click</span>();
+            <span class="k">await</span> page.<span class="f">locator</span>(<span class="s">"#toast-container"</span>).<span class="f">locator</span>(<span class="s">"text=Product Added To Cart"</span>).<span class="f">waitFor</span>();
+            <span class="k">await</span> <span class="f">expect</span>(AddedToCartSuccessMsg).<span class="f">toContainText</span>(<span class="s">'Product Added To Cart'</span>);
+            <span class="k">break</span>;
+        }
+    }
+    <span class="c">// ... checkout, country dropdown, place order, verify in order history (same as client.spec.js) ...</span>
+});
+
+test(<span class="s">"E2E - webapi part 2 - testcase 2"</span>, <span class="k">async</span> () =&gt; {
+    <span class="k">const</span> page = <span class="k">await</span> webContext.<span class="f">newPage</span>();
+    <span class="k">await</span> page.<span class="f">goto</span>(<span class="s">"https://rahulshettyacademy.com/client"</span>);
+    <span class="k">for</span> (<span class="k">let</span> index = <span class="n">0</span>; index &lt; allTitles.length; index++) {
+        console.<span class="f">log</span>(<span class="s">`${index + 1}) Product : ${allTitles[index]} =&gt; Price : ${allPrices[index]}`</span>);
+    }
+})
+<span class="c">// shift+ctrl+p -&gt; debug mode in VS Code</span></code></pre>
+  </article>
+
+  <article class="file" id="f-webapinet">
+    <div class="head"><span class="fname">webapi_network.spec.js</span><span class="path">/tests/webapi_network.spec.js</span></div>
+    <div class="note"><b>Concept:</b> Despite the name, this uses the <b>APIutils facade</b> (not <code>page.route()</code> network interception). It creates an order via API, injects the token, opens the UI and pauses to inspect the orders table. <b>Note:</b> real network interception with <code>page.route()</code> is implemented in the next file, <code>webapi_network_route.spec.js</code>.</div>
+    <pre><code><span class="k">const</span> { test, expect, request } = <span class="f">require</span>(<span class="s">'playwright/test'</span>);
+<span class="k">const</span> { APIutils } = <span class="f">require</span>(<span class="s">'../utils/APIutils'</span>);
+
+<span class="k">let</span> apicontext;
+<span class="k">const</span> loginPayLoad = { userEmail: <span class="s">"r123am@gmail.com"</span>, userPassword: <span class="s">"Amazon@123"</span> };
+<span class="k">const</span> orderPayload = { orders: [{ country: <span class="s">"Vietnam"</span>, productOrderedId: <span class="s">"6960ea76c941646b7a8b3dd5"</span> }] }
+<span class="k">let</span> response;
+
+test.<span class="f">beforeAll</span>(<span class="k">async</span> () =&gt; {
+    apicontext = <span class="k">await</span> request.<span class="f">newContext</span>();
+    <span class="k">const</span> apiutils = <span class="k">new</span> <span class="t">APIutils</span>(apicontext, loginPayLoad);
+    response = <span class="k">await</span> apiutils.<span class="f">createOrder</span>(orderPayload);
+});
+
+test(<span class="s">"E2E - webapi - part 1"</span>, <span class="k">async</span> ({ browser }) =&gt; {
+    <span class="k">const</span> context = <span class="k">await</span> browser.<span class="f">newContext</span>();
+    <span class="k">const</span> page = <span class="k">await</span> context.<span class="f">newPage</span>();
+
+    <span class="k">await</span> page.<span class="f">addInitScript</span>(value =&gt; {
+        window.localStorage.<span class="f">setItem</span>(<span class="s">'token'</span>, value)
+    }, response.token);
+
+    <span class="k">await</span> page.<span class="f">goto</span>(<span class="s">"https://rahulshettyacademy.com/client"</span>);
+    <span class="k">const</span> myOrdersTab = page.<span class="f">locator</span>(<span class="s">"button[routerlink*='myorders']"</span>);
+    <span class="k">await</span> myOrdersTab.<span class="f">click</span>();
+    <span class="k">await</span> page.<span class="f">pause</span>();
+    <span class="k">await</span> page.<span class="f">locator</span>(<span class="s">"tbody tr th"</span>).<span class="f">last</span>().<span class="f">waitFor</span>();
+    <span class="k">const</span> orderCount = <span class="k">await</span> page.<span class="f">locator</span>(<span class="s">"tbody tr th"</span>).<span class="f">count</span>();
+});</code></pre>
+  </article>
+
+  <article class="file" id="f-webapiroute">
+    <div class="head"><span class="fname">webapi_network_route.spec.js</span><span class="path">/tests/webapi_network_route.spec.js</span></div>
+    <div class="note"><b>Concept — Network Interception / Response Mocking (<code>page.route</code> + <code>route.fulfill</code>):</b> This is the real network-interception example. It intercepts the "get orders for customer" API, fetches the genuine response with <code>page.request.fetch(route.request())</code>, then <b>overrides the body</b> with a fake payload (<code>{ data: [], message: "No Orders" }</code>) via <code>route.fulfill</code>. The <code>*</code> wildcard makes the pattern match any customer id. <code>page.waitForResponse(...)</code> (like <code>waitForLoadState('networkidle')</code>) prevents the assertion from reading a stale message before the mocked response renders.</div>
+    <pre><code><span class="k">const</span> { test, expect, request } = <span class="f">require</span>(<span class="s">"playwright/test"</span>);
+<span class="k">const</span> { APIutils } = <span class="f">require</span>(<span class="s">"../utils/APIutils"</span>);
+
+<span class="k">let</span> apicontext;
+<span class="k">const</span> loginPayLoad = { userEmail: <span class="s">"r123am@gmail.com"</span>, userPassword: <span class="s">"Amazon@123"</span> };
+<span class="k">const</span> orderPayload = { orders: [{ country: <span class="s">"Vietnam"</span>, productOrderedId: <span class="s">"6960ea76c941646b7a8b3dd5"</span> }] }; <span class="c">// iphone 13 pro</span>
+<span class="k">let</span> response;
+<span class="k">let</span> FakePayLoadOrder = { data: [], message: <span class="s">"No Orders"</span> };   <span class="c">// fake body we will inject</span>
+
+test.<span class="f">beforeAll</span>(<span class="k">async</span> () =&gt; {
+    apicontext = <span class="k">await</span> request.<span class="f">newContext</span>();
+    <span class="k">const</span> apiutils = <span class="k">new</span> <span class="t">APIutils</span>(apicontext, loginPayLoad);
+    response = <span class="k">await</span> apiutils.<span class="f">createOrder</span>(orderPayload);
+});
+
+test(<span class="s">"@API E2E - webapi - part 1"</span>, <span class="k">async</span> ({ browser }) =&gt; {
+    <span class="k">const</span> context = <span class="k">await</span> browser.<span class="f">newContext</span>();
+    <span class="k">const</span> page = <span class="k">await</span> context.<span class="f">newPage</span>();
+
+    <span class="c">// inject token so the UI opens logged-in</span>
+    <span class="k">await</span> page.<span class="f">addInitScript</span>((value) =&gt; {
+        window.localStorage.<span class="f">setItem</span>(<span class="s">"token"</span>, value);
+    }, response.token);
+
+    <span class="k">const</span> OpenUrl = page.<span class="f">goto</span>(<span class="s">"https://rahulshettyacademy.com/client"</span>);
+    <span class="k">const</span> myOrdersTab = page.<span class="f">locator</span>(<span class="s">"button[routerlink*='myorders']"</span>);
+
+    <span class="k">await</span> OpenUrl;
+
+    <span class="c">// ===== NETWORK INTERCEPTION =====</span>
+    <span class="c">// API sends real response --&gt; |Playwright fakes/overrides it| --&gt; browser renders our fake data</span>
+    <span class="k">await</span> page.<span class="f">route</span>(
+        <span class="s">"https://rahulshettyacademy.com/api/ecom/order/get-orders-for-customer/*"</span>,
+        <span class="k">async</span> (route) =&gt; {
+            <span class="c">// fetch the genuine response first</span>
+            <span class="k">const</span> FetchedResponse = <span class="k">await</span> page.request.<span class="f">fetch</span>(route.<span class="f">request</span>());
+            <span class="c">// serialize our fake body</span>
+            <span class="k">let</span> body = JSON.<span class="f">stringify</span>(FakePayLoadOrder);
+            <span class="c">// override the body sent to the browser</span>
+            route.<span class="f">fulfill</span>({
+                FetchedResponse,
+                body,
+            });
+        },
+    );
+
+    <span class="k">await</span> myOrdersTab.<span class="f">click</span>(); <span class="c">// tap orders tab in navbar</span>
+    <span class="k">await</span> page.<span class="f">pause</span>();
+
+    <span class="c">// wait for the mocked response so we don't read a stale message</span>
+    <span class="c">// waitForResponse behaves like waitForLoadState("networkidle") here</span>
+    <span class="k">await</span> page.<span class="f">waitForResponse</span>(<span class="s">"https://rahulshettyacademy.com/api/ecom/order/get-orders-for-customer/*"</span>);
+
+    <span class="c">// prints the "No Orders" message that came from our fake payload</span>
+    console.<span class="f">log</span>(<span class="k">await</span> page.<span class="f">locator</span>(<span class="s">".mt-4"</span>).<span class="f">textContent</span>());
+
+    <span class="k">await</span> context.<span class="f">close</span>();
+    <span class="k">await</span> browser.<span class="f">close</span>();
+});</code></pre>
+  </article>
+</section>
+
+<section class="grp" id="sec8">
+  <h2>8. Cucumber BDD Layer</h2>
+  <p class="grpdesc">Gherkin features describe behaviour in plain English; step definitions bind each phrase to the same page objects; hooks manage browser lifecycle. Reuses the POM layer, so no duplication.</p>
+
+  <article class="file" id="f-ecommerce">
+    <div class="head"><span class="fname">ecommerce.feature</span><span class="path">/features/ecommerce.feature</span></div>
+    <div class="note"><b>Concept:</b> <b>Scenario Outline</b> with an <code>Examples</code> data table — the same scenario runs once per row (data-driven BDD). Tagged <code>@DataValidation</code>.</div>
+    <pre><code><span class="k">Feature:</span> Ecommerce4 Validation
+    <span class="t">@DataValidation</span>
+    <span class="k">Scenario Outline:</span> Place order and verify in order history
+        <span class="k">Given</span> I login to the ecommerce application with <span class="s">"&lt;username&gt;"</span> and <span class="s">"&lt;password&gt;"</span>
+        <span class="k">When</span> I search for <span class="s">"&lt;product&gt;"</span> and add it to cart
+        <span class="k">And</span> I verify product is displayed in the cart
+        <span class="k">And</span> I enter account details and place the order for the <span class="s">"&lt;username&gt;"</span>
+        <span class="k">Then</span> I should see the order in the order history page
+
+        <span class="k">Examples:</span>
+        | username          | password    | product         |
+        | r123am@gmail.com  | Amazon@123  | ZARA COAT 3     |
+        | q123am@gmail.com  | Amazon@123  | ADIDAS ORIGINAL |
+        | p123am@gmail.com  | Amazon@123  | ADIDAS ORIGINAL |</code></pre>
+  </article>
+
+  <article class="file" id="f-ecommerce1">
+    <div class="head"><span class="fname">ecommerce1.feature</span><span class="path">/features/ecommerce1.feature</span></div>
+    <div class="note"><b>Concept:</b> A single hard-coded <code>Scenario</code> (not outline) tagged <code>@Regression</code>.</div>
+    <pre><code><span class="k">Feature:</span> Ecommerce5 Validation
+    <span class="t">@Regression</span>
+    <span class="k">Scenario:</span> Place order and verify in order history
+        <span class="k">Given</span> I login to the ecommerce application with <span class="s">"r123am@gmail.com"</span> and <span class="s">"Amazon@123"</span>
+        <span class="k">When</span> I search for <span class="s">"ADIDAS ORIGINAL"</span> and add it to cart
+        <span class="k">And</span> I verify product is displayed in the cart
+        <span class="k">And</span> I enter account details and place the order for the <span class="s">"r123am@gmail.com"</span>
+        <span class="k">Then</span> I should see the order in the order history page</code></pre>
+  </article>
+
+  <article class="file" id="f-loginfeat">
+    <div class="head"><span class="fname">loginPractice.feature</span><span class="path">/features/loginPractice.feature</span></div>
+    <div class="note"><b>Concept:</b> Negative login scenario tagged <code>@E2E</code> — verifies an error message.</div>
+    <pre><code><span class="k">Feature:</span> Ecommerce3 Validation
+    <span class="t">@E2E</span>
+    <span class="k">Scenario:</span> Incorrect Login and verify error message
+        <span class="k">Given</span> I login to the LoginPractice application with <span class="s">"rahulshettyacademy"</span> and <span class="s">"Learning@"</span>
+        <span class="k">Then</span> verify error message is displayed</code></pre>
+  </article>
+
+  <article class="file" id="f-parallel">
+    <div class="head"><span class="fname">multipleScenariosParallel.feature</span><span class="path">/features/multipleScenariosParallel.feature</span></div>
+    <div class="note"><b>Concept:</b> Two scenarios in one feature (one <code>@Regression</code>, one <code>@E2E</code>) — run in parallel with <code>npx cucumber-js --parallel 2</code>. <b>Note:</b> a feature file must have exactly one <code>Feature:</code> line at the top; duplicate Feature lines cause the "expected #EOF … got 'Feature:'" parse error.</div>
+    <pre><code><span class="k">Feature:</span> Ecommerce Validation
+    <span class="t">@Regression</span>
+    <span class="k">Scenario:</span> Place order and verify in order history
+        <span class="k">Given</span> I login to the ecommerce application with <span class="s">"r123am@gmail.com"</span> and <span class="s">"Amazon@123"</span>
+        <span class="k">When</span> I search for <span class="s">"ADIDAS ORIGINAL"</span> and add it to cart
+        <span class="k">And</span> I verify product is displayed in the cart
+        <span class="k">And</span> I enter account details and place the order for the <span class="s">"r123am@gmail.com"</span>
+        <span class="k">Then</span> I should see the order in the order history page
+
+    <span class="t">@E2E</span>
+    <span class="k">Scenario:</span> Incorrect Login and verify error message
+        <span class="k">Given</span> I login to the LoginPractice application with <span class="s">"rahulshettyacademy"</span> and <span class="s">"Learning@"</span>
+        <span class="k">Then</span> verify error message is displayed</code></pre>
+  </article>
+
+  <article class="file" id="f-steps">
+    <div class="head"><span class="fname">steps.js</span><span class="path">/features/step_definitions/steps.js</span></div>
+    <div class="note"><b>Concept:</b> Step definitions using <code>Given/When/Then</code> with <code>{string}</code> params, sharing state via <code>this</code> (the World), reusing page objects, and <code>setDefaultTimeout(30000)</code> because Cucumber's 5s default is too short. Includes a per-step timeout override and the CLI command notes.</div>
+    <pre><code><span class="k">const</span> { Given, When, Then } = <span class="f">require</span>(<span class="s">'@cucumber/cucumber'</span>)
+<span class="k">const</span> { LoginPage } = <span class="f">require</span>(<span class="s">'../../pageobjects/LoginPage'</span>);
+<span class="k">const</span> { DashboardPage } = <span class="f">require</span>(<span class="s">'../../pageobjects/DashboardPage'</span>);
+<span class="k">const</span> { CartPage } = <span class="f">require</span>(<span class="s">'../../pageobjects/CartPage'</span>);
+<span class="k">const</span> { OrderSummaryPage } = <span class="f">require</span>(<span class="s">'../../pageobjects/OrderSummaryPage'</span>);
+<span class="k">const</span> { expect } = <span class="f">require</span>(<span class="s">'playwright/test'</span>);
+<span class="k">const</span> { setDefaultTimeout } = <span class="f">require</span>(<span class="s">'@cucumber/cucumber'</span>);
+<span class="f">setDefaultTimeout</span>(<span class="n">30000</span>);
+
+<span class="c">// npx cucumber-js features/loginPractice.feature --tags "@Regression"</span>
+<span class="c">// npx cucumber-js --tags "@E2E"</span>
+
+<span class="f">Given</span>(<span class="s">'I login to the ecommerce application with {string} and {string}'</span>, <span class="k">async</span> <span class="k">function</span> (username, password) {
+    <span class="k">this</span>.loginPage = <span class="k">new</span> <span class="t">LoginPage</span>(<span class="k">this</span>.page);
+    <span class="k">await</span> <span class="k">this</span>.loginPage.<span class="f">goTo</span>();
+    <span class="k">await</span> <span class="k">this</span>.loginPage.<span class="f">ValidLogin</span>(username, password);
+});
+
+<span class="f">When</span>(<span class="s">'I search for {string} and add it to cart'</span>, <span class="k">async</span> <span class="k">function</span> (product) {
+    <span class="k">this</span>.dashboardPage = <span class="k">new</span> <span class="t">DashboardPage</span>(<span class="k">this</span>.page);
+    <span class="k">await</span> <span class="k">this</span>.dashboardPage.<span class="f">SearchAndAddToCart</span>(product);
+});
+
+<span class="f">When</span>(<span class="s">'I verify product is displayed in the cart'</span>, <span class="k">async</span> <span class="k">function</span> () {
+    <span class="k">this</span>.cartPage = <span class="k">new</span> <span class="t">CartPage</span>(<span class="k">this</span>.page);
+    <span class="k">await</span> <span class="k">this</span>.cartPage.<span class="f">NavigateToCart</span>();
+});
+
+<span class="f">When</span>(<span class="s">'I enter account details and place the order for the {string}'</span>, <span class="k">async</span> <span class="k">function</span> (user) {
+    <span class="k">await</span> <span class="k">this</span>.cartPage.<span class="f">PlaceOrder</span>(user);
+});
+
+<span class="f">Then</span>(<span class="s">'I should see the order in the order history page'</span>, <span class="k">async</span> <span class="k">function</span> () {
+    <span class="k">this</span>.orderSummaryPage = <span class="k">new</span> <span class="t">OrderSummaryPage</span>(<span class="k">this</span>.page);
+    <span class="k">await</span> <span class="k">this</span>.orderSummaryPage.<span class="f">verifyOrder</span>();
+});
+
+<span class="f">Given</span>(<span class="s">'I login to the LoginPractice application with {string} and {string}'</span>, { timeout: <span class="n">30000</span> }, <span class="k">async</span> <span class="k">function</span> (useremail, userpassword) {
+    <span class="k">const</span> userName = <span class="k">this</span>.page.<span class="f">locator</span>(<span class="s">'#username'</span>);
+    <span class="k">const</span> Password = <span class="k">this</span>.page.<span class="f">locator</span>(<span class="s">'[name="password"]'</span>);
+    <span class="k">const</span> SubmitBtn = <span class="k">this</span>.page.<span class="f">locator</span>(<span class="s">'.btn-md'</span>);
+    <span class="k">await</span> <span class="k">this</span>.page.<span class="f">goto</span>(<span class="s">"https://rahulshettyacademy.com/loginpagePractise/"</span>);
+    <span class="k">await</span> userName.<span class="f">fill</span>(useremail);
+    <span class="k">await</span> Password.<span class="f">fill</span>(userpassword);
+    <span class="k">await</span> SubmitBtn.<span class="f">click</span>();
+});
+
+<span class="f">Then</span>(<span class="s">'verify error message is displayed'</span>, <span class="k">async</span> <span class="k">function</span> () {
+    <span class="k">const</span> errorMsgLocator = <span class="k">this</span>.page.<span class="f">locator</span>(<span class="s">'[style*="block"]'</span>);
+    <span class="k">await</span> <span class="f">expect</span>(errorMsgLocator).<span class="f">toContainText</span>(<span class="s">'Incorrect'</span>);
+});</code></pre>
+  </article>
+
+  <article class="file" id="f-hooks">
+    <div class="head"><span class="fname">hooks.js</span><span class="path">/features/support/hooks.js</span></div>
+    <div class="note"><b>Concept:</b> Cucumber lifecycle hooks — <code>Before</code> launches the browser and attaches page to the World; <code>After</code> closes everything (so the process doesn't hang); <code>BeforeStep({tags:'@E2E'})</code> and <code>AfterStep</code> log/screenshot on failure.</div>
+    <pre><code><span class="k">const</span> { After, Before, BeforeStep, AfterStep, Status } = <span class="f">require</span>(<span class="s">'@cucumber/cucumber'</span>);
+<span class="k">const</span> playwright = <span class="f">require</span>(<span class="s">'playwright'</span>);
+
+<span class="f">Before</span>(<span class="k">async</span> <span class="k">function</span> () {
+    <span class="k">this</span>.browser = <span class="k">await</span> playwright.chromium.<span class="f">launch</span>({ headless: <span class="k">true</span> });
+    <span class="k">this</span>.context = <span class="k">await</span> <span class="k">this</span>.browser.<span class="f">newContext</span>();
+    <span class="k">this</span>.page = <span class="k">await</span> <span class="k">this</span>.context.<span class="f">newPage</span>();
+});
+
+<span class="f">After</span>(<span class="k">async</span> <span class="k">function</span> () {
+    <span class="k">if</span> (<span class="k">this</span>.page) <span class="k">await</span> <span class="k">this</span>.page.<span class="f">close</span>();
+    <span class="k">if</span> (<span class="k">this</span>.context) <span class="k">await</span> <span class="k">this</span>.context.<span class="f">close</span>();
+    <span class="k">if</span> (<span class="k">this</span>.browser) <span class="k">await</span> <span class="k">this</span>.browser.<span class="f">close</span>();
+});
+
+<span class="f">BeforeStep</span>({ tags: <span class="s">'@E2E'</span> }, <span class="k">async</span> <span class="k">function</span> () {
+    console.<span class="f">log</span>(<span class="s">"=== @E2E Before Step ==="</span>);
+});
+
+<span class="f">AfterStep</span>(<span class="k">async</span> <span class="k">function</span> ({ result }) {
+    console.<span class="f">log</span>(<span class="s">"=== After Step ==="</span>);
+    <span class="k">if</span> (result.status === Status.FAILED) {
+        <span class="k">await</span> <span class="k">this</span>.page.<span class="f">screenshot</span>({ path: <span class="s">'fail_screenshot_1.png'</span> });
+    }
+});</code></pre>
+  </article>
+</section>
+
+<section class="grp" id="sec9">
+  <h2>9. JavaScript / TypeScript Learning Programs</h2>
+  <p class="grpdesc">Standalone programs from the "Playwright Concepts" folder that teach the JS/TS fundamentals behind the framework — classes, inheritance, objects, types, and interview string problems.</p>
+
+  <article class="file" id="f-classes">
+    <div class="head"><span class="fname">classes.js</span><span class="path">/Playwright Concepts/classes.js</span></div>
+    <div class="note"><b>Concept:</b> ES6 <b>class</b> — class field, getter, constructor, method, and CommonJS export. The foundation of the Page Object pattern.</div>
+    <pre><code><span class="k">class</span> <span class="t">Person</span> {
+    age = <span class="n">31</span>
+
+    <span class="k">get</span> <span class="f">schoolName</span>() {
+        <span class="k">return</span> <span class="s">"Velammal"</span>
+    }
+
+    <span class="f">constructor</span>(firstName, lastName) {
+        <span class="k">this</span>.firstName = firstName;
+        <span class="k">this</span>.lastName = lastName;
+    }
+
+    <span class="f">fullName</span>() {
+        console.<span class="f">log</span>(<span class="k">this</span>.firstName + <span class="k">this</span>.lastName);
+    }
+}
+
+module.exports = Person;</code></pre>
+  </article>
+
+  <article class="file" id="f-inheritance">
+    <div class="head"><span class="fname">inheritance.js</span><span class="path">/Playwright Concepts/inheritance.js</span></div>
+    <div class="note"><b>Concept:</b> <b>Inheritance</b> with <code>extends</code> / <code>super</code>. Child overrides <code>schoolName</code> getter but can still reach the parent's via <code>super.schoolName</code>.</div>
+    <pre><code><span class="k">const</span> Person = <span class="f">require</span>(<span class="s">'./classes'</span>);
+
+<span class="k">class</span> <span class="t">Family</span> <span class="k">extends</span> <span class="t">Person</span> {
+    <span class="f">constructor</span>(firstName, lastName) {
+        <span class="f">super</span>(firstName, lastName)
+    }
+
+    <span class="k">get</span> <span class="f">schoolName</span>() {
+        <span class="k">return</span> <span class="s">"SRV"</span>;              <span class="c">// Child's school</span>
+    }
+
+    <span class="k">get</span> <span class="f">parentSchoolName</span>() {
+        <span class="k">return</span> <span class="k">super</span>.schoolName;      <span class="c">// Parent's school (Velammal)</span>
+    }
+}
+
+<span class="k">let</span> child = <span class="k">new</span> <span class="t">Family</span>(<span class="s">'Gandhi'</span>, <span class="s">'Singh'</span>);
+child.<span class="f">fullName</span>();
+console.<span class="f">log</span>(child.schoolName);           <span class="c">// SRV</span>
+console.<span class="f">log</span>(child.parentSchoolName);     <span class="c">// Velammal</span></code></pre>
+  </article>
+
+  <article class="file" id="f-objects">
+    <div class="head"><span class="fname">objects.js</span><span class="path">/Playwright Concepts/objects.js</span></div>
+    <div class="note"><b>Concept:</b> Object literals with method properties, the difference between a method that <code>console.log</code>s (returns undefined) vs one that <code>return</code>s a value, and creating instances from an imported class.</div>
+    <pre><code><span class="k">const</span> Person = <span class="f">require</span>(<span class="s">'./classes'</span>);
+
+<span class="c">// object = collection of properties</span>
+<span class="k">let</span> person_obj = {
+    firstName: <span class="s">'Sam'</span>,
+    lastName: <span class="s">'Shankar'</span>,
+    fullName: <span class="k">function</span> () {
+        console.<span class="f">log</span>(<span class="k">this</span>.firstName + <span class="s">' '</span> + <span class="k">this</span>.lastName)
+    },
+    fullName_returns: <span class="k">function</span> () {
+        <span class="k">return</span> <span class="k">this</span>.firstName + <span class="s">' '</span> + <span class="k">this</span>.lastName
+    }
+};
+
+console.<span class="f">log</span>(person_obj.fullName)         <span class="c">// prints the function definition</span>
+console.<span class="f">log</span>(person_obj.<span class="f">fullName</span>())       <span class="c">// prints "Sam Shankar" then undefined</span>
+person_obj.<span class="f">fullName</span>()                    <span class="c">// prints "Sam Shankar"</span>
+console.<span class="f">log</span>(person_obj.<span class="f">fullName_returns</span>())
+
+<span class="k">let</span> dummy = person_obj.<span class="f">fullName_returns</span>();
+console.<span class="f">log</span>(<span class="s">'dummy: '</span> + dummy)
+
+<span class="k">const</span> student_3 = <span class="k">new</span> <span class="t">Person</span>(<span class="s">'Santosh'</span>, <span class="s">'Kumar'</span>)
+student_3.<span class="f">fullName</span>();</code></pre>
+  </article>
+
+  <article class="file" id="f-demojs">
+    <div class="head"><span class="fname">demojs.js</span><span class="path">/Playwright Concepts/demojs.js</span></div>
+    <div class="note"><b>Concept:</b> Plain JavaScript variables and a function. Shows JS type coercion — <code>add1(2, "3")</code> returns the string <code>"23"</code> because <code>+</code> concatenates when one operand is a string.</div>
+    <pre><code><span class="k">let</span> namme = <span class="s">'raji'</span>;
+<span class="k">let</span> agge = <span class="n">21</span>;
+<span class="k">let</span> arr = [<span class="n">1</span>, <span class="n">5</span>, <span class="n">7</span>];
+
+console.<span class="f">log</span>(namme);
+
+<span class="k">function</span> <span class="f">add1</span>(a, b) {
+    <span class="k">return</span> a + b;
+}
+console.<span class="f">log</span>(<span class="f">add1</span>(<span class="n">2</span>, <span class="s">"3"</span>));   <span class="c">// "23" (string concatenation)</span></code></pre>
+  </article>
+
+  <article class="file" id="f-demots">
+    <div class="head"><span class="fname">demots.ts</span><span class="path">/Playwright Concepts/demots.ts</span></div>
+    <div class="note"><b>Concept:</b> The same idea in <b>TypeScript</b> — explicit type annotations (<code>string</code>, <code>number</code>, <code>number[]</code>) and typed function params. TS would reject <code>add(2, "3")</code> at compile time, unlike JS.</div>
+    <pre><code><span class="k">let</span> nammeq: <span class="t">string</span> = <span class="s">'typescript'</span>;
+<span class="k">let</span> aggeq: <span class="t">number</span> = <span class="n">21</span>;
+<span class="k">let</span> arrq: <span class="t">number</span>[] = [<span class="n">1</span>, <span class="n">5</span>, <span class="n">7</span>];
+
+console.<span class="f">log</span>(nammeq);
+
+<span class="k">function</span> <span class="f">add</span>(a: <span class="t">number</span>, b: <span class="t">number</span>) {
+    <span class="k">return</span> a + b;
+}
+console.<span class="f">log</span>(<span class="f">add</span>(<span class="n">2</span>, <span class="n">3</span>));   <span class="c">// 5</span></code></pre>
+  </article>
+
+  <article class="file" id="f-reverse">
+    <div class="head"><span class="fname">reversewords.js</span><span class="path">/Playwright Concepts/reversewords.js</span></div>
+    <div class="note"><b>Concept:</b> Classic interview problem — reverse each word in a sentence using functional chaining <code>split → map → reverse → join</code>. "My name is John" → "yM eman si nhoJ".</div>
+    <pre><code><span class="k">function</span> <span class="f">reverseEachWord</span>(str) {
+    <span class="k">return</span> str
+        .<span class="f">split</span>(<span class="s">' '</span>)
+        .<span class="f">map</span>(word =&gt; word.<span class="f">split</span>(<span class="s">''</span>)
+            .<span class="f">reverse</span>()
+            .<span class="f">join</span>(<span class="s">''</span>)
+        ).<span class="f">join</span>(<span class="s">' '</span>);
+}
+console.<span class="f">log</span>(<span class="f">reverseEachWord</span>(<span class="s">"My name is John"</span>));</code></pre>
+  </article>
+
+  <article class="file" id="f-reversebasic">
+    <div class="head"><span class="fname">reversewords-basic.js</span><span class="path">/Playwright Concepts/reversewords-basic.js</span></div>
+    <div class="note"><b>Concept:</b> The same problem written the <b>long way</b> with explicit loops and step-by-step comments — great for explaining the logic in an interview before showing the one-liner.</div>
+    <pre><code><span class="k">function</span> <span class="f">reverseEachWord</span>(str) {
+    <span class="c">// Step 1: Split sentence into array of words</span>
+    <span class="k">const</span> words = str.<span class="f">split</span>(<span class="s">' '</span>);          <span class="c">// ["My","name","is","John"]</span>
+    <span class="k">const</span> reversedWords = [];
+
+    <span class="c">// Step 3: Loop through each word</span>
+    <span class="k">for</span> (<span class="k">let</span> i = <span class="n">0</span>; i &lt; words.length; i++) {
+        <span class="k">const</span> word = words[i];
+        <span class="k">const</span> characters = word.<span class="f">split</span>(<span class="s">''</span>);     <span class="c">// "My" -&gt; ['M','y']</span>
+        <span class="k">const</span> reversedChars = characters.<span class="f">reverse</span>();  <span class="c">// -&gt; ['y','M']</span>
+        <span class="k">const</span> reversedWord = reversedChars.<span class="f">join</span>(<span class="s">''</span>); <span class="c">// -&gt; "yM"</span>
+        reversedWords.<span class="f">push</span>(reversedWord);
+    }
+
+    <span class="k">const</span> result = reversedWords.<span class="f">join</span>(<span class="s">' '</span>);   <span class="c">// "yM eman si nhoJ"</span>
+    <span class="k">return</span> result;
+}
+
+console.<span class="f">log</span>(<span class="f">reverseEachWord</span>(<span class="s">"My name is John"</span>));</code></pre>
+  </article>
+</section>
+
+<a class="back" href="#overview">↑ Top</a>
+</main>
+</div>
+</body>
+</html>
