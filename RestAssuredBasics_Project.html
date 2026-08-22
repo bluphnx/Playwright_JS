@@ -1,0 +1,1826 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>RestAssuredBasics — Project Overview</title>
+<style>
+  :root {
+    --bg: #0d1117;
+    --sidebar-bg: #161b22;
+    --panel-bg: #161b22;
+    --code-bg: #0d1117;
+    --border: #30363d;
+    --text: #c9d1d9;
+    --muted: #8b949e;
+    --accent: #58a6ff;
+    --accent-2: #3fb950;
+    --java: #f89820;
+    --json: #56d364;
+    --md: #a371f7;
+    --header-bg: #1f6feb;
+  }
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    margin: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.5;
+  }
+  a { color: var(--accent); text-decoration: none; }
+  a:hover { text-decoration: underline; }
+
+  .layout { display: flex; min-height: 100vh; }
+
+  /* Sidebar */
+  .sidebar {
+    width: 320px;
+    flex-shrink: 0;
+    background: var(--sidebar-bg);
+    border-right: 1px solid var(--border);
+    padding: 20px 0;
+    position: sticky;
+    top: 0;
+    height: 100vh;
+    overflow-y: auto;
+  }
+  .sidebar h1 {
+    font-size: 18px;
+    margin: 0 20px 4px;
+    color: #fff;
+  }
+  .sidebar .subtitle {
+    font-size: 12px;
+    color: var(--muted);
+    margin: 0 20px 18px;
+  }
+  .nav-group { margin-bottom: 8px; }
+  .nav-group-title {
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--muted);
+    padding: 8px 20px 4px;
+    font-weight: 600;
+  }
+  .nav-link {
+    display: block;
+    padding: 5px 20px 5px 32px;
+    font-size: 13px;
+    color: var(--text);
+    border-left: 2px solid transparent;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .nav-link:hover { background: #21262d; text-decoration: none; border-left-color: var(--accent); }
+
+  /* Main content */
+  .content {
+    flex: 1;
+    padding: 32px 44px 80px;
+    max-width: 1000px;
+    margin: 0 auto;
+    width: 100%;
+  }
+  .page-header {
+    border-bottom: 1px solid var(--border);
+    padding-bottom: 20px;
+    margin-bottom: 28px;
+  }
+  .page-header h1 { margin: 0 0 6px; font-size: 30px; color: #fff; }
+  .page-header p { margin: 0; color: var(--muted); }
+
+  .meta-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    gap: 12px;
+    margin: 22px 0;
+  }
+  .meta-card {
+    background: var(--panel-bg);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 14px 16px;
+  }
+  .meta-card .label { font-size: 11px; text-transform: uppercase; color: var(--muted); letter-spacing: 0.06em; }
+  .meta-card .value { font-size: 22px; font-weight: 600; color: #fff; margin-top: 4px; }
+
+  section { margin-bottom: 40px; }
+  section > h2 {
+    font-size: 20px;
+    color: #fff;
+    border-bottom: 1px solid var(--border);
+    padding-bottom: 8px;
+    margin-top: 0;
+  }
+  .section-desc { color: var(--muted); font-size: 14px; margin: 8px 0 20px; }
+
+  /* Tree */
+  .tree {
+    background: var(--panel-bg);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 18px 22px;
+    font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+    font-size: 13px;
+    overflow-x: auto;
+  }
+  .tree ul { list-style: none; margin: 0; padding-left: 20px; }
+  .tree > ul { padding-left: 0; }
+  .tree li { padding: 2px 0; position: relative; }
+  .tree .folder { color: var(--accent); font-weight: 600; }
+  .tree .file { color: var(--text); }
+  .tree .badge { font-size: 10px; margin-left: 6px; padding: 1px 6px; border-radius: 10px; vertical-align: middle; }
+
+  .badge-java { background: rgba(248,152,32,0.15); color: var(--java); }
+  .badge-json { background: rgba(86,211,100,0.15); color: var(--json); }
+  .badge-md   { background: rgba(163,113,247,0.15); color: var(--md); }
+
+  /* File card */
+  .file-card {
+    background: var(--panel-bg);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    margin-bottom: 22px;
+    overflow: hidden;
+  }
+  .file-card-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 16px;
+    background: #1c2128;
+    border-bottom: 1px solid var(--border);
+  }
+  .file-card-header .fname {
+    font-family: "SFMono-Regular", Consolas, monospace;
+    font-size: 13px;
+    color: #fff;
+    word-break: break-all;
+  }
+  .file-card-header .fpath {
+    display: block;
+    font-size: 11px;
+    color: var(--muted);
+    font-weight: 400;
+    margin-top: 2px;
+  }
+  .copy-btn {
+    background: #21262d;
+    border: 1px solid var(--border);
+    color: var(--text);
+    font-size: 12px;
+    padding: 5px 12px;
+    border-radius: 6px;
+    cursor: pointer;
+    flex-shrink: 0;
+    margin-left: 12px;
+  }
+  .copy-btn:hover { background: #30363d; border-color: var(--accent); }
+  .copy-btn.copied { color: var(--accent-2); border-color: var(--accent-2); }
+
+  pre {
+    margin: 0;
+    padding: 16px;
+    background: var(--code-bg);
+    overflow-x: auto;
+    font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+    font-size: 13px;
+    line-height: 1.55;
+    tab-size: 4;
+  }
+  pre code { color: var(--text); white-space: pre; }
+
+  .lang-tag {
+    display: inline-block;
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    padding: 1px 7px;
+    border-radius: 10px;
+    margin-right: 8px;
+    vertical-align: middle;
+  }
+
+  footer {
+    text-align: center;
+    color: var(--muted);
+    font-size: 12px;
+    padding: 24px;
+    border-top: 1px solid var(--border);
+  }
+  .note {
+    background: rgba(88,166,255,0.08);
+    border: 1px solid rgba(88,166,255,0.3);
+    border-left: 4px solid var(--accent);
+    border-radius: 6px;
+    padding: 12px 16px;
+    font-size: 13px;
+    color: var(--text);
+    margin: 16px 0;
+  }
+  @media (max-width: 800px) {
+    .sidebar { display: none; }
+    .content { padding: 20px; }
+  }
+</style>
+</head>
+<body>
+<div class="layout">
+  <aside class="sidebar">
+    <h1>RestAssuredBasics</h1>
+    <p class="subtitle">REST Assured learning &amp; automation project</p>
+
+    <nav>
+      <div class="nav-group">
+        <div class="nav-group-title">Overview</div>
+        <a class="nav-link" href="#overview">Project Overview</a>
+        <a class="nav-link" href="#structure">Project Structure</a>
+      </div>
+
+      <div class="nav-group">
+        <div class="nav-group-title">Root</div>
+        <a class="nav-link" href="#f-readme">README.md</a>
+      </div>
+
+      <div class="nav-group">
+        <div class="nav-group-title">week3 / day1</div>
+        <a class="nav-link" href="#f-w3-1">MyFirstRestAssuredProgram_1.java</a>
+        <a class="nav-link" href="#f-w3-2">RetrieveARecordUsingPathVariable_2.java</a>
+      </div>
+
+      <div class="nav-group">
+        <div class="nav-group-title">session_5 (Requests)</div>
+        <a class="nav-link" href="#f-s5-1">FirstGet_Call.java</a>
+        <a class="nav-link" href="#f-s5-2">Get_all_Hardware_Category_using_QueryParameter.java</a>
+        <a class="nav-link" href="#f-s5-3">Get_singleRecord_using_PathParameter.java</a>
+        <a class="nav-link" href="#f-s5-4">Post_create_change_request.java</a>
+        <a class="nav-link" href="#f-s5-5">Post_requestbody_as_file.java</a>
+        <a class="nav-link" href="#f-s5-6">Post_requestBody_as_String.java</a>
+        <a class="nav-link" href="#f-s5-7">Post_Requestbody_objectType.java</a>
+        <a class="nav-link" href="#f-s5-8">Post_Requestbody_objectType_file.java</a>
+      </div>
+
+      <div class="nav-group">
+        <div class="nav-group-title">session_6 (Serialization &amp; POJO)</div>
+        <a class="nav-link" href="#f-s6-1">ArrayOfObjects_pojo_Example.java</a>
+        <a class="nav-link" href="#f-s6-2">CreateIncidentPojo.java</a>
+        <a class="nav-link" href="#f-s6-3">Create_RecordClass_AlternativeTo_PojoClass.java</a>
+        <a class="nav-link" href="#f-s6-4">GivenWhenThen_pojo_serialization.java</a>
+        <a class="nav-link" href="#f-s6-5">JacksonLibrary_example.java</a>
+        <a class="nav-link" href="#f-s6-6">JacksonSchema2Pojo_example.java</a>
+      </div>
+
+      <div class="nav-group">
+        <div class="nav-group-title">session_6 / servicenow / pojos</div>
+        <a class="nav-link" href="#f-p-1">ArrayOfObjects.java</a>
+        <a class="nav-link" href="#f-p-2">CreateIncident.java</a>
+        <a class="nav-link" href="#f-p-3">Result.java</a>
+        <a class="nav-link" href="#f-p-4">Student.java</a>
+      </div>
+
+      <div class="nav-group">
+        <div class="nav-group-title">test / resources</div>
+        <a class="nav-link" href="#f-r-1">ArrayOfObjects.json</a>
+        <a class="nav-link" href="#f-r-2">create_incident.json</a>
+      </div>
+
+      <div class="nav-group">
+        <div class="nav-group-title">juneauMarshallpojo</div>
+        <a class="nav-link" href="#f-j-1">DeSerializationExample.java</a>
+        <a class="nav-link" href="#f-j-2">ProductPojoClass.java</a>
+        <a class="nav-link" href="#f-j-3">serializationExample.java</a>
+      </div>
+    </nav>
+  </aside>
+
+  <main class="content">
+    <div class="page-header">
+      <h1>RestAssuredBasics</h1>
+      <p>A consolidated reference of all source files, POJOs, resources, and notes from the REST Assured API automation learning project.</p>
+    </div>
+
+    <section id="overview">
+      <h2>Project Overview</h2>
+      <p class="section-desc">
+        This project is a hands-on learning workspace for API test automation using <strong>REST Assured</strong> against a
+        ServiceNow developer instance. It progresses from basic GET calls, through path/query parameters and POST request bodies,
+        into POJO serialization/deserialization with Jackson, Gson, jsonschema2pojo, and Apache Juneau.
+      </p>
+
+      <div class="meta-grid">
+        <div class="meta-card"><div class="label">Total Files</div><div class="value">22</div></div>
+        <div class="meta-card"><div class="label">Java Sources</div><div class="value">19</div></div>
+        <div class="meta-card"><div class="label">JSON Resources</div><div class="value">2</div></div>
+        <div class="meta-card"><div class="label">Docs</div><div class="value">1</div></div>
+      </div>
+
+      <div class="note">
+        <strong>Key concepts covered:</strong> Static imports of RestAssured (<code>given/when/then</code>), Basic Auth, content-type &amp;
+        accept headers, path parameters, query parameters, request bodies (String, File, Object), Hamcrest assertions
+        (status code, status line, headers, response time, body), POJO serialization with Jackson vs Gson (null handling),
+        jsonschema2pojo build plugin, and Apache Juneau JSON/XML/HTML serialization.
+      </div>
+    </section>
+
+    <section id="structure">
+      <h2>Project Structure</h2>
+      <p class="section-desc">Organized in a professional Maven-style layout (source packages under <code>test/java</code>, resources under <code>test/resources</code>).</p>
+      <div class="tree">
+        <ul>
+          <li><span class="folder">RestAssuredBasics/</span>
+            <ul>
+              <li><span class="file">README.md</span><span class="badge badge-md">md</span></li>
+              <li><span class="folder">week3/day1/</span>
+                <ul>
+                  <li><span class="file">MyFirstRestAssuredProgram_1.java</span><span class="badge badge-java">java</span></li>
+                  <li><span class="file">RetrieveARecordUsingPathVariable_2.java</span><span class="badge badge-java">java</span></li>
+                </ul>
+              </li>
+              <li><span class="folder">test/java/session_5/</span>
+                <ul>
+                  <li><span class="file">FirstGet_Call.java</span><span class="badge badge-java">java</span></li>
+                  <li><span class="file">Get_all_Hardware_Category_using_QueryParameter.java</span><span class="badge badge-java">java</span></li>
+                  <li><span class="file">Get_singleRecord_using_PathParameter.java</span><span class="badge badge-java">java</span></li>
+                  <li><span class="file">Post_create_change_request.java</span><span class="badge badge-java">java</span></li>
+                  <li><span class="file">Post_requestbody_as_file.java</span><span class="badge badge-java">java</span></li>
+                  <li><span class="file">Post_requestBody_as_String.java</span><span class="badge badge-java">java</span></li>
+                  <li><span class="file">Post_Requestbody_objectType.java</span><span class="badge badge-java">java</span></li>
+                  <li><span class="file">Post_Requestbody_objectType_file.java</span><span class="badge badge-java">java</span></li>
+                </ul>
+              </li>
+              <li><span class="folder">test/java/session_6/</span>
+                <ul>
+                  <li><span class="file">ArrayOfObjects_pojo_Example.java</span><span class="badge badge-java">java</span></li>
+                  <li><span class="file">CreateIncidentPojo.java</span><span class="badge badge-java">java</span></li>
+                  <li><span class="file">Create_RecordClass_AlternativeTo_PojoClass.java</span><span class="badge badge-java">java</span></li>
+                  <li><span class="file">GivenWhenThen_pojo_serialization.java</span><span class="badge badge-java">java</span></li>
+                  <li><span class="file">JacksonLibrary_example.java</span><span class="badge badge-java">java</span></li>
+                  <li><span class="file">JacksonSchema2Pojo_example.java</span><span class="badge badge-java">java</span></li>
+                  <li><span class="folder">servicenow/pojos/</span>
+                    <ul>
+                      <li><span class="file">ArrayOfObjects.java</span><span class="badge badge-java">java</span></li>
+                      <li><span class="file">CreateIncident.java</span><span class="badge badge-java">java</span></li>
+                      <li><span class="file">Result.java</span><span class="badge badge-java">java</span></li>
+                      <li><span class="file">Student.java</span><span class="badge badge-java">java</span></li>
+                    </ul>
+                  </li>
+                </ul>
+              </li>
+              <li><span class="folder">test/resources/servicenow/</span>
+                <ul>
+                  <li><span class="file">ArrayOfObjects.json</span><span class="badge badge-json">json</span></li>
+                  <li><span class="file">create_incident.json</span><span class="badge badge-json">json</span></li>
+                </ul>
+              </li>
+              <li><span class="folder">juneauMarshallpojo/</span>
+                <ul>
+                  <li><span class="file">DeSerializationExample.java</span><span class="badge badge-java">java</span></li>
+                  <li><span class="file">ProductPojoClass.java</span><span class="badge badge-java">java</span></li>
+                  <li><span class="file">serializationExample.java</span><span class="badge badge-java">java</span></li>
+                </ul>
+              </li>
+            </ul>
+          </li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- ================= ROOT ================= -->
+    <section id="sec-root">
+      <h2>Root</h2>
+      <p class="section-desc">Top-level documentation for the repository.</p>
+
+      <div class="file-card" id="f-readme">
+        <div class="file-card-header">
+          <div><span class="lang-tag badge-md">Markdown</span><span class="fname">README.md</span><span class="fpath">RestAssuredBasics/README.md</span></div>
+          <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+        </div>
+        <pre><code># RestAssuredBasics
+personal laptop</code></pre>
+      </div>
+    </section>
+
+    <!-- ================= WEEK3 / DAY1 ================= -->
+    <section id="sec-week3">
+      <h2>week3 / day1 &mdash; First Steps</h2>
+      <p class="section-desc">Introductory programs: the first REST Assured GET call and retrieving a single record using path variables. Rich inline comments explain static imports and the given/when/then flow.</p>
+
+      <div class="file-card" id="f-w3-1">
+        <div class="file-card-header">
+          <div><span class="lang-tag badge-java">Java</span><span class="fname">MyFirstRestAssuredProgram_1.java</span><span class="fpath">week3/day1/MyFirstRestAssuredProgram_1.java</span></div>
+          <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+        </div>
+        <pre><code>package week3.day1;
+
+//import io.restassured.RestAssured;
+import static io.restassured.RestAssured.*;
+//import org.hamcrest.Matcher;
+import org.hamcrest.Matchers;
+
+import io.restassured.http.ContentType;
+
+public class MyFirstRestAssuredProgram_1 {
+
+	public static void main(String[] args) {
+
+		// we create new object (driver) of a class to access all methods of that particular class 
+		//  like ChromeDriver class
+		// Webdriver driver = new ChromeDriver();
+		
+		// whenever we use static keyword for a method or variable we can call them directly
+		// in our program without creating any object to that class. 
+		
+		
+		// why there is a red lot under given() method?
+		// because given() is a static method of RestAssured class
+		// 
+		
+		// what is wrong below code
+		// 
+		// RestAssured.given()
+		//		.baseURI("https://dev200304.service-now.com")
+		//
+		//		.basePath("api/now/tabl")
+		//		.auth()
+		//		.basic("admin","djMPOch*25A^")
+		//		.when()
+		//		.get("/incident")
+		//		.then()
+		//		.assertThat()
+		//		.statusCode(200)
+		//		;
+		// Answer: we have to import the static method given() from RestAssured class
+		// so that we can call it directly without using RestAssured.given()
+		// how to import static method?
+		// we have to use import static statement to import static methods
+		// import static io.restassured.RestAssured.*;
+		// * means all static methods of RestAssured class
+		// now we can call given() method directly
+		// without using RestAssured.given()
+		// final code is below
+		// RestAssured is a class which has all static methods to perform REST API testing
+		// given(), when(), then() etc are static methods of RestAssured class
+		// we can call them directly after importing static methods of RestAssured class
+		// we can also call them using RestAssured.given() etc
+		
+		
+		given().log().all()
+		.baseUri("https://dev200304.service-now.com")
+		.basePath("api/now/table")
+
+		.header("Content-Type","application/json")
+// accept can be provided as both ways like mentioned below
+		.accept(ContentType.JSON)
+//		.header("Accept","application/json")
+		.auth()
+		.basic("admin","djMPOch*25A^")
+		.when()
+		.get("/incident")
+		.then().log().all()
+		.assertThat()
+// Different type of assertions 
+		.statusCode(200)
+//		.statusCode(201)
+//		.statusLine(Matchers.containsString("OsK"))
+		.statusLine(Matchers.containsString("OK"))
+//		.statusLine(Matchers.contains("s"))
+		.statusLine(Matchers.equalTo("HTTP/1.1 200 OK"))
+//		.statusLine(Matchers.equalTo("OK"))
+		.header("Content-Type", "application/json;charset=UTF-8")
+		.header("Content-Type", Matchers.containsString("json"))
+//		.header("Content-Type", "aapplication/json;charet=UTF-8")
+		;		
+	}
+
+}</code></pre>
+      </div>
+
+      <div class="file-card" id="f-w3-2">
+        <div class="file-card-header">
+          <div><span class="lang-tag badge-java">Java</span><span class="fname">RetrieveARecordUsingPathVariable_2.java</span><span class="fpath">week3/day1/RetrieveARecordUsingPathVariable_2.java</span></div>
+          <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+        </div>
+        <pre><code>package week3.day1;
+
+//import io.restassured.RestAssured;
+import static io.restassured.RestAssured.*;
+import org.hamcrest.Matchers;
+import io.restassured.http.ContentType;
+
+public class RetrieveARecordUsingPathVariable_2 {
+
+	public static void main(String[] args) {
+
+//		HowToSetPathParameter - session 5 video : at 47 mins
+		
+	given()
+		.log().all()
+		
+//		Request header endpoint url
+		
+		.baseUri("https://dev200304.service-now.com")
+		.basePath("api/now/table")
+		
+		
+//		headers
+		
+//		.header("key","value")
+//		.header("Accept","application/json")
+		.header("Content-Type","application/json")
+//		.accept(enum methods)
+		.accept(ContentType.JSON)
+		
+//		authorization
+		
+		.auth()
+//		.basic("username","password")
+		.basic("admin","djMPOch*25A^") 
+		
+//		path parameter
+//		.pathParam("key", "value")
+		
+		.pathParam("tableName", "incident")
+		.pathParam("sysID","ff4c21c4735123002728660c4cf6a758")
+		
+		
+//		http request method
+		
+		
+	.when()
+//		when path parameter is provided as key-value pair then we can send them as variable in http request call by providing 
+//		the same "key" in between curly braces {key} as variable 
+//		there should not be any spelling mistake for the variable it should be exactly same as "key"
+		.get("/{tableName}/{sysID}")
+		
+//		watched session 5 video - 1 hour - need to continue after that
+		
+		
+//		response header
+		
+	.then()
+		.log().all()
+		
+//		assertion
+		
+		.assertThat()
+		.statusCode(200)
+//		.statusCode(201)
+//		.statusLine(Matchers.containsString("OsK"))
+		.statusLine(Matchers.containsString("OK"))
+//		.statusLine(Matchers.contains("s"))
+		.statusLine(Matchers.equalTo("HTTP/1.1 200 OK"))
+//		.statusLine(Matchers.equalTo("OK"))
+		.header("Content-Type", "application/json;charset=UTF-8")
+		.header("Content-Type", Matchers.containsString("json"))
+//		.header("Content-Type", "aapplication/json;charet=UTF-8")
+		;		
+	}
+
+}</code></pre>
+      </div>
+    </section>
+
+    <!-- ================= SESSION 5 ================= -->
+    <section id="sec-s5">
+      <h2>session_5 &mdash; Requests, Parameters &amp; Bodies</h2>
+      <p class="section-desc">GET and POST calls demonstrating query parameters, path parameters, and request bodies supplied as String, File, and Object types.</p>
+
+      <div class="file-card" id="f-s5-1">
+        <div class="file-card-header">
+          <div><span class="lang-tag badge-java">Java</span><span class="fname">FirstGet_Call.java</span><span class="fpath">test/java/session_5/FirstGet_Call.java</span></div>
+          <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+        </div>
+        <pre><code>package session_5;
+
+//import io.restassured.RestAssured;
+import io.restassured.http.ContentType;
+
+import static io.restassured.RestAssured.*;
+
+//import org.hamcrest.Matcher;
+import org.hamcrest.Matchers;
+
+public class FirstGet_Call {
+
+	public static void main(String[] args) {
+
+String baseURI = "https://dev230932.service-now.com";
+String basePath = "/api/now/table";
+//String tableName = "incident";
+		
+		given()
+//		.log().all()
+		.baseUri(baseURI)
+		.basePath(basePath)
+		.contentType(ContentType.JSON)
+//		the below statement returns response in xml format when accept header is set as "application/xml"
+//		.accept("application/xml")
+		.accept("application/json")
+		.auth()
+		.basic("admin", "ZB^rjmGvW9%6")
+//		.pathParam("tableName", tableName)
+		.when()
+		.get("/incident")
+		.then()
+		.log().all()
+		.assertThat()
+//		validates response status code is successful - 200
+		.statusCode(200)
+		.statusLine(Matchers.containsString("OK"))
+//		.statusLine(Matchers.equalTo("HTTP/1.1 200 OK"))  
+		.header("Content-Type", Matchers.containsString("/json"))
+//		.header("Content-Type", Matchers.equalTo("application/json;charset=UTF-8"));
+		;
+		
+	}
+
+}</code></pre>
+      </div>
+
+      <div class="file-card" id="f-s5-2">
+        <div class="file-card-header">
+          <div><span class="lang-tag badge-java">Java</span><span class="fname">Get_all_Hardware_Category_using_QueryParameter.java</span><span class="fpath">test/java/session_5/Get_all_Hardware_Category_using_QueryParameter.java</span></div>
+          <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+        </div>
+        <pre><code>package session_5;
+
+import io.restassured.RestAssured;
+import io.restassured.http.ContentType;
+
+import static io.restassured.RestAssured.*;
+
+import org.hamcrest.Matcher;
+import org.hamcrest.Matchers;
+
+public class Get_all_Hardware_Category_using_QueryParameter {
+
+	public static void main(String[] args) {
+
+String baseURI = "https://dev230932.service-now.com";
+String basePath = "/api/now/table/";
+String table_Name = "incident";
+String category = "Software";
+		
+		RestAssured
+		.given()
+		.log().all()
+		.baseUri(baseURI)
+		.basePath(basePath)
+		.contentType(ContentType.JSON)
+//		the below statement returns response in xml format when accept header is set as "application/xml"
+//		.accept("application/xml")
+		.accept("application/json")
+		.auth()
+		.basic("admin", "ZB^rjmGvW9%6")
+		.pathParam("tableName", table_Name)
+//		to filter based on some condition few records from the table - we use query parameter (queryParam)
+//		to extract one single record from the table - we use path parameter (pathParam)
+		.queryParam("category", category)
+		.when()
+//		same name provided in the path parameter should be called inside get call as {tableName} , {sys_id}
+//		if we call with wrong string we will throw error {sysID} , {table_Name}
+		.get("/{tableName}")
+		.then()
+		.log().all()
+		.assertThat()
+//		validates response status code is successful - 200
+		.statusCode(200)
+		.statusLine(Matchers.containsString("OK"))
+		.statusLine(Matchers.equalTo("HTTP/1.1 200 OK"))  
+		.header("Content-Type", Matchers.containsString("/json"))
+		.header("Content-Type", Matchers.equalTo("application/json;charset=UTF-8"))
+//		3000L refers to the response should be received less that 3 seconds
+		.time(Matchers.lessThan(3000L)); 
+		
+	}
+
+}</code></pre>
+      </div>
+
+      <div class="file-card" id="f-s5-3">
+        <div class="file-card-header">
+          <div><span class="lang-tag badge-java">Java</span><span class="fname">Get_singleRecord_using_PathParameter.java</span><span class="fpath">test/java/session_5/Get_singleRecord_using_PathParameter.java</span></div>
+          <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+        </div>
+        <pre><code>package session_5;
+
+import io.restassured.RestAssured;
+import io.restassured.http.ContentType;
+
+import static io.restassured.RestAssured.*;
+
+import org.hamcrest.Matcher;
+import org.hamcrest.Matchers;
+
+public class Get_singleRecord_using_PathParameter {
+
+	public static void main(String[] args) {
+
+String baseURI = "https://dev230932.service-now.com";
+String basePath = "/api/now/table/";
+String table_Name = "incident";
+String sysID = "1c741bd70b2322007518478d83673af3";
+		
+		RestAssured
+		.given()
+		.log().all()
+		.baseUri(baseURI)
+		.basePath(basePath)
+		.contentType(ContentType.JSON)
+//		the below statement returns response in xml format when accept header is set as "application/xml"
+//		.accept("application/xml")
+		.accept("application/json")
+		.auth()
+		.basic("admin", "ZB^rjmGvW9%6")
+//		to filter based on some condition few records from the table - we use query parameter (queryParam)
+//		to extract one single record from the table - we use path parameter (pathParam)
+		.pathParam("tableName", table_Name)
+		.pathParam("sys_id", sysID)
+		.when()
+//		same name provided in the path parameter should be called inside get call as {tableName} , {sys_id}
+//		if we call with wrong string we will throw error {sysID} , {table_Name}
+		.get("/{tableName}/{sys_id}")
+		.then()
+		.log().all()
+		.assertThat()
+//		validates response status code is successful - 200
+		.statusCode(200)
+		.statusLine(Matchers.containsString("OK"))
+		.statusLine(Matchers.equalTo("HTTP/1.1 200 OK"))  
+		.header("Content-Type", Matchers.containsString("/json"))
+		.header("Content-Type", Matchers.equalTo("application/json;charset=UTF-8")); 
+		
+	}
+
+}</code></pre>
+      </div>
+
+      <div class="file-card" id="f-s5-4">
+        <div class="file-card-header">
+          <div><span class="lang-tag badge-java">Java</span><span class="fname">Post_create_change_request.java</span><span class="fpath">test/java/session_5/Post_create_change_request.java</span></div>
+          <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+        </div>
+        <pre><code>package session_5;
+
+import static io.restassured.RestAssured.*;
+
+import java.io.File;
+
+import org.hamcrest.Matchers;
+
+import io.restassured.RestAssured;
+import io.restassured.response.*;
+import io.restassured.http.ContentType;
+
+public class Post_create_change_request {
+
+	static String requestBody_String = """
+			{
+			"description":"Arrow",
+			"short_description":"Felicity Smoke",
+			"category":"Software"
+			}
+			""";
+	static File requestBody_file = new File("src\\test\\resources\\servicenow\\create_incident.json");
+
+	public static void main(String[] args) {
+
+//		String tableName = "incident";
+
+		// baseURI and authentication setup
+		RestAssured.baseURI = "https://dev230932.service-now.com";
+		RestAssured.basePath = "/api/now/table/";
+		RestAssured.authentication = basic("admin", "ZB^rjmGvW9%6");
+
+		create_change_request_object(requestBody_String);
+		create_change_request(requestBody_file);
+	}
+
+	public static void create_change_request(String requestBody) {
+
+		Response response = given().contentType(ContentType.JSON).when().body(requestBody).post("/change_request");
+
+//		System.out.println("Status Code: " + response.getStatusCode());
+//		System.out.println("Status Line: " + response.body().asString());
+
+	}
+
+	public static void create_change_request(File requestBody) {
+
+		Response response = given().contentType(ContentType.JSON).when().body(requestBody).post("/change_request");
+
+//		System.out.println("Status Code: " + response.getStatusLine());
+//		String categoryString = response.body("request.category",Matchers.containsStringIgnoringCase("software");
+//		String category = response.body().jsonPath().getString("request.category");
+//		System.out.println("Status Line: " + category);
+
+	}
+
+	public static void create_change_request_object(Object requestBody) {
+
+		if (requestBody instanceof String) {
+			System.out.println("Request Body is of type String");
+			Response response = given().contentType(ContentType.JSON).when().body(requestBody).post("/change_request");
+
+//			System.out.println("Status Code: " + response.getStatusCode());
+//			System.out.println("Status Line: " + response.body().asString());
+		} else if (requestBody instanceof File) {
+			System.out.println("Request Body is of type File");
+			Response response = given().contentType(ContentType.JSON).when().body(requestBody).post("/change_request");
+
+//			System.out.println("Status Code: " + response.getStatusCode());
+//			System.out.println("Status Line: " + response.body().asString());
+		} else {
+			System.out.println("Request Body is of unknown type");
+			Response response = given().contentType(ContentType.JSON).when().body(requestBody).post("/change_request");
+
+//			System.out.println("Status Code: " + response.getStatusCode());
+//			System.out.println("Status Line: " + response.body().asString());
+		}
+
+	}
+
+}</code></pre>
+      </div>
+
+      <div class="file-card" id="f-s5-5">
+        <div class="file-card-header">
+          <div><span class="lang-tag badge-java">Java</span><span class="fname">Post_requestbody_as_file.java</span><span class="fpath">test/java/session_5/Post_requestbody_as_file.java</span></div>
+          <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+        </div>
+        <pre><code>package session_5;
+
+import static io.restassured.RestAssured.*;
+import java.io.File;
+
+import org.hamcrest.Matchers;
+
+public class Post_requestbody_as_file {
+
+	static File requestBody = new File("src\\test\\resources\\servicenow\\create_incident.json");
+	
+	public static void main(String[] args) {
+		
+		String baseURI = "https://dev230932.service-now.com";
+		String basePath = "/api/now/table/";
+		String tableName = "incident";
+
+		given()
+		.baseUri(baseURI)
+		.basePath(basePath)
+		.contentType("application/json")
+		.accept("application/json")
+		.auth()
+		.basic("admin", "ZB^rjmGvW9%6")
+		.pathParam("tableName", tableName)
+		.when()
+		.body(requestBody)
+		.post("{tableName}")
+		.then()
+		.log().all()
+		.assertThat()
+//		validates response status code is successful - 200
+		.statusCode(201)
+		.statusLine(Matchers.containsString("Created"))
+		.statusLine(Matchers.equalTo("HTTP/1.1 201 Created"))  
+		.header("Content-Type", Matchers.containsString("/json"))
+		.header("Content-Type", Matchers.equalTo("application/json;charset=UTF-8"))
+		.body("result.short_description", Matchers.equalTo("body sent as file"))
+		.body("result.category", Matchers.equalTo("software"))
+		.body("result.description", Matchers.equalTo("Arrow"))
+		; 
+	}
+
+}</code></pre>
+      </div>
+
+      <div class="file-card" id="f-s5-6">
+        <div class="file-card-header">
+          <div><span class="lang-tag badge-java">Java</span><span class="fname">Post_requestBody_as_String.java</span><span class="fpath">test/java/session_5/Post_requestBody_as_String.java</span></div>
+          <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+        </div>
+        <pre><code>package session_5;
+
+import io.restassured.RestAssured;
+import io.restassured.http.ContentType;
+
+import static io.restassured.RestAssured.*;
+
+import org.hamcrest.Matcher;
+import org.hamcrest.Matchers;
+
+public class Post_requestBody_as_String {
+
+//	static String requestBody = "{\"short_description\":\"Oliver Queen\",\"category\":\"Software\",\"description\":\"created for Arrow series\"}";
+
+	
+	public static void main(String[] args) {	
+
+String baseURI = "https://dev230932.service-now.com";
+String basePath = "/api/now/table/";
+String tableName = "incident";
+
+String requestBody = """
+		{
+		"description":"Arrow",
+		"short_description":"Felicity Smoke",
+		"category":"Software"
+		}
+		""";
+//	if static keyword is given for a variable, then we can call it from outside the main function
+// if not then the body should be initialized inside main() method
+		RestAssured
+		.given()
+//		.log().all()
+		.baseUri(baseURI)
+		.basePath(basePath)
+		.contentType(ContentType.JSON)
+//		the below statement returns response in xml format when accept header is set as "application/xml"
+//		.accept("application/xml")
+		.accept("application/json")
+		.auth()
+		.basic("admin", "ZB^rjmGvW9%6")
+		.pathParam("tableName", tableName)
+		.when()
+		.body(requestBody)
+		.post("{tableName}")
+		.then()
+		.log().all()
+		.assertThat()
+//		validates response status code is successful - 200
+		.statusCode(201)
+		.statusLine(Matchers.containsString("Created"))
+		.statusLine(Matchers.equalTo("HTTP/1.1 201 Created"))  
+		.header("Content-Type", Matchers.containsString("/json"))
+		.header("Content-Type", Matchers.equalTo("application/json;charset=UTF-8"))
+		.body("result.short_description", Matchers.equalTo("Felicity Smoke"))
+		.body("result.category", Matchers.equalTo("software"))
+		.body("result.description", Matchers.equalTo("Arrow"))
+		; 
+		
+//		7f55c4ea836672107247c9e0deaad30d
+		
+	}
+
+}</code></pre>
+      </div>
+
+      <div class="file-card" id="f-s5-7">
+        <div class="file-card-header">
+          <div><span class="lang-tag badge-java">Java</span><span class="fname">Post_Requestbody_objectType.java</span><span class="fpath">test/java/session_5/Post_Requestbody_objectType.java</span></div>
+          <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+        </div>
+        <pre><code>package session_5;
+
+import static io.restassured.RestAssured.*;
+
+import java.io.File;
+
+import io.restassured.response.Response;
+
+public class Post_Requestbody_objectType {
+
+	static String baseURI = "https://dev230932.service-now.com";
+	static String basePath = "/api/now/table/";
+	static String tableName = "incident";
+
+	static String requestBody_string = """
+			{
+			"description":"Arrow",
+			"short_description":"Felicity Smoke",
+			"category":"Software"
+			}
+			""";
+	static File requestBody_file = new File("src\\test\\resources\\servicenow\\create_incident.json");
+
+	public static void main(String[] args) {
+
+		Requestbody_obj(requestBody_string);
+		System.out.println("-------------------------------------");
+		Requestbody_obj(requestBody_file); // error
+
+	}
+
+	public static void Requestbody_obj(Object requestbody) {
+
+		if (requestbody instanceof String) {
+
+			Response_call(requestbody);
+
+		} else if (requestbody instanceof File) {
+
+			Response_call(requestbody);
+
+		}
+
+	}
+
+	public static void Response_call(Object requestbody) {
+		
+		Response res = given()
+				.baseUri(baseURI)
+				.basePath(basePath)
+				.contentType("application/json")
+				.accept("application/json")
+				.auth()
+				.basic("admin", "ZB^rjmGvW9%6")
+				.pathParam("tableName", tableName)
+				.when()
+				.body(requestbody)
+				.post("{tableName}")
+				;
+		
+		System.out.println(res.asPrettyString());
+	}
+
+}</code></pre>
+      </div>
+
+      <div class="file-card" id="f-s5-8">
+        <div class="file-card-header">
+          <div><span class="lang-tag badge-java">Java</span><span class="fname">Post_Requestbody_objectType_file.java</span><span class="fpath">test/java/session_5/Post_Requestbody_objectType_file.java</span></div>
+          <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+        </div>
+        <pre><code>package session_5;
+
+import static io.restassured.RestAssured.*;
+import java.io.IOException; import java.nio.charset.StandardCharsets; import java.nio.file.Files; import java.nio.file.Paths;
+
+//import java.io.File;
+
+import io.restassured.response.Response;
+
+public class Post_Requestbody_objectType_file {
+
+	static String baseURI = "https://dev230932.service-now.com";
+	static String basePath = "/api/now/table/";
+//	static String tableName = "incident";
+
+//	static File requestBody_file = new File("src\\test\\resources\\servicenow\\create_incident.json");
+
+	public static void main(String[] args) throws IOException {
+
+		String requestBody = new String( // <----
+	            Files.readAllBytes(Paths.get("src\\test\\resources\\servicenow\\create_incident.json")),
+	            StandardCharsets.UTF_8);
+		
+		Requestbody_obj(requestBody);
+
+	}
+
+	public static void Requestbody_obj(Object requestbody) {
+
+		if (requestbody instanceof String) { // <---- 
+
+			Response res = given()
+					.baseUri(baseURI)
+					.basePath(basePath)
+					.contentType("application/json")
+					.accept("application/json")
+					.auth()
+					.basic("admin", "ZB^rjmGvW9%6")
+					.pathParam("tableName", "change_request")
+					.when()
+					.body(requestbody) // <----
+					.post("/{tableName}")
+					;
+			
+			System.out.println(res.asPrettyString());
+
+		}
+
+	}
+
+}</code></pre>
+      </div>
+    </section>
+
+    <!-- ================= SESSION 6 ================= -->
+    <section id="sec-s6">
+      <h2>session_6 &mdash; Serialization &amp; POJOs</h2>
+      <p class="section-desc">POJO serialization with the given/when/then pattern, Jackson vs Gson null-handling notes, the jsonschema2pojo build plugin, and placeholder examples.</p>
+
+      <div class="file-card" id="f-s6-1">
+        <div class="file-card-header">
+          <div><span class="lang-tag badge-java">Java</span><span class="fname">ArrayOfObjects_pojo_Example.java</span><span class="fpath">test/java/session_6/ArrayOfObjects_pojo_Example.java</span></div>
+          <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+        </div>
+        <pre><code>package session_6;
+
+
+public class ArrayOfObjects_pojo_Example {
+
+	public static void main(String[] args) {
+		
+		
+		
+	}
+
+}</code></pre>
+      </div>
+
+      <div class="file-card" id="f-s6-2">
+        <div class="file-card-header">
+          <div><span class="lang-tag badge-java">Java</span><span class="fname">CreateIncidentPojo.java</span><span class="fpath">test/java/session_6/CreateIncidentPojo.java</span></div>
+          <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+        </div>
+        <pre><code>package session_6;
+
+public class CreateIncidentPojo {
+
+	
+	// as per pojo definition , we need to create the variable with private modifier; 
+	
+	// can we create with public modifier?
+	// yes but best practice is to use private modifier and assign value to variable using setter methods
+	
+	// in what scenarios we should use pojo classes?
+	// for all post, put, patch methods we use pojo serialization to assign values since the json will be very large and
+	// we have to assign vales using serialization
+	
+	// 
+	
+	private String description;
+	private String short_description;
+	private String category;
+	
+	public String getDescription() {
+		return description;
+	}
+	public void setDescription(String description) {
+		this.description = description;
+	}
+	public String getShort_description() {
+		return short_description;
+	}
+	public void setShort_description(String short_description) {
+		this.short_description = short_description;
+	}
+	public String getCategory() {
+		return category;
+	}
+	public void setCategory(String category) {
+		this.category = category;
+	}
+	
+	@Override
+	public String toString() {
+		return "CreateIncidentPojo [description=" + description + ", short_description=" + short_description
+				+ ", category=" + category + ", getDescription()=" + getDescription() + ", getShort_description()="
+				+ getShort_description() + ", getCategory()=" + getCategory() + ", getClass()=" + getClass()
+				+ ", hashCode()=" + hashCode() + ", toString()=" + super.toString() + "]";
+	}
+	
+	
+	
+}</code></pre>
+      </div>
+
+      <div class="file-card" id="f-s6-3">
+        <div class="file-card-header">
+          <div><span class="lang-tag badge-java">Java</span><span class="fname">Create_RecordClass_AlternativeTo_PojoClass.java</span><span class="fpath">test/java/session_6/Create_RecordClass_AlternativeTo_PojoClass.java</span></div>
+          <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+        </div>
+        <pre><code>package session_6;
+
+public class Create_RecordClass_AlternativeTo_PojoClass {
+
+	public static void main(String[] args) {
+		// TODO Auto-generated method stub
+
+	}
+
+}</code></pre>
+      </div>
+
+      <div class="file-card" id="f-s6-4">
+        <div class="file-card-header">
+          <div><span class="lang-tag badge-java">Java</span><span class="fname">GivenWhenThen_pojo_serialization.java</span><span class="fpath">test/java/session_6/GivenWhenThen_pojo_serialization.java</span></div>
+          <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+        </div>
+        <pre><code>package session_6;
+
+import org.hamcrest.Matchers;
+
+import io.restassured.RestAssured;
+import io.restassured.http.ContentType;
+
+public class GivenWhenThen_pojo_serialization {
+	
+	static CreateIncidentPojo requestBody_pojo_Object = new CreateIncidentPojo();
+
+	public static void main(String[] args) {
+
+		// given --> it is used to provide pre-conditions for the API call like
+		//				baseuri, basepath, header, authentication, path parameter, query parameter			
+		// when --> it is used to perform the HTTP request and send the 'Request Body'
+		//				get, post, delete, put, patch and body
+		// then ---> it is provided to assert the response received from the server
+		//				using assertthat -> statuscode, statusline, body contents
+		
+		
+		requestBody_pojo_Object.setCategory("Hardware");
+		requestBody_pojo_Object.setDescription("Pojo serialization");
+		requestBody_pojo_Object.setShort_description("created using pojo serialization");
+		
+		RestAssured.given()
+						.log().all()
+						.baseUri("https://dev230932.service-now.com")
+						.basePath("/api/now/table")
+						.auth()
+						.basic("admin", "ZB^rjmGvW9%6")
+						.contentType(ContentType.JSON)
+//						.pathParam("tableName", "incident")
+					.when()
+					.body(requestBody_pojo_Object)  // <-- need to add gson depencdency in pom.xml file to work properly
+						.post("/incident")
+					.then()
+					.log().all()
+					.assertThat()
+					.statusCode(201)
+					.statusLine(Matchers.containsString("Created"))
+					;
+		
+//			System.out.println(requestBody_pojo_Object.toString());			
+		
+		
+		
+		
+	}
+
+}</code></pre>
+      </div>
+
+      <div class="file-card" id="f-s6-5">
+        <div class="file-card-header">
+          <div><span class="lang-tag badge-java">Java</span><span class="fname">JacksonLibrary_example.java</span><span class="fpath">test/java/session_6/JacksonLibrary_example.java</span></div>
+          <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+        </div>
+        <pre><code>package session_6;
+
+import org.hamcrest.Matchers;
+
+import io.restassured.RestAssured;
+import io.restassured.http.ContentType;
+
+public class JacksonLibrary_example {
+
+	static CreateIncidentPojo requestBody_pojo_Object = new CreateIncidentPojo();
+
+	public static void main(String[] args) {
+
+			
+//		requestBody_pojo_Object.setCategory("Hardware"); // <-- if we don't provide value to category using 
+		// jackson databind library in pom.xml file then it will assign 
+		// null value to string variable, 
+		// 0 to integer variable and 
+		// false to boolean variable
+		// instead if we use gson library in pom.xml file for serialization then the variable will be skipped and
+		// the variable won't be sent as part of requestbody
+		
+		// why we use gson library instead of jackson library?
+		// because if any default value being assigned to particular variable by the server, in that case,
+		// we don't want that variable assigned null value if we use jackson library. 
+		// so to avoid that we use gson library . hence if we want a value to be assigned to a variable
+		// then we will explicitly provide using setters method else
+		// the variable will be skipped and default value will be assigned to that variable
+		// the default value details will be provided in the api documentation or requirement document
+		
+		
+		
+		requestBody_pojo_Object.setDescription("Pojo serialization");
+		requestBody_pojo_Object.setShort_description("created using pojo serialization");
+		
+		RestAssured.given()
+						.log().all()
+						.baseUri("https://dev230932.service-now.com")
+						.basePath("/api/now/table")
+						.auth()
+						.basic("admin", "ZB^rjmGvW9%6")
+						.contentType(ContentType.JSON)
+//						.pathParam("tableName", "incident")
+					.when()
+					.body(requestBody_pojo_Object)  // <-- need to add gson depencdency in pom.xml file to work properly
+						.post("/incident")
+					.then()
+					.log().all()
+					.assertThat()
+					.statusCode(201)
+					.statusLine(Matchers.containsString("Created"))
+					;
+		
+//			System.out.println(requestBody_pojo_Object.toString());			
+		
+		
+		
+		
+	}
+
+}</code></pre>
+      </div>
+
+      <div class="file-card" id="f-s6-6">
+        <div class="file-card-header">
+          <div><span class="lang-tag badge-java">Java</span><span class="fname">JacksonSchema2Pojo_example.java</span><span class="fpath">test/java/session_6/JacksonSchema2Pojo_example.java</span></div>
+          <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+        </div>
+        <pre><code>package session_6;
+
+public class JacksonSchema2Pojo_example {
+
+	public static void main(String[] args) {
+		// TODO Auto-generated method stub
+		
+		// it is not a dependency, it is a build plugin
+		// https://github.com/joelittlejohn/jsonschema2pojo
+		
+		/*
+	&lt;build&gt;
+		&lt;plugins&gt;
+			&lt;plugin&gt;
+				&lt;groupId&gt;org.jsonschema2pojo&lt;/groupId&gt;
+				&lt;artifactId&gt;jsonschema2pojo-maven-plugin&lt;/artifactId&gt;
+				&lt;version&gt;1.2.2&lt;/version&gt;
+				&lt;configuration&gt;
+					&lt;sourceType&gt;json&lt;/sourceType&gt;
+					&lt;sourceDirectory&gt;${basedir}/src/test/resources/servicenow&lt;/sourceDirectory&gt;
+					&lt;targetPackage&gt;session_6.servicenow.pojos&lt;/targetPackage&gt;
+					&lt;outputDirectory&gt;${basedir}/src/test/java&lt;/outputDirectory&gt;
+					&lt;annotationStyle&gt;none&lt;/annotationStyle&gt;
+				&lt;/configuration&gt;
+				&lt;executions&gt;
+					&lt;execution&gt;
+						&lt;goals&gt;
+							&lt;goal&gt;generate&lt;/goal&gt;
+						&lt;/goals&gt;
+					&lt;/execution&gt;
+				&lt;/executions&gt;
+			&lt;/plugin&gt;
+		&lt;/plugins&gt;
+	&lt;/build&gt;
+		 * 
+		 * annotationStyle can be provided as per the library we chose to serialize the pojo class
+		 * e.g. jackson, gson, ...
+		 * 
+		 * once build details are added 
+		 * make sure the JRE System Library is set to above Java 17 by
+		 * right click JRE System Library -> Select Build Path -> Select Configure Build
+		 *  Path -> under 'java build path' -> libraries tab -> double click JRE System Library
+		 *  -> in execution environment -> select value above JavaSE-17 (jre)
+		 *  then apply and close
+		 *  
+		 *  
+		 *  
+		 * right click the project -> Select Run As -> select 4. Maven generate-sources
+		 * once the build is generated successfully
+		 * refresh the project 
+		 * open targetPackage location and the pojo file will be generated
+		 * 
+		 * */
+
+	}
+
+}</code></pre>
+      </div>
+    </section>
+
+    <!-- ================= POJOS ================= -->
+    <section id="sec-pojos">
+      <h2>session_6 / servicenow / pojos &mdash; Generated Model Classes</h2>
+      <p class="section-desc">POJO model classes (some generated via jsonschema2pojo) representing ServiceNow response structures and nested arrays of objects.</p>
+
+      <div class="file-card" id="f-p-1">
+        <div class="file-card-header">
+          <div><span class="lang-tag badge-java">Java</span><span class="fname">ArrayOfObjects.java</span><span class="fpath">test/java/session_6/servicenow/pojos/ArrayOfObjects.java</span></div>
+          <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+        </div>
+        <pre><code>
+package session_6.servicenow.pojos;
+
+public class ArrayOfObjects {
+
+    private Result result;
+
+    public Result getResult() {
+        return result;
+    }
+
+    public void setResult(Result result) {
+        this.result = result;
+    }
+
+}</code></pre>
+      </div>
+
+      <div class="file-card" id="f-p-2">
+        <div class="file-card-header">
+          <div><span class="lang-tag badge-java">Java</span><span class="fname">CreateIncident.java</span><span class="fpath">test/java/session_6/servicenow/pojos/CreateIncident.java</span></div>
+          <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+        </div>
+        <pre><code>
+package session_6.servicenow.pojos;
+
+import javax.annotation.processing.Generated;
+import com.google.gson.annotations.Expose;
+import com.google.gson.annotations.SerializedName;
+
+@Generated("jsonschema2pojo")
+public class CreateIncident {
+
+    @SerializedName("description")
+    @Expose
+    private String description;
+    @SerializedName("short_description")
+    @Expose
+    private String shortDescription;
+    @SerializedName("category")
+    @Expose
+    private String category;
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    public String getShortDescription() {
+        return shortDescription;
+    }
+
+    public void setShortDescription(String shortDescription) {
+        this.shortDescription = shortDescription;
+    }
+
+    public String getCategory() {
+        return category;
+    }
+
+    public void setCategory(String category) {
+        this.category = category;
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        sb.append(CreateIncident.class.getName()).append('@').append(Integer.toHexString(System.identityHashCode(this))).append('[');
+        sb.append("description");
+        sb.append('=');
+        sb.append(((this.description == null)?"&lt;null&gt;":this.description));
+        sb.append(',');
+        sb.append("shortDescription");
+        sb.append('=');
+        sb.append(((this.shortDescription == null)?"&lt;null&gt;":this.shortDescription));
+        sb.append(',');
+        sb.append("category");
+        sb.append('=');
+        sb.append(((this.category == null)?"&lt;null&gt;":this.category));
+        sb.append(',');
+        if (sb.charAt((sb.length()- 1)) == ',') {
+            sb.setCharAt((sb.length()- 1), ']');
+        } else {
+            sb.append(']');
+        }
+        return sb.toString();
+    }
+
+    @Override
+    public int hashCode() {
+        int result = 1;
+        result = ((result* 31)+((this.category == null)? 0 :this.category.hashCode()));
+        result = ((result* 31)+((this.description == null)? 0 :this.description.hashCode()));
+        result = ((result* 31)+((this.shortDescription == null)? 0 :this.shortDescription.hashCode()));
+        return result;
+    }
+
+    @Override
+    public boolean equals(Object other) {
+        if (other == this) {
+            return true;
+        }
+        if ((other instanceof CreateIncident) == false) {
+            return false;
+        }
+        CreateIncident rhs = ((CreateIncident) other);
+        return ((((this.category == rhs.category)||((this.category!= null)&&this.category.equals(rhs.category)))&&((this.description == rhs.description)||((this.description!= null)&&this.description.equals(rhs.description))))&&((this.shortDescription == rhs.shortDescription)||((this.shortDescription!= null)&&this.shortDescription.equals(rhs.shortDescription))));
+    }
+
+}</code></pre>
+      </div>
+
+      <div class="file-card" id="f-p-3">
+        <div class="file-card-header">
+          <div><span class="lang-tag badge-java">Java</span><span class="fname">Result.java</span><span class="fpath">test/java/session_6/servicenow/pojos/Result.java</span></div>
+          <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+        </div>
+        <pre><code>
+package session_6.servicenow.pojos;
+
+import java.util.ArrayList;
+import java.util.List;
+
+
+public class Result {
+
+    
+    private List&lt;Student&gt; students = new ArrayList&lt;Student&gt;();
+    
+    private String subject;
+
+    public List&lt;Student&gt; getStudents() {
+        return students;
+    }
+
+    public void setStudents(List&lt;Student&gt; students) {
+        this.students = students;
+    }
+
+    public String getSubject() {
+        return subject;
+    }
+
+    public void setSubject(String subject) {
+        this.subject = subject;
+    }
+
+}</code></pre>
+      </div>
+
+      <div class="file-card" id="f-p-4">
+        <div class="file-card-header">
+          <div><span class="lang-tag badge-java">Java</span><span class="fname">Student.java</span><span class="fpath">test/java/session_6/servicenow/pojos/Student.java</span></div>
+          <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+        </div>
+        <pre><code>
+package session_6.servicenow.pojos;
+
+public class Student {
+
+
+    private String name;
+
+    private Integer age;
+
+    private String city;
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public Integer getAge() {
+        return age;
+    }
+
+    public void setAge(Integer age) {
+        this.age = age;
+    }
+
+    public String getCity() {
+        return city;
+    }
+
+    public void setCity(String city) {
+        this.city = city;
+    }
+
+}</code></pre>
+      </div>
+    </section>
+
+    <!-- ================= RESOURCES ================= -->
+    <section id="sec-resources">
+      <h2>test / resources / servicenow &mdash; JSON Test Data</h2>
+      <p class="section-desc">JSON payloads used as request bodies and as source schemas for POJO generation.</p>
+
+      <div class="file-card" id="f-r-1">
+        <div class="file-card-header">
+          <div><span class="lang-tag badge-json">JSON</span><span class="fname">ArrayOfObjects.json</span><span class="fpath">test/resources/servicenow/ArrayOfObjects.json</span></div>
+          <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+        </div>
+        <pre><code>{
+	"result": {
+		"students": [
+			{
+				"name": "Tom",
+				"age": 15,
+				"city": "Chennai"
+			},
+			{
+				"name": "Jerry",
+				"age": 13,
+				"city": "Goa"
+			}
+		],
+		"subject": "Cartoon"
+	}
+}</code></pre>
+      </div>
+
+      <div class="file-card" id="f-r-2">
+        <div class="file-card-header">
+          <div><span class="lang-tag badge-json">JSON</span><span class="fname">create_incident.json</span><span class="fpath">test/resources/servicenow/create_incident.json</span></div>
+          <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+        </div>
+        <pre><code>{
+"description":"Arrow",
+"short_description":"body sent as file",
+"category":"Software"
+}</code></pre>
+      </div>
+    </section>
+
+    <!-- ================= JUNEAU ================= -->
+    <section id="sec-juneau">
+      <h2>juneauMarshallpojo &mdash; Apache Juneau Marshalling</h2>
+      <p class="section-desc">Serialization (POJO &rarr; JSON/XML/HTML) and deserialization (JSON &rarr; POJO) examples using Apache Juneau, plus the supporting POJO with a <code>@Beanc</code>-annotated constructor.</p>
+
+      <div class="file-card" id="f-j-1">
+        <div class="file-card-header">
+          <div><span class="lang-tag badge-java">Java</span><span class="fname">DeSerializationExample.java</span><span class="fpath">juneauMarshallpojo/DeSerializationExample.java</span></div>
+          <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+        </div>
+        <pre><code>package juneauMarshallpojo;
+
+import org.apache.juneau.json.JsonParser;
+
+public class DeSerializationExample {
+
+	public static void main(String[] args) {
+
+		JsonParser parser = JsonParser.DEFAULT;
+		String jsonString = "{\r\n" + "	\"color\": \"Blue\",\r\n" + "	\"name\": \"MacBook\",\r\n"
+				+ "	\"price\": 102220,\r\n" + "	\"sellerName\": [\r\n" + "		\"abc\",\r\n" + "		\"def\",\r\n"
+				+ "		\"ghi\"\r\n" + "	]\r\n" + "}";
+		ProductPojoClass obj = parser.parse(jsonString, ProductPojoClass.class);
+		System.out.println("Name: " + obj.getName());
+		System.out.println("Color: " + obj.getColor());
+		System.out.println("Price: " + obj.getPrice());
+		System.out.print("Seller Names: ");
+		for (String seller : obj.getSellerName()) {
+			System.out.print(seller + " ");
+		}
+		System.out.println("");
+		System.out.println("Object: " + obj.toString());
+
+	}
+
+}</code></pre>
+      </div>
+
+      <div class="file-card" id="f-j-2">
+        <div class="file-card-header">
+          <div><span class="lang-tag badge-java">Java</span><span class="fname">ProductPojoClass.java</span><span class="fpath">juneauMarshallpojo/ProductPojoClass.java</span></div>
+          <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+        </div>
+        <pre><code>package juneauMarshallpojo;
+import java.util.Arrays;
+
+import org.apache.juneau.annotation.Beanc;
+
+public class ProductPojoClass {
+	
+	private String name;
+	private String color;
+	private int price;
+	private String[] sellerName;
+	
+	// beanc properties not recogonized in constructor
+	// so we need to add @Beanc(properties) above constructor
+	// to make it work
+	// import org.apache.juneau.annotation.Beanc;
+	// then add @Beanc(properties="name,color,price,sellerName")
+	// above constructor
+	// this will tell juneau to use these properties in this order
+	
+	@Beanc(properties="name,color,price,sellerName")
+	public ProductPojoClass(String name, String color, int price, String[] sellerName) {
+		super();
+		this.name = name;
+		this.color = color;
+		this.price = price;
+		this.sellerName = sellerName;
+	}
+	
+	
+	public String getName() {
+		return name;
+	}
+	public void setName(String name) {
+		this.name = name;
+	}
+	public String getColor() {
+		return color;
+	}
+	public void setColor(String color) {
+		this.color = color;
+	}
+	public int getPrice() {
+		return price;
+	}
+	public void setPrice(int price) {
+		this.price = price;
+	}
+	public String[] getSellerName() {
+		return sellerName;
+	}
+	public void setSellerName(String[] sellerName) {
+		this.sellerName = sellerName;
+	}
+
+
+	@Override
+	public String toString() {
+		return "ProductPojoClass [name=" + name + ", color=" + color + ", price=" + price + ", sellerName="
+				+ Arrays.toString(sellerName) + "]";
+	}
+		
+	
+
+}</code></pre>
+      </div>
+
+      <div class="file-card" id="f-j-3">
+        <div class="file-card-header">
+          <div><span class="lang-tag badge-java">Java</span><span class="fname">serializationExample.java</span><span class="fpath">juneauMarshallpojo/serializationExample.java</span></div>
+          <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+        </div>
+        <pre><code>package juneauMarshallpojo;
+
+import org.apache.juneau.json.JsonSerializer;
+import org.apache.juneau.xml.XmlSerializer;
+import org.apache.juneau.html.HtmlSerializer;
+
+public class serializationExample {
+
+	public static void main(String[] args) {
+
+		String[] sellerNames = { "abc", "def", "ghi" };
+
+		ProductPojoClass obj = new ProductPojoClass("MacBook", "Blue", 102220, sellerNames);
+
+		// Serialize pojo to JSON
+		JsonSerializer serializer = JsonSerializer.DEFAULT_READABLE;
+		String jsonString = serializer.serialize(obj);
+		System.out.println(jsonString);
+
+		// Serialize pojo to XML
+		XmlSerializer xmlSerializer = XmlSerializer.DEFAULT_NS_SQ_READABLE;
+		String xmlString = xmlSerializer.serialize(obj);
+		System.out.println(xmlString);
+
+		// Serialize pojo to HTML
+		HtmlSerializer htmlSerializer = HtmlSerializer.DEFAULT_SQ_READABLE;
+		String htmlString = htmlSerializer.serialize(obj);
+		System.out.println(htmlString);
+
+	}
+
+}</code></pre>
+      </div>
+    </section>
+
+    <footer>
+      RestAssuredBasics &mdash; consolidated project reference. Generated from 22 workspace files.
+    </footer>
+  </main>
+</div>
+
+<script>
+  function copyCode(btn) {
+    var card = btn.closest('.file-card');
+    var code = card.querySelector('code').innerText;
+    navigator.clipboard.writeText(code).then(function () {
+      var original = btn.textContent;
+      btn.textContent = 'Copied!';
+      btn.classList.add('copied');
+      setTimeout(function () {
+        btn.textContent = original;
+        btn.classList.remove('copied');
+      }, 1500);
+    });
+  }
+
+  // Highlight active nav link on scroll
+  var links = document.querySelectorAll('.nav-link');
+  window.addEventListener('scroll', function () {
+    var current = '';
+    document.querySelectorAll('[id]').forEach(function (el) {
+      var top = el.getBoundingClientRect().top;
+      if (top < 120) current = el.id;
+    });
+    links.forEach(function (l) {
+      l.style.background = l.getAttribute('href') === '#' + current ? '#21262d' : '';
+    });
+  });
+</script>
+</body>
+</html>
