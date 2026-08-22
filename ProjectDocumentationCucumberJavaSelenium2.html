@@ -1,0 +1,756 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CucumberJavaSelenium2 - Project Documentation</title>
+<style>
+  :root {
+    --bg: #0d1117;
+    --panel: #161b22;
+    --border: #30363d;
+    --text: #c9d1d9;
+    --muted: #8b949e;
+    --accent: #58a6ff;
+    --accent2: #3fb950;
+    --code-bg: #0d1117;
+    --tag: #7ee787;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.6;
+  }
+  header {
+    background: linear-gradient(135deg, #1f6feb 0%, #238636 100%);
+    padding: 40px 30px;
+    text-align: center;
+    color: #fff;
+  }
+  header h1 { margin: 0; font-size: 2.2rem; letter-spacing: -0.5px; }
+  header p { margin: 8px 0 0; opacity: 0.9; font-size: 1rem; }
+  .container { display: flex; max-width: 1400px; margin: 0 auto; }
+  nav {
+    width: 300px;
+    flex-shrink: 0;
+    background: var(--panel);
+    border-right: 1px solid var(--border);
+    padding: 20px;
+    position: sticky;
+    top: 0;
+    height: 100vh;
+    overflow-y: auto;
+  }
+  nav h2 { font-size: 0.8rem; text-transform: uppercase; color: var(--muted); letter-spacing: 1px; margin: 20px 0 8px; }
+  nav a { display: block; color: var(--text); text-decoration: none; padding: 5px 10px; border-radius: 6px; font-size: 0.9rem; }
+  nav a:hover { background: rgba(88,166,255,0.1); color: var(--accent); }
+  .tree { font-family: "Consolas", "Courier New", monospace; font-size: 0.82rem; color: var(--muted); white-space: pre; line-height: 1.5; }
+  .tree .folder { color: var(--accent); }
+  .tree .file { color: var(--tag); }
+  main { flex: 1; padding: 30px 40px; min-width: 0; }
+  section { margin-bottom: 40px; }
+  h2.section-title {
+    color: var(--accent);
+    border-bottom: 2px solid var(--border);
+    padding-bottom: 8px;
+    font-size: 1.5rem;
+  }
+  .file-card {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    margin: 20px 0;
+    overflow: hidden;
+  }
+  .file-header {
+    background: #21262d;
+    padding: 10px 16px;
+    font-family: "Consolas", monospace;
+    font-size: 0.9rem;
+    color: var(--tag);
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .file-path { color: var(--muted); font-size: 0.75rem; }
+  .lang-badge {
+    background: var(--accent);
+    color: #0d1117;
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-size: 0.7rem;
+    font-weight: bold;
+    text-transform: uppercase;
+  }
+  pre {
+    margin: 0;
+    padding: 16px 20px;
+    overflow-x: auto;
+    background: var(--code-bg);
+    font-family: "Consolas", "Courier New", monospace;
+    font-size: 0.85rem;
+    line-height: 1.5;
+    color: var(--text);
+    tab-size: 4;
+  }
+  .desc { color: var(--muted); font-size: 0.92rem; margin: 10px 0; }
+  footer { text-align: center; padding: 30px; color: var(--muted); border-top: 1px solid var(--border); font-size: 0.85rem; }
+  code.inline { background: #21262d; padding: 2px 6px; border-radius: 4px; font-family: monospace; color: var(--tag); }
+  @media (max-width: 900px) {
+    .container { flex-direction: column; }
+    nav { width: 100%; height: auto; position: static; }
+  }
+</style>
+</head>
+<body>
+<header>
+  <h1>CucumberJavaSelenium2</h1>
+  <p>BDD Test Automation Framework &middot; Cucumber + Selenium + TestNG + Maven (Page Object Model)</p>
+</header>
+
+<div class="container">
+  <nav>
+    <h2>Project Structure</h2>
+    <div class="tree"><span class="folder">CucumberJavaSelenium2/</span>
+├─ <span class="file">pom.xml</span>
+└─ <span class="folder">src/test/java/</span>
+   ├─ <span class="folder">features/</span>
+   │  └─ <span class="file">SearchProduct.feature</span>
+   ├─ <span class="folder">pageObjects/</span>
+   │  ├─ <span class="file">HomePageLocators.java</span>
+   │  └─ <span class="file">DealsPageLocators.java</span>
+   ├─ <span class="folder">stepdefinitions/</span>
+   │  ├─ <span class="file">HomePageStepDefinition.java</span>
+   │  ├─ <span class="file">DealsPageStepDefinition.java</span>
+   │  └─ <span class="file">MainSteps.java</span>
+   ├─ <span class="folder">testrunners/</span>
+   │  └─ <span class="file">TestRunner.java</span>
+   └─ <span class="folder">utils/</span>
+      └─ <span class="file">TestContextSetup.java</span></div>
+
+    <h2>Contents</h2>
+    <a href="#overview">Overview</a>
+    <a href="#build">1. Build Config (pom.xml)</a>
+    <a href="#feature">2. Feature File</a>
+    <a href="#pageobjects">3. Page Objects</a>
+    <a href="#stepdefs">4. Step Definitions</a>
+    <a href="#runner">5. Test Runner</a>
+    <a href="#utils">6. Utils / Context</a>
+  </nav>
+
+  <main>
+    <section id="overview">
+      <h2 class="section-title">Overview</h2>
+      <p class="desc">
+        This project is a Behavior Driven Development (BDD) UI test automation framework built with
+        <strong>Cucumber</strong> (Gherkin syntax), <strong>Selenium WebDriver</strong> for browser
+        automation, <strong>TestNG</strong> for assertions and execution, and <strong>Maven</strong> for
+        build/dependency management. It follows the <strong>Page Object Model (POM)</strong> design pattern
+        and uses <strong>PicoContainer dependency injection</strong> to share state (via
+        <code class="inline">TestContextSetup</code>) across step definition classes.
+      </p>
+      <p class="desc">
+        The single scenario verifies that searching for a product ("Tom") on the GreenKart home page
+        returns the same product that appears when searching in the Top Deals / offers page.
+      </p>
+    </section>
+
+    <section id="build">
+      <h2 class="section-title">1. Build Configuration</h2>
+      <p class="desc">Maven <code class="inline">pom.xml</code> declares Java 17, and dependencies for Cucumber-TestNG, Cucumber-Java, Selenium-Java, and Cucumber-PicoContainer (for dependency injection).</p>
+      <div class="file-card">
+        <div class="file-header">
+          <span>pom.xml</span>
+          <span class="lang-badge">xml</span>
+        </div>
+        <div class="file-path">CucumberJavaSelenium2/pom.xml</div>
+        <pre><code>&lt;?xml version="1.0" encoding="UTF-8"?&gt;
+&lt;project xmlns="http://maven.apache.org/POM/4.0.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd"&gt;
+	&lt;modelVersion&gt;4.0.0&lt;/modelVersion&gt;
+
+	&lt;groupId&gt;CucumberJavaSelenium2&lt;/groupId&gt;
+	&lt;artifactId&gt;CucumberJavaSelenium2&lt;/artifactId&gt;
+	&lt;version&gt;0.0.1-SNAPSHOT&lt;/version&gt;
+
+	&lt;name&gt;CucumberJavaSelenium2&lt;/name&gt;
+	&lt;!-- FIXME change it to the project's website --&gt;
+	&lt;url&gt;http://www.example.com&lt;/url&gt;
+
+	&lt;properties&gt;
+		&lt;project.build.sourceEncoding&gt;UTF-8&lt;/project.build.sourceEncoding&gt;
+		&lt;maven.compiler.release&gt;17&lt;/maven.compiler.release&gt;
+	&lt;/properties&gt;
+
+	&lt;dependencies&gt;
+		&lt;!-- https://mvnrepository.com/artifact/io.cucumber/cucumber-testng --&gt;
+		&lt;dependency&gt;
+			&lt;groupId&gt;io.cucumber&lt;/groupId&gt;
+			&lt;artifactId&gt;cucumber-testng&lt;/artifactId&gt;
+			&lt;version&gt;7.30.0&lt;/version&gt;
+		&lt;/dependency&gt;
+		&lt;!-- https://mvnrepository.com/artifact/io.cucumber/cucumber-java --&gt;
+		&lt;dependency&gt;
+			&lt;groupId&gt;io.cucumber&lt;/groupId&gt;
+			&lt;artifactId&gt;cucumber-java&lt;/artifactId&gt;
+			&lt;version&gt;7.30.0&lt;/version&gt;
+		&lt;/dependency&gt;
+		&lt;!--https://mvnrepository.com/artifact/org.seleniumhq.selenium/selenium-java --&gt;
+		&lt;dependency&gt;
+			&lt;groupId&gt;org.seleniumhq.selenium&lt;/groupId&gt;
+			&lt;artifactId&gt;selenium-java&lt;/artifactId&gt;
+			&lt;version&gt;4.36.0&lt;/version&gt;
+		&lt;/dependency&gt;
+		&lt;!--
+		https://mvnrepository.com/artifact/io.cucumber/cucumber-picocontainer --&gt;
+		&lt;dependency&gt;
+			&lt;groupId&gt;io.cucumber&lt;/groupId&gt;
+			&lt;artifactId&gt;cucumber-picocontainer&lt;/artifactId&gt;
+			&lt;version&gt;7.30.0&lt;/version&gt;
+		&lt;/dependency&gt;
+	&lt;/dependencies&gt;
+
+	&lt;build&gt;
+		&lt;pluginManagement&gt;&lt;!-- lock down plugins versions to avoid using Maven
+			defaults (may be moved to parent pom) --&gt;
+			&lt;plugins&gt;
+				&lt;!-- clean lifecycle, see
+				https://maven.apache.org/ref/current/maven-core/lifecycles.html#clean_Lifecycle --&gt;
+				&lt;plugin&gt;
+					&lt;artifactId&gt;maven-clean-plugin&lt;/artifactId&gt;
+					&lt;version&gt;3.4.0&lt;/version&gt;
+				&lt;/plugin&gt;
+				&lt;!-- default lifecycle, jar packaging: see
+				https://maven.apache.org/ref/current/maven-core/default-bindings.html#Plugin_bindings_for_jar_packaging --&gt;
+				&lt;plugin&gt;
+					&lt;artifactId&gt;maven-resources-plugin&lt;/artifactId&gt;
+					&lt;version&gt;3.3.1&lt;/version&gt;
+				&lt;/plugin&gt;
+				&lt;plugin&gt;
+					&lt;artifactId&gt;maven-compiler-plugin&lt;/artifactId&gt;
+					&lt;version&gt;3.13.0&lt;/version&gt;
+				&lt;/plugin&gt;
+				&lt;plugin&gt;
+					&lt;artifactId&gt;maven-surefire-plugin&lt;/artifactId&gt;
+					&lt;version&gt;3.3.0&lt;/version&gt;
+				&lt;/plugin&gt;
+				&lt;plugin&gt;
+					&lt;artifactId&gt;maven-jar-plugin&lt;/artifactId&gt;
+					&lt;version&gt;3.4.2&lt;/version&gt;
+				&lt;/plugin&gt;
+				&lt;plugin&gt;
+					&lt;artifactId&gt;maven-install-plugin&lt;/artifactId&gt;
+					&lt;version&gt;3.1.2&lt;/version&gt;
+				&lt;/plugin&gt;
+				&lt;plugin&gt;
+					&lt;artifactId&gt;maven-deploy-plugin&lt;/artifactId&gt;
+					&lt;version&gt;3.1.2&lt;/version&gt;
+				&lt;/plugin&gt;
+				&lt;!-- site lifecycle, see
+				https://maven.apache.org/ref/current/maven-core/lifecycles.html#site_Lifecycle --&gt;
+				&lt;plugin&gt;
+					&lt;artifactId&gt;maven-site-plugin&lt;/artifactId&gt;
+					&lt;version&gt;3.12.1&lt;/version&gt;
+				&lt;/plugin&gt;
+				&lt;plugin&gt;
+					&lt;artifactId&gt;maven-project-info-reports-plugin&lt;/artifactId&gt;
+					&lt;version&gt;3.6.1&lt;/version&gt;
+				&lt;/plugin&gt;
+			&lt;/plugins&gt;
+		&lt;/pluginManagement&gt;
+	&lt;/build&gt;
+&lt;/project&gt;</code></pre>
+      </div>
+    </section>
+
+    <section id="feature">
+      <h2 class="section-title">2. Feature File</h2>
+      <p class="desc">Gherkin scenario describing the search-consistency test between the home page and offers page.</p>
+      <div class="file-card">
+        <div class="file-header">
+          <span>SearchProduct.feature</span>
+          <span class="lang-badge">gherkin</span>
+        </div>
+        <div class="file-path">src/test/java/features/SearchProduct.feature</div>
+        <pre><code>Feature: Search and place order   
+Scenario: User should have same search experience in home and deals page  
+Given User is on GreenKart home page
+When user searched for string "Tom" 
+And extract actual name from the product displayed
+Then user searched same string "Tom" in offers page
+And verify same product in home page exists in offers page</code></pre>
+      </div>
+    </section>
+
+    <section id="pageobjects">
+      <h2 class="section-title">3. Page Objects (POM)</h2>
+      <p class="desc">Page Object classes encapsulate the locators and interactions for each page, keeping tests maintainable and reusable.</p>
+
+      <div class="file-card">
+        <div class="file-header">
+          <span>HomePageLocators.java</span>
+          <span class="lang-badge">java</span>
+        </div>
+        <div class="file-path">src/test/java/pageObjects/HomePageLocators.java</div>
+        <pre><code>package pageObjects;
+
+import org.openqa.selenium.By;
+import org.openqa.selenium.WebDriver;
+
+public class HomePageLocators {
+
+	public WebDriver driver;
+	
+	public HomePageLocators(WebDriver driver) {
+		this.driver = driver;
+	}
+	
+	By search =  By.xpath("//input[@type='search']");
+	By productName = By.xpath("//h4");
+	
+	public void searchItem(String item) {
+		driver.findElement(search).sendKeys(item);
+	}
+	
+	public String getProductName() {
+		return driver.findElement(productName).getText();
+	}
+	
+}</code></pre>
+      </div>
+
+      <div class="file-card">
+        <div class="file-header">
+          <span>DealsPageLocators.java</span>
+          <span class="lang-badge">java</span>
+        </div>
+        <div class="file-path">src/test/java/pageObjects/DealsPageLocators.java</div>
+        <pre><code>package pageObjects;
+
+import org.openqa.selenium.By;
+import org.openqa.selenium.WebDriver;
+
+public class DealsPageLocators {
+	
+	public WebDriver driver;
+
+	public DealsPageLocators(WebDriver driver) {
+		this.driver = driver;
+	}
+	
+	By search = By.id("search-field");
+	By productName = By.xpath("//td[normalize-space()='Tomato']");
+	
+	public void getSearch() {
+	
+		driver.findElement(search).click();
+	}
+
+	public String getProductName() {
+		return driver.findElement(productName).getText();
+	}
+	
+	
+}</code></pre>
+      </div>
+    </section>
+
+    <section id="stepdefs">
+      <h2 class="section-title">4. Step Definitions</h2>
+      <p class="desc">Step definitions map Gherkin steps to Java code. State is shared across classes via the injected <code class="inline">TestContextSetup</code> (dependency injection through PicoContainer).</p>
+
+      <div class="file-card">
+        <div class="file-header">
+          <span>HomePageStepDefinition.java</span>
+          <span class="lang-badge">java</span>
+        </div>
+        <div class="file-path">src/test/java/stepdefinitions/HomePageStepDefinition.java</div>
+        <pre><code>package stepdefinitions;
+
+import java.util.Iterator;
+import java.util.Set;
+
+import org.openqa.selenium.By;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.chrome.ChromeDriver;
+import org.testng.Assert;
+
+import io.cucumber.java.en.Given;
+import io.cucumber.java.en.Then;
+import io.cucumber.java.en.When;
+import pageObjects.HomePageLocators;
+import utils.TestContextSetup;
+
+@SuppressWarnings("unused")
+public class HomePageStepDefinition {
+
+	WebDriver driver;
+	String homePageString;
+	String DealsPageString;
+	TestContextSetup testContextSetup;
+
+	// Constructor
+	public HomePageStepDefinition(TestContextSetup testContextSetup) {
+		this.testContextSetup = testContextSetup;
+
+	}
+
+	@Given("User is on GreenKart home page")
+	public void user_is_on_green_kart_home_page() {
+
+		testContextSetup.driver = new ChromeDriver();
+		testContextSetup.driver.get("https://rahulshettyacademy.com/seleniumPractise/#/");
+		testContextSetup.driver.manage().window().maximize();
+
+	}
+
+	@When("user searched for string {string}")
+	public void user_searched_for_string(String string) throws InterruptedException {
+		
+		// Enter the string in search box
+		HomePageLocators homePageLocators = new HomePageLocators(testContextSetup.driver);
+		homePageLocators.searchItem(string);
+		
+		// Alternate way without using POM class
+		// testContextSetup.driver.findElement(By.xpath("//input[@type='search']")).sendKeys(string);
+		
+ 		Thread.sleep(2000);
+	}
+
+	@When("extract actual name from the product displayed")
+	public void extract_actual_name_from_the_product_displayed() throws InterruptedException {
+		
+		// Using POM class
+		HomePageLocators homePageLocators = new HomePageLocators(testContextSetup.driver);
+		testContextSetup.homePageString = homePageLocators.getProductName().split("-")[0].trim();
+		
+		// Alternate way without using POM class
+		// testContextSetup.homePageString = testContextSetup.driver.findElement(By.xpath("//h4")).getText().split("-")[0].trim();
+		
+		//Explanation: Tomato - 1 Kg -> it will split and take first part in .split("-")[0] and trim the spaces with .trim()
+		
+		Thread.sleep(2000);
+		// Print the name of the product
+		System.out.println(testContextSetup.homePageString);
+	}
+
+}
+
+//dependency injection -> create object of TestContextSetup class and pass it to the constructor
+// this will help to share the data between step definition classes
+// this is called dependency injection
+// cucumber will create the object of this class and pass it to the constructor
+// this is called dependency injection
+
+// single responsibility principle is followed here - one class one
+// responsibility
+
+// HomePageStepDefinition class is responsible for home page only
+// DealsPageStepDefinition class is responsible for deals page only
+// TestContextSetup class is responsible for sharing data between classes only
+// TestContextSetup class is a POJO class - Plain Old Java Object class
+// it has only data members and getters and setters
+// it does not have any business logic
+// it is used to share data between step definition classes
+
+//	class loosely coupled - if we change one class it will not
+// affect other classes - this is called loose coupling
+// class tightly coupled - if we change one class it will
+// affect other classes - this is called tight coupling
+// here we are using loose coupling - if we change TestContextSetup class
+// it will not affect HomePageStepDefinition and DealsPageStepDefinition classes
+// if we change HomePageStepDefinition class it will not affect
+// DealsPageStepDefinition class
+// if we change DealsPageStepDefinition class it will not affect
+// HomePageStepDefinition class
+// this is called loose coupling
+// this is achieved by using dependency injection
+// this is a good design pattern - it is called Page Object Model (POM)
+// it is a good practice to follow single responsibility principle and loose
+// coupling
+// it will make the code more maintainable and reusable
+// it will make the code more readable and understandable
+// it will make the code more testable and debuggable
+// it will make the code more scalable and extensible
+// it will make the code more robust and reliable
+// it will make the code more efficient and effective
+// it will make the code more flexible and adaptable
+// it will make the code more modular and cohesive
+// it will make the code more consistent and uniform
+// it will make the code more standard and conventional
+// it will make the code more professional and elegant
+// it will make the code more beautiful and attractive
+// it will make the code more fun and enjoyable
+// it will make the code more productive and efficient
+// it will make the code more creative and innovative
+// it will make the code more collaborative and cooperative
+// it will make the code more communicative and interactive
+// it will make the code more social and friendly
+// it will make the code more ethical and moral
+// it will make the code more legal and compliant
+// it will make the code more secure and safe
+// it will make the code more private and confidential
+// it will make the code more transparent and accountable
+// it will make the code more sustainable and eco-friendly
+// it will make the code more humane and compassionate
+// it will make the code more spiritual and philosophical
+// it will make the code more holistic and integrative
+// it will make the code more futuristic and visionary
+// it will make the code more global and universal
+// it will make the code more local and specific</code></pre>
+      </div>
+
+      <div class="file-card">
+        <div class="file-header">
+          <span>DealsPageStepDefinition.java</span>
+          <span class="lang-badge">java</span>
+        </div>
+        <div class="file-path">src/test/java/stepdefinitions/DealsPageStepDefinition.java</div>
+        <pre><code>package stepdefinitions;
+
+import java.util.Iterator;
+import java.util.Set;
+
+import org.openqa.selenium.By;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.chrome.ChromeDriver;
+import org.testng.Assert;
+
+import io.cucumber.java.en.Given;
+import io.cucumber.java.en.Then;
+import io.cucumber.java.en.When;
+import pageObjects.DealsPageLocators;
+import utils.TestContextSetup;
+
+@SuppressWarnings("unused")
+public class DealsPageStepDefinition {
+
+	WebDriver driver;
+	String homePageString;
+	String DealsPageString;
+	TestContextSetup testContextSetup;
+
+	// Constructor
+	public DealsPageStepDefinition(TestContextSetup testContextSetup) {
+		this.testContextSetup = testContextSetup;
+
+	}
+
+	@Then("user searched same string {string} in offers page")
+	public void user_searched_same_string_in_offers_page(String string) throws InterruptedException {
+
+		// Click on Top Deals link to go to offers page
+		SwitchToDealsPageFromHomePage();
+
+		// Now in Offers page
+		// Search for the same vegetable in offers page
+
+		Thread.sleep(2000);
+
+		// Using POM class
+		DealsPageLocators offersPageLocators = new DealsPageLocators(testContextSetup.driver);
+		offersPageLocators.getSearch();
+
+		// Alternate way without using POM class
+		// testContextSetup.driver.findElement(By.id("search-field")).sendKeys(string);
+
+		Thread.sleep(2000);
+		// Get the name of the product
+		// Using POM class
+		testContextSetup.DealsPageString = offersPageLocators.getProductName();
+
+		// Alternate way without using POM class
+		// testContextSetup.DealsPageString = testContextSetup.driver.findElement(By.xpath("//td[normalize-space()='Tomato']")).getText();
+		// td[normalize-space()='Tomato'] -> Xpath for Tomato in offers page
+		
+		// Print the name of the product
+		System.out.println(testContextSetup.DealsPageString);
+	}
+
+	@Then("verify same product in home page exists in offers page")
+	public void verify_same_product_in_home_page_exists_in_offers_page() {
+
+//		if (testContextSetup.homePageString.equalsIgnoreCase(testContextSetup.DealsPageString)) {
+//			System.out.println("Both names are same");
+//		} else {
+//			System.out.println("Names are different");
+//		}
+
+		// Using TestNG for validation
+		Assert.assertEquals(testContextSetup.homePageString, testContextSetup.DealsPageString);
+
+		testContextSetup.driver.close();
+		testContextSetup.driver.quit();
+	}
+
+	public void SwitchToDealsPageFromHomePage() {
+		testContextSetup.driver.findElement(By.xpath("//a[.='Top Deals']")).click();
+
+		// Switch to new tab (Offers page) it opens in a new tab (child window)
+		Set&lt;String&gt; s1 = testContextSetup.driver.getWindowHandles();
+		Iterator&lt;String&gt; i1 = s1.iterator();
+		String parentWindow = i1.next();
+		String childWindow = i1.next();
+
+		testContextSetup.driver.switchTo().window(childWindow);
+		// Now in Offers page
+	}
+}</code></pre>
+      </div>
+
+      <div class="file-card">
+        <div class="file-header">
+          <span>MainSteps.java</span>
+          <span class="lang-badge">java</span>
+        </div>
+        <div class="file-path">src/test/java/stepdefinitions/MainSteps.java</div>
+        <p class="desc" style="padding:12px 20px 0;">Note: This entire class is commented out. It represents the earlier single-class approach (all steps in one file with local <code class="inline">driver</code> fields) before refactoring to POM + dependency injection.</p>
+        <pre><code>// single stepdefinition for scenario with multiple steps in different pages with window handling and validation using TestNG 
+
+/*
+package stepdefinitions;
+
+import java.util.Iterator;
+import java.util.Set;
+
+import org.openqa.selenium.By;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.chrome.ChromeDriver;
+import org.testng.Assert;
+
+import io.cucumber.java.en.Given;
+import io.cucumber.java.en.Then;
+import io.cucumber.java.en.When;
+
+public class MainSteps {
+
+	WebDriver driver;
+	String homePageString;
+	String DealsPageString;
+
+	@Given("User is on GreenKart home page")
+	public void user_is_on_green_kart_home_page() {
+
+		driver = new ChromeDriver();
+		driver.get("https://rahulshettyacademy.com/seleniumPractise/#/");
+		driver.manage().window().maximize();
+
+	}
+
+	@When("user searched for string {string}")
+	public void user_searched_for_string(String string) throws InterruptedException {
+		driver.findElement(By.xpath("//input[@type='search']")).sendKeys(string);
+
+	}
+
+	@When("extract actual name from the product displayed")
+	public void extract_actual_name_from_the_product_displayed() throws InterruptedException {
+		Thread.sleep(2000);
+		homePageString = driver.findElement(By.xpath("//h4")).getText().split("-")[0].trim();
+		// Tomato - 1 Kg -> it will split and take first part in .split("-")[0] and trim
+		// the spaces with .trim()
+		System.out.println(homePageString);
+	}
+
+	@SuppressWarnings("unused")
+	@Then("user searched same string {string} in offers page")
+	public void user_searched_same_string_in_offers_page(String string) throws InterruptedException {
+		driver.findElement(By.xpath("//a[.='Top Deals']")).click();
+
+		// Switch to new tab (Offers page) it opens in a new tab (child window)
+		Set&lt;String&gt; s1 = driver.getWindowHandles();
+		Iterator&lt;String&gt; i1 = s1.iterator();
+		String parentWindow = i1.next();
+		String childWindow = i1.next();
+
+		driver.switchTo().window(childWindow);
+		// Now in Offers page
+		// Search for the same vegetable in offers page
+
+		Thread.sleep(2000);
+		driver.findElement(By.id("search-field")).sendKeys(string);
+		Thread.sleep(2000);
+		DealsPageString  = driver.findElement(By.xpath("//td[normalize-space()='Tomato']")).getText(); // td[normalize-space()='Tomato']
+		System.out.println(DealsPageString);
+	}
+
+	@Then("verify same product in home page exists in offers page")
+	public void verify_same_product_in_home_page_exists_in_offers_page() {
+
+//		if (actualName.equalsIgnoreCase(check)) {
+//			System.out.println("Both names are same");
+//		} else {
+//			System.out.println("Names are different");
+//		}
+		
+		// Using TestNG for validation
+		Assert.assertEquals(homePageString, DealsPageString);
+
+		driver.close();
+		driver.quit();
+	}
+}
+
+*/</code></pre>
+      </div>
+    </section>
+
+    <section id="runner">
+      <h2 class="section-title">5. Test Runner</h2>
+      <p class="desc">The TestNG-based Cucumber runner. It points to the feature files, the glue (step definitions) package, and configures reporting plugins.</p>
+      <div class="file-card">
+        <div class="file-header">
+          <span>TestRunner.java</span>
+          <span class="lang-badge">java</span>
+        </div>
+        <div class="file-path">src/test/java/testrunners/TestRunner.java</div>
+        <pre><code>package testrunners;
+
+import io.cucumber.testng.AbstractTestNGCucumberTests;
+import io.cucumber.testng.CucumberOptions;
+
+@CucumberOptions(
+		features = "src/test/java/features",
+		glue = {"stepdefinitions"},
+		plugin = {"pretty", "html:target/cucumber-reports.html"},
+		monochrome = true
+)
+public class TestRunner extends AbstractTestNGCucumberTests {
+
+}</code></pre>
+      </div>
+    </section>
+
+    <section id="utils">
+      <h2 class="section-title">6. Utils / Shared Context</h2>
+      <p class="desc">A POJO used for dependency injection. PicoContainer creates a single instance and injects it into each step definition constructor, allowing shared state (<code class="inline">driver</code>, <code class="inline">homePageString</code>, <code class="inline">DealsPageString</code>) across classes.</p>
+      <div class="file-card">
+        <div class="file-header">
+          <span>TestContextSetup.java</span>
+          <span class="lang-badge">java</span>
+        </div>
+        <div class="file-path">src/test/java/utils/TestContextSetup.java</div>
+        <pre><code>package utils;
+
+import org.openqa.selenium.WebDriver;
+
+public class TestContextSetup {
+	public WebDriver driver;
+	public String homePageString;
+	public String DealsPageString;
+}</code></pre>
+      </div>
+    </section>
+  </main>
+</div>
+
+<footer>
+  Generated project documentation for <strong>CucumberJavaSelenium2</strong> &middot; Cucumber &middot; Selenium WebDriver &middot; TestNG &middot; Maven &middot; Page Object Model with Dependency Injection
+</footer>
+</body>
+</html>
