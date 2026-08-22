@@ -1,0 +1,1651 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>RSJavaSelenium2 — Project Documentation</title>
+<style>
+  :root {
+    --bg: #0d1117;
+    --sidebar-bg: #161b22;
+    --card-bg: #161b22;
+    --code-bg: #0d1117;
+    --border: #30363d;
+    --text: #c9d1d9;
+    --muted: #8b949e;
+    --accent: #58a6ff;
+    --accent2: #7ee787;
+    --heading: #e6edf3;
+    --kw: #ff7b72;
+    --str: #a5d6ff;
+    --com: #8b949e;
+    --num: #79c0ff;
+    --anno: #d2a8ff;
+  }
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    margin: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.6;
+  }
+  .layout { display: flex; min-height: 100vh; }
+  /* Sidebar */
+  .sidebar {
+    width: 300px;
+    background: var(--sidebar-bg);
+    border-right: 1px solid var(--border);
+    position: fixed;
+    top: 0; left: 0; bottom: 0;
+    overflow-y: auto;
+    padding: 20px 0;
+  }
+  .sidebar h1 {
+    font-size: 18px;
+    color: var(--heading);
+    padding: 0 20px 8px;
+    margin: 0;
+  }
+  .sidebar .subtitle {
+    font-size: 12px;
+    color: var(--muted);
+    padding: 0 20px 16px;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 12px;
+  }
+  .nav-group { padding: 6px 0; }
+  .nav-group > .group-title {
+    display: block;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--muted);
+    padding: 10px 20px 4px;
+    font-weight: 700;
+  }
+  .sidebar a {
+    display: block;
+    color: var(--text);
+    text-decoration: none;
+    font-size: 13px;
+    padding: 5px 20px 5px 32px;
+    border-left: 2px solid transparent;
+  }
+  .sidebar a:hover { background: #1f2630; color: var(--accent); }
+  .sidebar a.top { padding-left: 20px; font-weight: 600; }
+  /* Main */
+  .main {
+    margin-left: 300px;
+    flex: 1;
+    padding: 40px 48px 80px;
+    max-width: 1100px;
+  }
+  header.page-header {
+    border-bottom: 1px solid var(--border);
+    padding-bottom: 24px;
+    margin-bottom: 32px;
+  }
+  header.page-header h1 { font-size: 32px; color: var(--heading); margin: 0 0 8px; }
+  header.page-header p { color: var(--muted); margin: 4px 0; }
+  .badges { margin-top: 14px; }
+  .badge {
+    display: inline-block;
+    background: #1f2630;
+    border: 1px solid var(--border);
+    color: var(--accent);
+    font-size: 12px;
+    padding: 3px 10px;
+    border-radius: 20px;
+    margin: 0 6px 6px 0;
+  }
+  section { margin-bottom: 48px; }
+  h2.section-title {
+    font-size: 24px;
+    color: var(--heading);
+    border-bottom: 1px solid var(--border);
+    padding-bottom: 10px;
+    margin: 48px 0 20px;
+  }
+  h3.file-title {
+    font-size: 17px;
+    color: var(--accent2);
+    margin: 28px 0 4px;
+    font-family: "SFMono-Regular", Consolas, monospace;
+  }
+  .file-path { font-size: 12px; color: var(--muted); margin: 0 0 10px; font-family: monospace; }
+  .file-desc { color: var(--text); margin: 6px 0 12px; font-size: 14px; }
+  pre {
+    background: var(--code-bg);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 16px;
+    overflow-x: auto;
+    font-size: 13px;
+    line-height: 1.5;
+    font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+  }
+  code { font-family: "SFMono-Regular", Consolas, monospace; }
+  .kw { color: var(--kw); }
+  .str { color: var(--str); }
+  .com { color: var(--com); font-style: italic; }
+  .num { color: var(--num); }
+  .anno { color: var(--anno); }
+  /* Tree */
+  .tree {
+    background: var(--code-bg);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 20px;
+    font-family: "SFMono-Regular", Consolas, monospace;
+    font-size: 13px;
+    white-space: pre;
+    overflow-x: auto;
+    color: var(--text);
+  }
+  .tree .dir { color: var(--accent); font-weight: 600; }
+  .tree .file { color: var(--text); }
+  table { border-collapse: collapse; width: 100%; margin: 12px 0; font-size: 14px; }
+  th, td { border: 1px solid var(--border); padding: 8px 12px; text-align: left; }
+  th { background: #1f2630; color: var(--heading); }
+  .toc-note { color: var(--muted); font-size: 13px; }
+  a.back-top { font-size: 12px; color: var(--accent); text-decoration: none; float: right; }
+  a.back-top:hover { text-decoration: underline; }
+  .card {
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 20px 24px;
+  }
+</style>
+</head>
+<body>
+<div class="layout">
+  <nav class="sidebar">
+    <h1>RSJavaSelenium2</h1>
+    <div class="subtitle">Selenium + TestNG Learning Project</div>
+
+    <div class="nav-group">
+      <a class="top" href="#overview">Overview</a>
+      <a class="top" href="#structure">Project Structure</a>
+      <a class="top" href="#build">Build &amp; Configuration</a>
+    </div>
+
+    <div class="nav-group">
+      <span class="group-title">firstProject (Selenium)</span>
+      <a href="#FirstCode">FirstCode.java</a>
+      <a href="#secondPage">secondPage.java</a>
+      <a href="#practicePage">practicePage.java</a>
+      <a href="#ThirdCode">ThirdCode.java</a>
+      <a href="#WindowActivities">WindowActivities.java</a>
+      <a href="#crossBrowser">crossBrowser.java</a>
+      <a href="#DropDownPractice">DropDownPractice.java</a>
+      <a href="#DynamicDropDown">DynamicDropDown.java</a>
+      <a href="#SecondDropDown">SecondDropDown.java</a>
+      <a href="#AutoSuggestiveDropDown">AutoSuggestiveDropDown.java</a>
+    </div>
+
+    <div class="nav-group">
+      <span class="group-title">LoginPage (Page Object)</span>
+      <a href="#SignInPage">SignInPage.java</a>
+    </div>
+
+    <div class="nav-group">
+      <span class="group-title">testNG</span>
+      <a href="#HomeLoan">HomeLoan.java</a>
+      <a href="#PersonalLoan">PersonalLoan.java</a>
+    </div>
+
+    <div class="nav-group">
+      <span class="group-title">javaPrograms</span>
+      <a href="#jp-OddEven">OddEven.java</a>
+      <a href="#jp-EvenNumbers">EvenNumbers.java</a>
+      <a href="#jp-PrimeNumber">PrimeNumber.java</a>
+      <a href="#jp-ReverseAString">ReverseAString.java</a>
+      <a href="#jp-Reverse_A_String">Reverse_A_String.java</a>
+      <a href="#jp-ReverseEachWordOfString">ReverseEachWordOfString.java</a>
+      <a href="#jp-WordCount">WordCount.java</a>
+      <a href="#jp-DuplicateCharacterCount">DuplicateCharacterCount.java</a>
+    </div>
+
+    <div class="nav-group">
+      <span class="group-title">practice</span>
+      <a href="#pr-Reverse">Reverse.java</a>
+      <a href="#pr-JavaReverseStringWords">JavaReverseStringWords.java</a>
+      <a href="#pr-WordCount">WordCount.java</a>
+      <a href="#pr-TotalWords">TotalWords.java</a>
+      <a href="#pr-DuplicateCharacterCount">DuplicateCharacterCount.java</a>
+      <a href="#pr-Duplicate_Character_Count">Duplicate_Character_Count.java</a>
+    </div>
+
+    <div class="nav-group">
+      <span class="group-title">Configuration Files</span>
+      <a href="#pom">pom.xml</a>
+      <a href="#testng">testng.xml</a>
+      <a href="#testng2">testng2.xml</a>
+    </div>
+  </nav>
+
+  <main class="main">
+    <header class="page-header">
+      <h1>RSJavaSelenium2</h1>
+      <p>A learning-focused Java automation project covering Selenium WebDriver, the Page Object Model, TestNG suites, and core Java programming exercises.</p>
+      <p>Based on the Rahul Shetty Academy Selenium curriculum.</p>
+      <div class="badges">
+        <span class="badge">Java</span>
+        <span class="badge">Selenium 4.35.0</span>
+        <span class="badge">TestNG 7.11.0</span>
+        <span class="badge">WebDriverManager 6.2.0</span>
+        <span class="badge">Maven</span>
+      </div>
+    </header>
+
+    <section id="overview">
+      <h2 class="section-title">Overview</h2>
+      <div class="card">
+        <p>This project is a hands-on collection of automation and Java exercises organized under a single Maven test source tree. It is split into five functional areas:</p>
+        <table>
+          <thead>
+            <tr><th>Package</th><th>Purpose</th></tr>
+          </thead>
+          <tbody>
+            <tr><td><code>firstProject</code></td><td>Selenium WebDriver scripts covering locators, checkboxes, navigation, XPath axes, cross-browser execution, and static/dynamic/auto-suggest dropdowns.</td></tr>
+            <tr><td><code>LoginPage</code></td><td>Page Object Model class (<code>SignInPage</code>) using <code>@FindBy</code> and <code>PageFactory</code>, reused across the Selenium scripts.</td></tr>
+            <tr><td><code>testNG</code></td><td>TestNG demo classes (<code>HomeLoan</code>, <code>PersonalLoan</code>) driven by suite XML files with include/exclude and package-level configuration.</td></tr>
+            <tr><td><code>javaPrograms</code></td><td>Core Java practice: odd/even, primes, string reversal, word counts, duplicate character counts.</td></tr>
+            <tr><td><code>practice</code></td><td>Additional repetitions of the string/word/duplicate exercises for reinforcement.</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section id="structure">
+      <h2 class="section-title">Project Structure</h2>
+      <div class="tree"><span class="dir">RSJavaSelenium2/</span>
+├── <span class="file">pom.xml</span>                         <span class="com"># Maven build &amp; dependencies</span>
+├── <span class="file">testng.xml</span>                      <span class="com"># TestNG suite (include/exclude methods)</span>
+├── <span class="file">testng2.xml</span>                     <span class="com"># TestNG suite (package-level)</span>
+├── <span class="file">.classpath / .project / .gitignore</span>
+├── <span class="dir">.settings/</span>
+├── <span class="dir">target/</span>                          <span class="com"># Maven build output</span>
+├── <span class="dir">test-output/</span>                     <span class="com"># TestNG generated reports</span>
+└── <span class="dir">src/test/java/</span>
+    ├── <span class="dir">firstProject/</span>               <span class="com"># Selenium WebDriver scripts</span>
+    │   ├── <span class="file">FirstCode.java</span>
+    │   ├── <span class="file">secondPage.java</span>
+    │   ├── <span class="file">practicePage.java</span>
+    │   ├── <span class="file">ThirdCode.java</span>
+    │   ├── <span class="file">WindowActivities.java</span>
+    │   ├── <span class="file">crossBrowser.java</span>
+    │   ├── <span class="file">DropDownPractice.java</span>
+    │   ├── <span class="file">DynamicDropDown.java</span>
+    │   ├── <span class="file">SecondDropDown.java</span>
+    │   └── <span class="file">AutoSuggestiveDropDown.java</span>
+    ├── <span class="dir">LoginPage/</span>                  <span class="com"># Page Object Model</span>
+    │   └── <span class="file">SignInPage.java</span>
+    ├── <span class="dir">testNG/</span>                     <span class="com"># TestNG demo classes</span>
+    │   ├── <span class="file">HomeLoan.java</span>
+    │   └── <span class="file">PersonalLoan.java</span>
+    ├── <span class="dir">javaPrograms/</span>               <span class="com"># Core Java exercises</span>
+    │   ├── <span class="file">OddEven.java</span>
+    │   ├── <span class="file">EvenNumbers.java</span>
+    │   ├── <span class="file">PrimeNumber.java</span>
+    │   ├── <span class="file">ReverseAString.java</span>
+    │   ├── <span class="file">Reverse_A_String.java</span>
+    │   ├── <span class="file">ReverseEachWordOfString.java</span>
+    │   ├── <span class="file">WordCount.java</span>
+    │   └── <span class="file">DuplicateCharacterCount.java</span>
+    └── <span class="dir">practice/</span>                   <span class="com"># Reinforcement exercises</span>
+        ├── <span class="file">Reverse.java</span>
+        ├── <span class="file">JavaReverseStringWords.java</span>
+        ├── <span class="file">WordCount.java</span>
+        ├── <span class="file">TotalWords.java</span>
+        ├── <span class="file">DuplicateCharacterCount.java</span>
+        └── <span class="file">Duplicate_Character_Count.java</span></div>
+    </section>
+
+    <section id="build">
+      <h2 class="section-title">Build &amp; Configuration</h2>
+      <div class="card">
+        <p>The project uses <strong>Maven</strong> for dependency management. Key dependencies are declared in <code>pom.xml</code>:</p>
+        <ul>
+          <li><strong>selenium-java 4.35.0</strong> — browser automation.</li>
+          <li><strong>testng 7.11.0</strong> — test framework and suite execution.</li>
+          <li><strong>webdrivermanager 6.2.0</strong> — automatic driver binary management.</li>
+        </ul>
+        <p>TestNG suites are configured in <code>testng.xml</code> (method-level include/exclude) and <code>testng2.xml</code> (whole-package execution). Full contents appear in the Configuration Files section below.</p>
+      </div>
+    </section>
+
+    <section id="firstproject">
+      <h2 class="section-title">firstProject — Selenium WebDriver Scripts</h2>
+
+      <h3 class="file-title" id="FirstCode">FirstCode.java <a class="back-top" href="#overview">↑ top</a></h3>
+      <p class="file-path">src/test/java/firstProject/FirstCode.java</p>
+      <p class="file-desc">End-to-end login flow using multiple locator strategies, checkbox validation, a "Forgot Password" reset that parses the temporary password from page text, and re-login using the Page Object <code>SignInPage</code>.</p>
+      <pre><code>package firstProject;
+
+import java.sql.Driver;
+import java.time.Duration;
+import org.openqa.selenium.By;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebElement;
+import org.openqa.selenium.chrome.ChromeDriver;
+import org.openqa.selenium.support.FindBy;
+import org.openqa.selenium.support.PageFactory;
+import LoginPage.SignInPage;
+
+//import org.openqa.selenium.WebDriver;
+
+@SuppressWarnings("unused")
+public class FirstCode {
+
+	public static void main(String[] args) throws InterruptedException {
+
+		WebDriver driver = new ChromeDriver();
+		driver.manage().window().maximize();
+		// PageFactory.initElements(driver, driver);
+		driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(5));
+		driver.get("https://rahulshettyacademy.com/locatorspractice/");
+
+		// Object Creation
+		SignInPage signInPage = new SignInPage(driver);
+
+		// password variable
+		String password = "dummy";
+
+		// Login to Sign-in page
+		// driver.findElement(By.cssSelector("[placeholder='Username']")).sendKeys("VijaySethupathi");
+		// driver.findElement(By.xpath("//input[@name='inputPassword']")).sendKeys("baloon");
+		// regular expression with partial text (customized cssSelector locator)
+		// driver.findElement(By.cssSelector("input[type*='pass']")).sendKeys("baloon");
+
+		// Validate whether 'Remember my username' checkBox is checked or not?
+		driver.findElement(By.xpath("//input[@name='chkboxOne']")).click();
+		Boolean rememberUsernamecheckBox = driver.findElement(By.xpath("//input[@name='chkboxOne']")).isSelected();
+		System.out.println("\nRemember my username checkBox: " + rememberUsernamecheckBox);
+		System.out.println("----------------");
+//
+//		// Validate whether 'Terms and Conditions' checkBox is checked or not?
+		driver.findElement(By.xpath("//input[@name='chkboxTwo']")).click();
+		Boolean TnCcheckBox = driver.findElement(By.xpath("//input[@value='agreeTerms']")).isSelected();
+		System.out.println("\nTerms and Conditions checkBox: " + TnCcheckBox);
+		System.out.println("----------------");
+
+		// wrong password
+		signInPage.login("Arul", password);
+		// Thread.sleep(1000);
+		// String e1 = driver.findElement(By.cssSelector("p.error")).getText();
+		String e1 = driver.findElement(By.xpath("//form/p")).getText(); // xpath using html tagname
+		System.out.println("\nLogin Failed: \n" + e1);
+		System.out.println("----------------");
+//		
+		// correct password
+//		signInPage.login("Kavin", "rahulshettyacademy");
+//
+//		Thread.sleep(1000);
+//		String e2 = driver.findElement(By.xpath("//body")).getText();
+//		System.out.println("Login Successful: " + e2);
+//		
+//		signInPage.logout();
+
+		// driver.findElement(By.cssSelector("p.infoMsg")).getText();
+
+		// driver.findElement(By.xpath("//a[normalize-space()='Forgot your
+		// password?']")).click();
+		// driver.findElement(By.linkText("Forgot your password?")).click();
+		driver.findElement(By.partialLinkText("Forgot your")).click();
+
+		driver.findElement(By.xpath("//input[@placeholder='Name']")).sendKeys("Nambi");
+		driver.findElement(By.cssSelector("input[type='text']:nth-child(3)")).sendKeys("Nambi@dmail.com");
+		// driver.findElement(By.xpath("//input[@placeholder='Phone
+		// Number']")).sendKeys("1234567889");
+		driver.findElement(By.xpath("//input[@type='text'][3]")).sendKeys("1234567889");
+		Thread.sleep(1000);
+
+		// to use this method getPassword , either we have to create a object of this
+		// class
+		String correctPassword = getPassword(driver);
+
+//		driver.findElement(By.cssSelector("button.reset-pwd-btn")).click();
+//		// String resetLoginSuccessString =
+//		// driver.findElement(By.cssSelector("p.infoMsg")).getText();
+//
+//		String resetLoginSuccessString = driver.findElement(By.cssSelector("form p")).getText(); // cssSelector using
+//																									// html tagname
+//		System.out.println("\nresetLoginSuccessString: \n" + resetLoginSuccessString);
+//		System.out.println("----------------");
+//		Thread.sleep(1000);
+
+		// combining multiple ways to select xpath
+		// parent child traversal + customized xpath
+		// driver.findElement(By.xpath("//div/button[contains(@class,'go-to')]")).click();
+
+		// parent child traversal + customized cssSelector
+		// driver.findElement(By.cssSelector("div[class*='pwd']
+		// button[class*='go-to']")).click();
+		driver.findElement(By.cssSelector("button.go-to-login-btn")).click();
+
+		Thread.sleep(1000);
+		signInPage.login("Nambi", correctPassword);
+		Thread.sleep(1000);
+		// String loginSuccessString = driver.findElement(By.xpath("//body")).getText();
+		String loginSuccessString = driver.findElement(By.xpath("//*[@id='root']/div/div/div/p")).getText();
+		System.out.println("\nloginSuccessString: \n" + loginSuccessString);
+		System.out.println("----------------");
+		signInPage.logout();
+		System.out.println("\nlogoutSuccess");
+		System.out.println("----------------");
+
+		// Thread.sleep(1000);
+		driver.close();
+		driver.quit();
+		System.out.println("-------------------\nProgram Terminated\n-------------------");
+	}
+
+	public static String getPassword(WebDriver driver) {
+
+		driver.findElement(By.cssSelector("button.reset-pwd-btn")).click();
+		String resetLoginSuccessString = driver.findElement(By.cssSelector("form p")).getText();
+		String[] passwordArray1 = resetLoginSuccessString.split("'");
+		// Original String
+		// Please use temporary password 'rahulshettyacademy' to Login.
+		// 0th index - passwordArray1[0] = "Please use temporary password "
+		// 1st index - passwordArray1[1] = "rahulshettyacademy' to Login."
+
+		String[] passwordArray2 = passwordArray1[1].split("'");
+		// passwordArray[1] = "rahulshettyacademy' to Login."
+		// 0th index - passwordArray2[0] = "rahulshettyacademy"
+		// 1st index - passwordArray2[1] = " to Login."
+
+		String password = passwordArray2[0];
+
+		return password;
+
+	}
+
+}</code></pre>
+
+      <h3 class="file-title" id="secondPage">secondPage.java <a class="back-top" href="#overview">↑ top</a></h3>
+      <p class="file-path">src/test/java/firstProject/secondPage.java</p>
+      <p class="file-desc">Logs in with valid credentials and asserts the four post-login messages using TestNG <code>Assert.assertEquals</code>. Demonstrates <code>text()</code> in XPath (XPath-only feature).</p>
+      <pre><code>package firstProject;
+
+import java.sql.Driver;
+import java.time.Duration;
+
+import org.openqa.selenium.By;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebElement;
+import org.openqa.selenium.chrome.ChromeDriver;
+import org.openqa.selenium.support.FindBy;
+import org.openqa.selenium.support.PageFactory;
+import org.testng.Assert;
+
+import LoginPage.SignInPage;
+
+@SuppressWarnings("unused")
+public class secondPage {
+
+	public static void main(String[] args) throws InterruptedException {
+		
+		String username = "Banu";
+		// Expected Results
+		String E_loginSuccessString1 ="Hello "+username+",";
+		String E_loginSuccessString2 ="Welcome to Rahul Shetty Academy";
+		String E_loginSuccessString3 ="You are successfully logged in.";
+		String E_loginSuccessString4 ="LOG OUT";
+		
+		WebDriver driver = new ChromeDriver();
+
+		driver.manage().window().minimize();
+
+		driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(5));
+
+		// Object Creation
+		SignInPage signInPage = new SignInPage(driver);
+
+		driver.get("https://rahulshettyacademy.com/locatorspractice/");
+
+		signInPage.login(username , "rahulshettyacademy");
+		Thread.sleep(2000);
+		
+		// String loginSuccessString = driver.findElement(By.xpath("//div/p")).getText();
+		// String loginSuccessString = driver.findElement(By.xpath("//body")).getText();
+		String A_loginSuccessString1 = driver.findElement(By.xpath("//*[@id='root']/div/div/div/h2")).getText(); // Hello &lt;name&gt;,
+		String A_loginSuccessString2 = driver.findElement(By.xpath("//*[@id='root']/div/div/div/h1")).getText(); // Welcome to Rahul Shetty Academy
+		String A_loginSuccessString3 = driver.findElement(By.xpath("//*[@id='root']/div/div/div/p")).getText();  // You are successfully logged in.
+		//String A_loginSuccessString4 = driver.findElement(By.xpath("//*[@id='root']/div/div/div/button")).getText(); // LOG OUT
+		
+		// identifying element using text() and is only applicable to xpath 
+		// and we can't use text() for cssSelector 
+		// console search: $x('//button[text()="Log Out"]')
+		
+		// without tagname also we can search , only thing is the locator should be unique 
+		// String A_loginSuccessString4 = driver.findElement(By.xpath("//*[text()='Log Out']")).getText(); // LOG OUT
+		String A_loginSuccessString4 = driver.findElement(By.xpath("//button[text()='Log Out']")).getText(); // LOG OUT
+		
+		// Thread.sleep(2000);
+
+//		System.out.println(loginSuccessString1);
+//		System.out.println(loginSuccessString2);
+//		System.out.println(loginSuccessString3);
+//		System.out.println(loginSuccessString4);
+
+		Assert.assertEquals(A_loginSuccessString1, E_loginSuccessString1, "Both Strings are not equal");
+		Assert.assertEquals(A_loginSuccessString2, E_loginSuccessString2, "Both Strings are not equal");
+		Assert.assertEquals(A_loginSuccessString3, E_loginSuccessString3, "Both Strings are not equal");
+		Assert.assertEquals(A_loginSuccessString4, E_loginSuccessString4, "Both Strings are not equal");
+		
+		
+		driver.close();
+		driver.quit();
+		System.out.println("-------------------\nProgram Terminated\n-------------------");
+	}
+
+}</code></pre>
+
+      <h3 class="file-title" id="practicePage">practicePage.java <a class="back-top" href="#overview">↑ top</a></h3>
+      <p class="file-path">src/test/java/firstProject/practicePage.java</p>
+      <p class="file-desc">Small scratch script demonstrating a partial-match CSS selector (<code>input[type*='pass']</code>) and <code>PageFactory.initElements</code>.</p>
+      <pre><code>package firstProject;
+
+import java.time.Duration;
+
+import org.openqa.selenium.By;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.chrome.ChromeDriver;
+import org.openqa.selenium.support.PageFactory;
+
+import LoginPage.SignInPage;
+
+public class practicePage {
+
+	public static void main(String[] args) {
+		// TODO Auto-generated method stub
+		WebDriver driver = new ChromeDriver();
+		driver.manage().window().maximize();
+		PageFactory.initElements(driver, driver);
+		driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(5));
+		driver.get("https://rahulshettyacademy.com/locatorspractice/");
+
+		// Object Creation
+		//SignInPage signInPage = new SignInPage(driver);
+
+//		driver.findElement(By.xpath("//input[@type='text'][1]")).sendKeys("xpath");
+		// regular expression with partial text (customized cssSelector locator)
+		driver.findElement(By.cssSelector("input[type*='pass']")).sendKeys("baloon"); // regular expression with partial text
+	}
+
+}</code></pre>
+
+      <h3 class="file-title" id="ThirdCode">ThirdCode.java <a class="back-top" href="#overview">↑ top</a></h3>
+      <p class="file-path">src/test/java/firstProject/ThirdCode.java</p>
+      <p class="file-desc">Demonstrates XPath axes: <code>following-sibling</code> (sibling-to-sibling) and <code>parent</code> (child-to-parent) traversal.</p>
+      <pre><code>package firstProject;
+
+import java.time.Duration;
+
+import org.openqa.selenium.By;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.chrome.ChromeDriver;
+
+public class ThirdCode {
+
+	public static void main(String[] args) {
+		// TODO Auto-generated method stub
+
+		WebDriver driver = new ChromeDriver();
+		driver.manage().window().maximize();
+		driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(5));
+
+		// url : https://rahulshettyacademy.com/AutomationPractice/
+		driver.get("https://rahulshettyacademy.com/AutomationPractice/");
+
+		// siblings to sibling travel
+		// driver.findElement(By.xpath("//header/div/button[1]/following-sibling::button[1]"))
+		System.out
+				.println(driver.findElement(By.xpath("//header/div/button[1]/following-sibling::button[1]")).getText());
+
+		// child to parent travel
+		// By.xpath("//header/div/button[1]/parent::div/parent::header/a[2]")
+		System.out.println(
+				driver.findElement(By.xpath("//header/div/button[1]/parent::div/parent::header/a[2]")).getText());
+
+		driver.close();
+		driver.quit();
+		System.out.println("-------------------\nProgram Terminated\n-------------------");
+	}
+
+}</code></pre>
+
+      <h3 class="file-title" id="WindowActivities">WindowActivities.java <a class="back-top" href="#overview">↑ top</a></h3>
+      <p class="file-path">src/test/java/firstProject/WindowActivities.java</p>
+      <p class="file-desc">Browser navigation commands: <code>get</code>, <code>navigate().to</code>, <code>back</code>, and <code>forward</code>.</p>
+      <pre><code>package firstProject;
+
+import java.time.Duration;
+
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.chrome.ChromeDriver;
+
+public class WindowActivities {
+
+	public static void main(String[] args) throws InterruptedException {
+		// TODO Auto-generated method stub
+		WebDriver driver = new ChromeDriver();
+		driver.manage().window().maximize();
+		driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(5));
+		
+		
+		// url : https://rahulshettyacademy.com/dropdownsPractise/
+		
+		driver.get("https://rahulshettyacademy.com/locatorspractice/");
+		Thread.sleep(500);
+		driver.navigate().to("https://rahulshettyacademy.com/AutomationPractice/");
+		Thread.sleep(500);
+		driver.navigate().back();
+		Thread.sleep(500);
+		driver.navigate().forward();
+		
+		
+		
+		
+		
+		driver.close();
+		driver.quit();
+		System.out.println("-------------------\nProgram Terminated\n-------------------");
+	}
+
+}</code></pre>
+
+      <h3 class="file-title" id="crossBrowser">crossBrowser.java <a class="back-top" href="#overview">↑ top</a></h3>
+      <p class="file-path">src/test/java/firstProject/crossBrowser.java</p>
+      <p class="file-desc">Runs the same page across multiple browsers (Chrome, Edge, and a commented-out Firefox) to illustrate cross-browser execution.</p>
+      <pre><code>package firstProject;
+
+import java.time.Duration;
+
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.chrome.ChromeDriver;
+import org.openqa.selenium.edge.EdgeDriver;
+import org.openqa.selenium.firefox.FirefoxDriver;
+
+@SuppressWarnings("unused")
+public class crossBrowser {
+
+	@SuppressWarnings("unused")
+	public static void main(String[] args) {
+		// TODO Auto-generated method stub
+		WebDriver Cdriver = new ChromeDriver();
+		// WebDriver Fdriver = new FirefoxDriver();
+		WebDriver Edriver = new EdgeDriver();
+
+		// Fdriver.manage().window().maximize();
+		// Fdriver.get("https://rahulshettyacademy.com/locatorspractice/");
+
+		Edriver.manage().window().maximize();
+		Edriver.get("https://rahulshettyacademy.com/locatorspractice/");
+
+		Cdriver.manage().window().maximize();
+		Cdriver.get("https://rahulshettyacademy.com/locatorspractice/");
+
+		// Fdriver.close();
+		Edriver.close();
+		Cdriver.close();
+		// Fdriver.quit();
+		Edriver.quit();
+		Cdriver.quit();
+		System.out.println("-------------------\nProgram Terminated\n-------------------");
+	}
+
+}</code></pre>
+
+      <h3 class="file-title" id="DropDownPractice">DropDownPractice.java <a class="back-top" href="#overview">↑ top</a></h3>
+      <p class="file-path">src/test/java/firstProject/DropDownPractice.java</p>
+      <p class="file-desc">Handles a static <code>&lt;select&gt;</code> dropdown using the Selenium <code>Select</code> class via index, visible text, and value.</p>
+      <pre><code>package firstProject;
+
+import java.nio.channels.SelectableChannel;
+import java.time.Duration;
+
+import org.openqa.selenium.By;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebElement;
+import org.openqa.selenium.chrome.ChromeDriver;
+import org.openqa.selenium.support.ui.Select;
+
+@SuppressWarnings("unused")
+public class DropDownPractice {
+
+	public static void main(String[] args) {
+		// TODO Auto-generated method stub
+		WebDriver driver = new ChromeDriver();
+		driver.manage().window().maximize();
+		driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(5));
+
+		// url : https://rahulshettyacademy.com/dropdownsPractise/
+
+		driver.get("https://rahulshettyacademy.com/dropdownsPractise/");
+
+		// drop down with select tag
+		// how to identify a dropdown is static or not?
+		// the tagname will be 'select' for a static dropdown
+
+		/*
+		   &lt;select name="ctl00$mainContent$DropDownListCurrency" id="ctl00_mainContent_DropDownListCurrency" xpath="1"&gt; 
+		     &lt;option value=""&gt;Select&lt;/option&gt; 
+		     &lt;option value="INR"&gt;INR&lt;/option&gt; 
+		     &lt;option value="AED"&gt;AED&lt;/option&gt; 
+		     &lt;option value="USD"&gt;USD&lt;/option&gt; 
+		 &lt;/select&gt;
+		 */
+
+		WebElement staticdropdown = driver.findElement(By.id("ctl00_mainContent_DropDownListCurrency"));
+
+		Select dropdown = new Select(staticdropdown);
+
+		dropdown.selectByIndex(2);
+		System.out.println(dropdown.getFirstSelectedOption().getText());
+
+		dropdown.selectByVisibleText("USD");
+		System.out.println(dropdown.getFirstSelectedOption().getText());
+
+		// &lt;option value="INR" xpath="1"&gt;INR&lt;/option&gt;
+		dropdown.selectByValue("INR");
+		System.out.println(dropdown.getFirstSelectedOption().getText());
+		
+		//System.out.println(dropdown.getOptions());
+
+		driver.close();
+		driver.quit();
+		System.out.println("-------------------\nProgram Terminated\n-------------------");
+	}
+
+}</code></pre>
+
+      <h3 class="file-title" id="DynamicDropDown">DynamicDropDown.java <a class="back-top" href="#overview">↑ top</a></h3>
+      <p class="file-path">src/test/java/firstProject/DynamicDropDown.java</p>
+      <p class="file-desc">Selects origin/destination from a dynamic (non-<code>&lt;select&gt;</code>) dropdown, using parent-child XPath relationships to disambiguate duplicate values.</p>
+      <pre><code>package firstProject;
+
+import java.time.Duration;
+
+import org.openqa.selenium.By;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.chrome.ChromeDriver;
+
+public class DynamicDropDown {
+
+	public static void main(String[] args) throws InterruptedException {
+		// TODO Auto-generated method stub
+		WebDriver driver = new ChromeDriver();
+		driver.manage().window().maximize();
+		driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(5));
+
+		// url : https://rahulshettyacademy.com/dropdownsPractise/
+
+		driver.get("https://rahulshettyacademy.com/dropdownsPractise/");
+
+		driver.findElement(By.id("ctl00_mainContent_ddl_originStation1_CTXT")).click();
+		Thread.sleep(2000);
+		// driver.findElement(By.xpath("//a[@value='BLR']")).click();
+		
+	// Parent child relationship xpath
+		
+		// =&gt; By.xpath("//div[@id='ctl00_mainContent_ddl_originStation1_CTNR'] //a[@value='BLR']")
+		
+		driver.findElement(By.xpath("//div[@id='ctl00_mainContent_ddl_originStation1_CTNR'] //a[@value='BLR']")).click();
+		Thread.sleep(2000);
+		
+		// driver.findElement(By.xpath("//a[@value='MAA']")).click(); 
+		// By.xpath("//a[@value='MAA']")
+		// ==&gt; this line will fail since 2 drop downs have same xpath and
+		// when selenium follows top down approach MAA from FROM from drop down is first detected
+		// but since it is closed, it couldn't click the element and not checking the element of TO dropdown
+		// so we have to use indexing method to select the value from TO dropdown
+		// like, 
+		// (//a[@value='MAA'])[2]
+		// driver.findElement(By.xpath("(//a[@value='MAA'])[2]")).click();	
+		
+
+		// =&gt; By.xpath("//div[@id='glsctl00_mainContent_ddl_destinationStation1_CTNR'] //a[@value='MAA']")
+		
+		driver.findElement(By.xpath("//div[@id='glsctl00_mainContent_ddl_destinationStation1_CTNR'] //a[@value='MAA']")).click();
+		Thread.sleep(2000);
+		
+		driver.close();
+		driver.quit();
+		System.out.println("-------------------\nProgram Terminated\n-------------------");
+	}
+
+}</code></pre>
+
+      <h3 class="file-title" id="SecondDropDown">SecondDropDown.java <a class="back-top" href="#overview">↑ top</a></h3>
+      <p class="file-path">src/test/java/firstProject/SecondDropDown.java</p>
+      <p class="file-desc">Increments a passenger counter using both <code>while</code> and <code>for</code> loops, then reads the resulting passenger info text.</p>
+      <pre><code>package firstProject;
+
+import java.time.Duration;
+
+import org.openqa.selenium.By;
+import org.openqa.selenium.By.ById;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.chrome.ChromeDriver;
+
+public class SecondDropDown {
+
+	public static void main(String[] args) {
+		// TODO Auto-generated method stub
+		WebDriver driver = new ChromeDriver();
+		driver.manage().window().maximize();
+		driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(5));
+
+		// url : https://rahulshettyacademy.com/dropdownsPractise/
+
+		driver.get("https://rahulshettyacademy.com/dropdownsPractise/");
+
+		driver.findElement(By.id("divpaxinfo")).click();
+
+		System.out.println(driver.findElement(By.id("divpaxinfo")).getText());
+
+		// while loop to click 4 times
+		int i = 1;
+		while (i &lt; 5) {
+			driver.findElement(By.id("hrefIncAdt")).click();
+			i++;
+		}
+
+		// for loop to click 4 times
+		for (i = 1; i &lt; 5; i++) {
+			driver.findElement(By.id("hrefIncAdt")).click();
+
+		}
+
+		driver.findElement(By.id("btnclosepaxoption")).click();
+		
+		// 9 Adults
+		System.out.println(driver.findElement(By.id("divpaxinfo")).getText());
+
+		driver.close();
+		driver.quit();
+		System.out.println("-------------------\nProgram Terminated\n-------------------");
+
+	}
+
+}</code></pre>
+
+      <h3 class="file-title" id="AutoSuggestiveDropDown">AutoSuggestiveDropDown.java <a class="back-top" href="#overview">↑ top</a></h3>
+      <p class="file-path">src/test/java/firstProject/AutoSuggestiveDropDown.java</p>
+      <p class="file-desc">Types into an auto-suggest field, collects the suggestion list with <code>findElements</code>, iterates, and clicks the matching option ("Pakistan").</p>
+      <pre><code>package firstProject;
+
+import java.time.Duration;
+import java.util.List;
+
+import org.openqa.selenium.By;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebElement;
+import org.openqa.selenium.chrome.ChromeDriver;
+
+public class AutoSuggestiveDropDown {
+
+	public static void main(String[] args) throws InterruptedException {
+		// TODO Auto-generated method stub
+		WebDriver driver = new ChromeDriver();
+		driver.manage().window().maximize();
+		driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(5));
+
+		// url : https://rahulshettyacademy.com/dropdownsPractise/
+
+		driver.get("https://rahulshettyacademy.com/dropdownsPractise/");
+
+		driver.findElement(By.id("autosuggest")).sendKeys("Pa");
+		Thread.sleep(3000);
+
+		List&lt;WebElement&gt; options = driver.findElements(By.cssSelector("li[class='ui-menu-item'] a"));
+
+		for (WebElement option : options) {
+			System.out.println(option.getText());
+
+			if (option.getText().equalsIgnoreCase("Pakistan")) {
+				Thread.sleep(3000);
+				option.click();
+				Thread.sleep(3000);
+			}
+		}
+
+		driver.close();
+		driver.quit();
+		System.out.println("-------------------\nProgram Terminated\n-------------------");
+
+	}
+
+}</code></pre>
+    </section>
+
+    <section id="loginpage">
+      <h2 class="section-title">LoginPage — Page Object Model</h2>
+
+      <h3 class="file-title" id="SignInPage">SignInPage.java <a class="back-top" href="#overview">↑ top</a></h3>
+      <p class="file-path">src/test/java/LoginPage/SignInPage.java</p>
+      <p class="file-desc">Page Object for the login page. Declares elements with <code>@FindBy</code>, initialises them via <code>PageFactory</code> in the constructor, and exposes reusable <code>login()</code> and <code>logout()</code> actions.</p>
+      <pre><code>package LoginPage;
+
+import java.time.Duration;
+
+import org.openqa.selenium.By;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebElement;
+import org.openqa.selenium.support.FindBy;
+import org.openqa.selenium.support.PageFactory;
+
+public class SignInPage {
+	WebDriver driver;
+
+	public SignInPage(WebDriver driver) {
+		this.driver = driver;
+		driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(3));
+		PageFactory.initElements(driver, this);
+	}
+
+	// driver.findElement(By.cssSelector("[placeholder='Username']")).sendKeys("VijaySethupathi");
+	@FindBy(css = "[placeholder='Username']")
+	WebElement EnterEmail;
+
+	// driver.findElement(By.xpath("//input[@name='inputPassword']")).sendKeys("baloon");
+	// regular expression with partial text (customized cssSelector locator)
+	// driver.findElement(By.cssSelector("input[type*='pass']")).sendKeys("baloon");
+
+	// regular expression with partial text (customized xpath locator)
+	// driver.findElement(By.xpath("//input[contains(@name,'Pass')]")).sendKeys("baloon");
+	@FindBy(xpath = "//input[@name='inputPassword']")
+	WebElement EnterPassword;
+
+	// driver.findElement(By.xpath("//button[@type='submit']")).click();
+
+	// regular expression with partial text (customized xpath locator)
+	// //button[contains(@class,'submit signInBtn')]
+	// //button[contains(@class,'submit')]
+	// driver.findElement(By.xpath("//button[contains(@class,'submit')]")).click();
+	@FindBy(xpath = "//button[@type='submit']")
+	WebElement SubmitBtn;
+
+	// button.logout-btn
+	// driver.findElement(By.cssSelector("button.logout-btn")).sendKeys("VijaySethupathi");
+	@FindBy(css = "button.logout-btn")
+	WebElement LogoutBtn;
+
+	public void login(String email, String password) {
+		EnterEmail.sendKeys(email);
+		EnterPassword.sendKeys(password);
+		SubmitBtn.click();
+	}
+
+	public void logout() {
+		LogoutBtn.click();
+	}
+
+}</code></pre>
+    </section>
+
+    <section id="testng-classes">
+      <h2 class="section-title">testNG — TestNG Demo Classes</h2>
+
+      <h3 class="file-title" id="HomeLoan">HomeLoan.java <a class="back-top" href="#overview">↑ top</a></h3>
+      <p class="file-path">src/test/java/testNG/HomeLoan.java</p>
+      <p class="file-desc">Three <code>@Test</code> methods representing web, mobile, and API login scenarios for a home loan. Controlled by the suite XML files.</p>
+      <pre><code>package testNG;
+
+import org.testng.annotations.Test;
+
+public class HomeLoan {
+
+	
+	@Test
+	public void TC0001_webLoginHomeLoan() {
+		System.out.println("TC0001 | webLoginHomeLoan");
+	}
+	
+	@Test
+	public void TC0003_mobileLoginHomeLoan() {
+		System.out.println("TC0003 | mobileLoginHomeLoan");
+	}
+	
+	@Test
+	public void TC0004_APILoginHomeLoan() {
+		System.out.println("TC0004 | APILoginHomeLoan");
+	}
+
+
+}</code></pre>
+
+      <h3 class="file-title" id="PersonalLoan">PersonalLoan.java <a class="back-top" href="#overview">↑ top</a></h3>
+      <p class="file-path">src/test/java/testNG/PersonalLoan.java</p>
+      <p class="file-desc">Three <code>@Test</code> methods representing web, mobile, and API login scenarios for a personal loan.</p>
+      <pre><code>package testNG;
+
+import org.testng.annotations.Test;
+
+public class PersonalLoan {
+
+	
+	@Test
+	public void TC0001_webLoginPersonalLoan() {
+		System.out.println("TC0001 | webLoginPersonalLoan");
+	}
+	
+	@Test
+	public void TC0003_mobileLoginPersonalLoan() {
+		System.out.println("TC0001 | mobileLoginPersonalLoan");
+	}
+	
+	@Test
+	public void TC0004_APILoginPersonalLoan() {
+		System.out.println("TC0001 | APILoginPersonalLoan");
+	}
+
+
+}</code></pre>
+    </section>
+
+    <section id="javaprograms">
+      <h2 class="section-title">javaPrograms — Core Java Exercises</h2>
+
+      <h3 class="file-title" id="jp-OddEven">OddEven.java <a class="back-top" href="#overview">↑ top</a></h3>
+      <p class="file-path">src/test/java/javaPrograms/OddEven.java</p>
+      <p class="file-desc">Reads a number from the console and prints whether it is odd or even.</p>
+      <pre><code>package javaPrograms;
+import java.util.Scanner;
+
+public class OddEven {
+    public static void main(String[] args) {
+        Scanner scanner = new Scanner(System.in);
+        System.out.print("Enter any number: ");
+        int number = scanner.nextInt();
+
+        if (number % 2 == 0) {
+            System.out.println(number + " is even.");
+        } else {
+            System.out.println(number + " is odd.");
+        }
+    }
+}</code></pre>
+
+      <h3 class="file-title" id="jp-EvenNumbers">EvenNumbers.java <a class="back-top" href="#overview">↑ top</a></h3>
+      <p class="file-path">src/test/java/javaPrograms/EvenNumbers.java</p>
+      <p class="file-desc">Alternate even/odd check that closes the <code>Scanner</code> and prints "even"/"odd".</p>
+      <pre><code>package javaPrograms;
+
+import java.util.Scanner;
+
+public class EvenNumbers {
+
+	public static void main(String[] args) {
+
+		int number;
+		Scanner scanner = new Scanner(System.in);
+
+//		String inputString = scanner.nextLine();
+
+		System.out.println("Enter a number: ");
+
+		number = scanner.nextInt();
+
+//		System.out.println(inputString);
+//		System.out.println(number);
+		
+		if(number%2 == 0) {
+			
+			System.out.println("even");
+		} else {
+			System.out.println("odd");
+		}
+
+		scanner.close();
+		System.out.println("End");
+	}
+
+}</code></pre>
+
+      <h3 class="file-title" id="jp-PrimeNumber">PrimeNumber.java <a class="back-top" href="#overview">↑ top</a></h3>
+      <p class="file-path">src/test/java/javaPrograms/PrimeNumber.java</p>
+      <p class="file-desc">Reads a number and reports whether it is prime, using a helper <code>isPrime(int)</code> that checks divisibility up to n/2.</p>
+      <pre><code>package javaPrograms;
+import java.util.Scanner;
+
+public class PrimeNumber {
+public static void main(String[] args) {
+Scanner scanner = new Scanner(System.in);
+System.out.print("Enter a number: ");
+int number = scanner.nextInt();
+if (isPrime(number)) {
+System.out.println(number + " is a prime number.");
+} else {
+System.out.println(number + " is not a prime number.");
+}
+}
+	public static boolean isPrime(int num) {
+		for (int i = 2; i &lt;= num / 2; i++) {
+//try each number by using %
+			if (num % i == 0) {
+					return false;
+				}
+		} 
+		return true;
+	}
+}</code></pre>
+
+      <h3 class="file-title" id="jp-ReverseAString">ReverseAString.java <a class="back-top" href="#overview">↑ top</a></h3>
+      <p class="file-path">src/test/java/javaPrograms/ReverseAString.java</p>
+      <p class="file-desc">Reverses an entire string by prepending each character to a new string.</p>
+      <pre><code>package javaPrograms;
+import java.util.Scanner;
+
+public class ReverseAString {
+
+	public static void main(String[] args) {
+		// TODO Auto-generated method stub
+		Scanner scanner = new Scanner(System.in);
+		System.out.print("Enter a string: ");
+		String input = scanner.nextLine();
+		char ch;
+		String nstr = "";
+		for (int i = 0; i &lt; input.length(); i++) {
+		ch = input.charAt(i);
+		nstr = ch + nstr;
+		}
+		System.out.println("Reversed String is : " + nstr);
+	}
+
+}</code></pre>
+
+      <h3 class="file-title" id="jp-Reverse_A_String">Reverse_A_String.java <a class="back-top" href="#overview">↑ top</a></h3>
+      <p class="file-path">src/test/java/javaPrograms/Reverse_A_String.java</p>
+      <p class="file-desc">Same string-reversal logic as above, additionally closing the <code>Scanner</code>.</p>
+      <pre><code>package javaPrograms;
+
+import java.util.Scanner;
+
+public class Reverse_A_String {
+
+	public static void main(String[] args) {
+		Scanner scanner = new Scanner(System.in);
+		System.out.print("Enter a string: ");
+		String input = scanner.nextLine();
+		char ch;
+	String nstr = "";
+	for (int i = 0; i &lt; input.length(); i++) {
+	ch = input.charAt(i);
+	nstr = ch + nstr;
+	}
+	System.out.println("Reversed String is : " + nstr);
+	scanner.close();
+	}
+	
+}</code></pre>
+
+      <h3 class="file-title" id="jp-ReverseEachWordOfString">ReverseEachWordOfString.java <a class="back-top" href="#overview">↑ top</a></h3>
+      <p class="file-path">src/test/java/javaPrograms/ReverseEachWordOfString.java</p>
+      <p class="file-desc">Splits a sentence into words and reverses each word in place, with verbose trace logging of the inner/outer loops.</p>
+      <pre><code>package javaPrograms;
+
+public class ReverseEachWordOfString {
+
+	public static void main(String[] args) {
+		// TODO Auto-generated method stub
+		reverseEachWordOfString("Java is a good programming langauge");
+
+	}
+	
+	static void reverseEachWordOfString(String inputString)
+	{
+	String[] words = inputString.split(" ");
+	
+//	System.out.println(words[0]);
+//	System.out.println(words[1]);
+//	System.out.println(words[2]);
+//	System.out.println(words[3]);
+//	System.out.println(words[4]);
+//	System.out.println(words[5]);
+	
+	String reverseString = "";
+	
+	for (int i = 0; i &lt; words.length; i++) {
+			
+			String word = words[i];
+			String nstr = "";
+			char ch;
+			
+			for (int j = 0; j &lt; word.length(); j++) {
+					
+					ch = word.charAt(j);
+					System.out.println("ch: "+ch);
+					nstr = ch + nstr;
+					System.out.println("nstr: "+nstr);
+					}
+			
+			System.out.println("Inner loop complete");
+			reverseString = reverseString + nstr + " ";
+			System.out.println("reverseString: "+reverseString);
+			System.out.println("Outer loop complete");
+	}
+	System.out.println(inputString);
+	System.out.println(reverseString);
+	}
+
+}</code></pre>
+
+      <h3 class="file-title" id="jp-WordCount">WordCount.java <a class="back-top" href="#overview">↑ top</a></h3>
+      <p class="file-path">src/test/java/javaPrograms/WordCount.java</p>
+      <p class="file-desc">Counts occurrences of each word in a string using a <code>HashMap&lt;String, Integer&gt;</code>.</p>
+      <pre><code>package javaPrograms;
+import java.util.HashMap;
+
+public class WordCount {
+
+	public static void main(String[] args) {
+		// TODO Auto-generated method stub
+		wordCount("Test Automation Java Automation");
+
+	}
+	static void wordCount(String inputString) {
+		HashMap&lt;String,Integer&gt; charCountMap = new HashMap&lt;&gt;();
+		for(String s : inputString.split(" "))
+		{
+		if(charCountMap.containsKey(s))
+		{
+		charCountMap.put(s,charCountMap.get(s)+1);
+		}
+		else
+		{
+		charCountMap.put(s,1);
+		}
+		}
+		System.out.println("Count of words in a given string : " +
+		charCountMap);
+		}
+
+}</code></pre>
+
+      <h3 class="file-title" id="jp-DuplicateCharacterCount">DuplicateCharacterCount.java <a class="back-top" href="#overview">↑ top</a></h3>
+      <p class="file-path">src/test/java/javaPrograms/DuplicateCharacterCount.java</p>
+      <p class="file-desc">Counts each character in a string with a <code>HashMap&lt;Character, Integer&gt;</code> and prints only those appearing more than once.</p>
+      <pre><code>package javaPrograms;
+import java.util.HashMap;
+import java.util.Set;
+
+public class DuplicateCharacterCount {
+
+	public static void main(String[] args) {
+		// TODO Auto-generated method stub
+		duplicateCharacterCount("Learn Java Programming");
+	}
+
+	static void duplicateCharacterCount(String inputString) {
+		HashMap&lt;Character, Integer&gt; charCountMap = new HashMap&lt;&gt;();
+		char[] strArray = inputString.toCharArray();
+		for (char c : strArray) {
+		if (charCountMap.containsKey(c)) {
+		charCountMap.put(c, charCountMap.get(c) + 1);
+		} else {
+		charCountMap.put(c, 1);
+		}
+		}
+		Set&lt;Character&gt; charsInString = charCountMap.keySet();
+		System.out.println("Duplicate Characters in : " + inputString);
+		for (Character ch : charsInString) {
+		if (charCountMap.get(ch) &gt; 1) {
+		System.out.println(ch + " : " + charCountMap.get(ch));
+		}
+		}
+		}
+}</code></pre>
+    </section>
+
+    <section id="practice">
+      <h2 class="section-title">practice — Reinforcement Exercises</h2>
+
+      <h3 class="file-title" id="pr-Reverse">Reverse.java <a class="back-top" href="#overview">↑ top</a></h3>
+      <p class="file-path">src/test/java/practice/Reverse.java</p>
+      <p class="file-desc">Reverses each word of a string using an inner accumulator (<code>dummy</code>).</p>
+      <pre><code>package practice;
+
+public class Reverse {
+
+	public static void main(String[] args) {
+		reverse("Samu");
+
+	}
+
+	static void reverse(String inputString){
+
+		String reverseString = "";
+		String dummy = "";
+		char ch;
+
+		String[] words = inputString.split(" ");
+
+		for(int i = 0; i&lt; words.length;i++){
+
+		    String word = words[i];
+		    dummy = "";
+		    for(int j=0; j&lt; word.length();j++){
+
+		        ch = word.charAt(j);
+		        dummy = ch+dummy;
+		    }
+		    reverseString = reverseString + dummy + " ";
+		}
+
+		System.out.println(reverseString);
+
+		}
+	
+}</code></pre>
+
+      <h3 class="file-title" id="pr-JavaReverseStringWords">JavaReverseStringWords.java <a class="back-top" href="#overview">↑ top</a></h3>
+      <p class="file-path">src/test/java/practice/JavaReverseStringWords.java</p>
+      <p class="file-desc">Reverses each word of a hard-coded sentence ("My name is John").</p>
+      <pre><code>package practice;
+
+import java.io.Console;
+import java.util.Iterator;
+
+public class JavaReverseStringWords {
+
+	public static void main(String[] args) {
+		// TODO Auto-generated method stub
+
+		javaReverseStringWords();
+
+	}
+
+	static void javaReverseStringWords() {
+
+		String nameString = "My name is John";
+		String revString = "";
+
+		String[] wordStrings = nameString.split(" ");
+
+		// for (String string : wordStrings) {
+		//
+		// System.out.println(string);
+		// }
+
+		for (int i = 0; i &lt; wordStrings.length; i++) {
+
+			String word = wordStrings[i];
+			String nstr = "";
+			char ch;
+
+			for (int j = 0; j &lt; word.length(); j++) {
+
+				ch = word.charAt(j);
+
+				nstr = ch + nstr;
+
+			}
+
+			revString = revString + nstr + " ";
+
+		}
+
+		System.out.println(revString);
+	}
+
+}</code></pre>
+
+      <h3 class="file-title" id="pr-WordCount">WordCount.java <a class="back-top" href="#overview">↑ top</a></h3>
+      <p class="file-path">src/test/java/practice/WordCount.java</p>
+      <p class="file-desc">Counts occurrences of each word and prints them individually by iterating the map's key set.</p>
+      <pre><code>package practice;
+
+import java.util.HashMap;
+import java.util.Set;
+
+public class WordCount {
+
+	public static void main(String[] args) {
+		// TODO Auto-generated method stub
+
+		wordCount("Test Auto Test Parcel Queue");
+		
+	}
+	
+	static void wordCount(String inputString) {
+		
+		HashMap&lt;String,Integer&gt; wordcountHashMap = new HashMap&lt;&gt;();
+		
+		String[] words = inputString.split(" ");
+		
+		for(String word : words) {
+			if(wordcountHashMap.containsKey(word)) {
+				
+				wordcountHashMap.put(word, wordcountHashMap.get(word)+1);
+			}else {
+				wordcountHashMap.put(word,1);
+			}
+		}
+		
+		Set&lt;String&gt; wordcountHashMapKeys = wordcountHashMap.keySet();
+		
+		for(String word : wordcountHashMapKeys) {
+
+		System.out.println(word+ ": " +wordcountHashMap.get(word));
+		}
+		
+	}
+
+}</code></pre>
+
+      <h3 class="file-title" id="pr-TotalWords">TotalWords.java <a class="back-top" href="#overview">↑ top</a></h3>
+      <p class="file-path">src/test/java/practice/TotalWords.java</p>
+      <p class="file-desc">Counts the total number of words in a string by incrementing a counter while iterating the split array.</p>
+      <pre><code>package practice;
+import java.util.HashMap;
+
+public class TotalWords {
+
+	public static void main(String[] args) {
+
+
+		totalWords("Test Auto Test Parcel Queue");
+
+	}
+
+	
+	static void totalWords(String inputString) {
+	
+		HashMap&lt;String,Integer&gt; wordsHashMap = new HashMap&lt;&gt;();
+		
+		String[] words = inputString.split(" ");
+		int i = 0;
+		
+		for (String str : words) {
+			
+				
+			i++;
+		}
+		System.out.println(i);
+		
+	}
+}</code></pre>
+
+      <h3 class="file-title" id="pr-DuplicateCharacterCount">DuplicateCharacterCount.java <a class="back-top" href="#overview">↑ top</a></h3>
+      <p class="file-path">src/test/java/practice/DuplicateCharacterCount.java</p>
+      <p class="file-desc">Cleanly formatted version of the duplicate-character-count exercise ("Learn Java Programming").</p>
+      <pre><code>package practice;
+
+import java.util.HashMap;
+import java.util.Set;
+
+public class DuplicateCharacterCount {
+	
+	public static void main(String[] args) {
+		
+		duplicateCharacterCount("Learn Java Programming");
+	}
+	
+	static void duplicateCharacterCount(String inputString) {
+		
+		HashMap&lt;Character, Integer&gt; charCountMap = new HashMap&lt;&gt;();
+		
+		char[] strArray = inputString.toCharArray();
+		
+		for (char c : strArray) {
+		
+			if (charCountMap.containsKey(c)) {
+				charCountMap.put(c, charCountMap.get(c) + 1);
+			} else {
+						charCountMap.put(c, 1);
+					}
+		}
+		
+		Set&lt;Character&gt; charsInString = charCountMap.keySet();
+		
+		System.out.println("Duplicate Characters in : " + inputString);
+		
+		for (Character ch : charsInString) {
+				if (charCountMap.get(ch) &gt; 1) {
+					System.out.println(ch + " : " + charCountMap.get(ch));
+				}
+		}
+	}
+}</code></pre>
+
+      <h3 class="file-title" id="pr-Duplicate_Character_Count">Duplicate_Character_Count.java <a class="back-top" href="#overview">↑ top</a></h3>
+      <p class="file-path">src/test/java/practice/Duplicate_Character_Count.java</p>
+      <p class="file-desc">Case-insensitive duplicate character count (lowercases the input first) on the word "Automation".</p>
+      <pre><code>package practice;
+
+import java.util.HashMap;
+import java.util.Set;
+
+public class Duplicate_Character_Count {
+
+	public static void main(String[] args) {
+		
+		duplicateCharacterCount("Automation");
+
+	}
+	
+	static void duplicateCharacterCount(String inputString){
+
+	    HashMap&lt;Character,Integer&gt; charCountHashMap = new HashMap&lt;&gt;();
+
+	    char[] charArray = inputString.toLowerCase().toCharArray();
+
+	    for(char c : charArray){
+
+	        if(charCountHashMap.containsKey(c)){
+
+	            charCountHashMap.put(c, charCountHashMap.get(c)+1);
+	        }else{
+
+	            charCountHashMap.put(c,1);
+	        }
+	    }
+
+	    Set&lt;Character&gt; charCountHashMapKeys = charCountHashMap.keySet();
+
+	System.out.println("Duplicate characters:"+inputString);
+
+	    for(char ch : charCountHashMapKeys){
+
+	            if(charCountHashMap.get(ch)&gt;1){
+
+	                System.out.println(ch + " " + charCountHashMap.get(ch));
+	            }
+
+	    }
+
+
+	}
+
+}</code></pre>
+    </section>
+
+    <section id="config">
+      <h2 class="section-title">Configuration Files</h2>
+
+      <h3 class="file-title" id="pom">pom.xml <a class="back-top" href="#overview">↑ top</a></h3>
+      <p class="file-path">pom.xml</p>
+      <p class="file-desc">Maven project descriptor declaring Selenium, TestNG, and WebDriverManager dependencies.</p>
+      <pre><code>&lt;project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd"&gt;
+  &lt;modelVersion&gt;4.0.0&lt;/modelVersion&gt;
+  &lt;groupId&gt;RSJavaSelenium&lt;/groupId&gt;
+  &lt;artifactId&gt;RSJavaSelenium&lt;/artifactId&gt;
+  &lt;version&gt;0.0.1-SNAPSHOT&lt;/version&gt;
+  &lt;dependencies&gt;
+  &lt;!-- https://mvnrepository.com/artifact/org.seleniumhq.selenium/selenium-java --&gt;
+&lt;dependency&gt;
+    &lt;groupId&gt;org.seleniumhq.selenium&lt;/groupId&gt;
+    &lt;artifactId&gt;selenium-java&lt;/artifactId&gt;
+    &lt;version&gt;4.35.0&lt;/version&gt;
+&lt;/dependency&gt;
+&lt;!-- https://mvnrepository.com/artifact/org.testng/testng --&gt;
+&lt;dependency&gt;
+    &lt;groupId&gt;org.testng&lt;/groupId&gt;
+    &lt;artifactId&gt;testng&lt;/artifactId&gt;
+    &lt;version&gt;7.11.0&lt;/version&gt;
+&lt;/dependency&gt;
+&lt;!-- https://mvnrepository.com/artifact/io.github.bonigarcia/webdrivermanager --&gt;
+&lt;dependency&gt;
+    &lt;groupId&gt;io.github.bonigarcia&lt;/groupId&gt;
+    &lt;artifactId&gt;webdrivermanager&lt;/artifactId&gt;
+    &lt;version&gt;6.2.0&lt;/version&gt;
+&lt;/dependency&gt;
+  &lt;/dependencies&gt;
+&lt;/project&gt;</code></pre>
+
+      <h3 class="file-title" id="testng">testng.xml <a class="back-top" href="#overview">↑ top</a></h3>
+      <p class="file-path">testng.xml</p>
+      <p class="file-desc">TestNG suite "Loan Department" with two tests. Includes a single method for PersonalLoan and excludes one method for HomeLoan.</p>
+      <pre><code>&lt;?xml version="1.0" encoding="UTF-8"?&gt;
+&lt;!DOCTYPE suite SYSTEM "https://testng.org/testng-1.0.dtd"&gt;
+&lt;suite name="Loan Department"&gt;
+	&lt;test thread-count="5" name="PersonalLoan"&gt;
+		&lt;classes&gt;
+			&lt;class name="testNG.PersonalLoan"&gt;
+				&lt;methods&gt;
+					&lt;include name="TC0004_APILoginPersonalLoan" /&gt;
+				&lt;/methods&gt;
+			&lt;/class&gt;
+
+		&lt;/classes&gt;
+	&lt;/test&gt; &lt;!-- Test --&gt;
+	&lt;test thread-count="5" name="HomeLoan"&gt;
+		&lt;classes&gt;
+
+			&lt;class name="testNG.HomeLoan"&gt;
+				&lt;methods&gt;
+					&lt;exclude name="TC0003_mobileLoginHomeLoan" /&gt;
+				&lt;/methods&gt;
+			&lt;/class&gt;
+		&lt;/classes&gt;
+	&lt;/test&gt; &lt;!-- Test --&gt;
+&lt;/suite&gt; &lt;!-- Suite --&gt;</code></pre>
+
+      <h3 class="file-title" id="testng2">testng2.xml <a class="back-top" href="#overview">↑ top</a></h3>
+      <p class="file-path">testng2.xml</p>
+      <p class="file-desc">Alternate TestNG suite that runs the entire <code>testNG</code> package rather than individual methods.</p>
+      <pre><code>&lt;?xml version="1.0" encoding="UTF-8"?&gt;
+&lt;!DOCTYPE suite SYSTEM "https://testng.org/testng-1.0.dtd"&gt;
+&lt;suite name="Loan Department"&gt;
+	&lt;test thread-count="5" name="PersonalLoan"&gt;
+		&lt;packages&gt;
+		&lt;package name="testNG"/&gt;
+		&lt;/packages&gt;
+	&lt;/test&gt; &lt;!-- Test --&gt;
+&lt;/suite&gt; &lt;!-- Suite --&gt;</code></pre>
+    </section>
+
+    <footer style="border-top:1px solid var(--border); padding-top:20px; margin-top:40px; color:var(--muted); font-size:13px;">
+      <p>Generated documentation for <strong>RSJavaSelenium2</strong> — a Selenium WebDriver + TestNG + core Java learning project. All source files and configuration are reproduced in full above.</p>
+    </footer>
+  </main>
+</div>
+</body>
+</html>
